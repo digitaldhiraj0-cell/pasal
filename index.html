@@ -335,7 +335,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getAnalytics, isSupported as analyticsIsSupported } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
   import {
-    getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, serverTimestamp
+    getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, serverTimestamp,
+    enableIndexedDbPersistence
   } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
   // Your web app's Firebase configuration
@@ -349,18 +350,67 @@
     measurementId: "G-5L15C88YXB"
   };
 
-  function setFbBadge(text, bg){
+  var lastFailedSave = null; // {shop} — lets the badge offer a manual retry
+
+  function setFbBadge(text, bg, opts){
     var el = document.getElementById('fbStatusBadge');
     if(!el) return;
     el.textContent = text;
     el.style.display = 'block';
+    el.style.cursor = (opts && opts.clickable) ? 'pointer' : 'default';
     if(bg) el.style.background = bg;
   }
+
+  // Human-readable explanation for the Firestore error codes people
+  // actually hit, so "sync error" isn't a dead end.
+  function explainFirestoreError(e){
+    var code = e && e.code ? e.code : '';
+    switch(code){
+      case 'permission-denied':
+        return 'Firebase: blocked by security rules (check Firestore → Rules)';
+      case 'unavailable':
+        return 'Firebase: network unavailable — will retry';
+      case 'not-found':
+        return 'Firebase: database not found (enable Firestore in console)';
+      case 'invalid-argument':
+        return 'Firebase: invalid data in save — check console for details';
+      case 'resource-exhausted':
+        return 'Firebase: quota exceeded';
+      case 'unauthenticated':
+        return 'Firebase: not authenticated';
+      default:
+        return 'Firebase: sync error (' + (code || (e && e.message) || 'unknown') + ')';
+    }
+  }
+
+  // Firestore rejects `undefined` anywhere in a document (it throws
+  // "Unsupported field value: undefined" and the whole write fails).
+  // Plain JS objects easily pick up stray undefined values (an unset
+  // form field, a missing optional property, etc.), so recursively
+  // convert every undefined to null before every write.
+  function sanitizeForFirestore(value){
+    if(value === undefined) return null;
+    if(value === null || typeof value !== 'object') return value;
+    if(Array.isArray(value)) return value.map(sanitizeForFirestore);
+    var out = {};
+    Object.keys(value).forEach(function(k){
+      out[k] = sanitizeForFirestore(value[k]);
+    });
+    return out;
+  }
+
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
 
   (async function initFirebase(){
     try{
       var app = initializeApp(firebaseConfig);
       var db = getFirestore(app);
+
+      // Queue writes locally (IndexedDB) when offline/blocked by a flaky
+      // network, and flush them automatically once connectivity returns —
+      // turns most transient "sync error" cases into a silent auto-retry.
+      try{ await enableIndexedDbPersistence(db); }
+      catch(e){ /* multiple tabs open, or unsupported browser — fine, just no offline queue */ }
 
       // Analytics only works in real browser contexts with support; guard it.
       try{
@@ -383,17 +433,31 @@
         },
 
         // Create or overwrite a single shop document (id = shop.id).
+        // Retries a couple of times on transient failures before giving up.
         async saveShop(shop){
           if(!shop || !shop.id) return;
-          try{
-            await setDoc(doc(db, SHOPS_COLLECTION, shop.id), Object.assign({}, shop, {
-              _updatedAt: serverTimestamp()
-            }));
-            setFbBadge('Firebase: synced', '#2F7D5B');
-          }catch(e){
-            console.error('Firestore saveShop failed:', e);
-            setFbBadge('Firebase: sync error (saved locally only)', '#B23A2E');
+          var payload = sanitizeForFirestore(Object.assign({}, shop, {
+            _updatedAt: serverTimestamp()
+          }));
+          var attempts = 0, maxAttempts = 3, lastErr = null;
+          while(attempts < maxAttempts){
+            try{
+              await setDoc(doc(db, SHOPS_COLLECTION, shop.id), payload);
+              lastFailedSave = null;
+              setFbBadge('Firebase: synced', '#2F7D5B');
+              return;
+            }catch(e){
+              lastErr = e;
+              attempts++;
+              // permission-denied / invalid-argument won't fix themselves —
+              // no point retrying those, fail fast with a clear message.
+              if(e && (e.code === 'permission-denied' || e.code === 'invalid-argument')) break;
+              if(attempts < maxAttempts) await sleep(600 * attempts);
+            }
           }
+          console.error('Firestore saveShop failed after retries:', lastErr);
+          lastFailedSave = { shop: shop };
+          setFbBadge(explainFirestoreError(lastErr) + ' — tap to retry', '#B23A2E', {clickable:true});
         },
 
         // Remove a shop document entirely.
@@ -403,8 +467,21 @@
           }catch(e){
             console.error('Firestore deleteShop failed:', e);
           }
+        },
+
+        // Manual retry, wired to a click on the status badge.
+        async retryLastSave(){
+          if(lastFailedSave && lastFailedSave.shop){
+            setFbBadge('Firebase: retrying…', '#B5760D');
+            await window.__fb.saveShop(lastFailedSave.shop);
+          }
         }
       };
+
+      var badgeEl = document.getElementById('fbStatusBadge');
+      if(badgeEl){
+        badgeEl.addEventListener('click', function(){ window.__fb.retryLastSave(); });
+      }
 
       setFbBadge('Firebase: connected', '#16305C');
       window.dispatchEvent(new Event('firebase-ready'));
@@ -416,6 +493,7 @@
     }
   })();
 </script>
+
 
 <script>
 /* =========================================================
