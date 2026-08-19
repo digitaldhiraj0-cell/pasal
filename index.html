@@ -1,0 +1,2002 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pasal Manager | पसल व्यवस्थापक</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Tiro+Devanagari+Nepali&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg: #FAF6EE;
+    --surface: #FFFFFF;
+    --surface-2: #F3ECDD;
+    --ink: #251F1A;
+    --ink-soft: #6E6459;
+    --ink-faint: #A69C8E;
+    --crimson: #A11D33;
+    --crimson-dark: #7C1526;
+    --crimson-tint: #F4E2E3;
+    --indigo: #16305C;
+    --indigo-soft: #2A4A82;
+    --indigo-tint: #E4E9F2;
+    --gold: #B9862B;
+    --gold-tint: #F3E6C8;
+    --success: #2F7D5B;
+    --success-tint: #E1EFE7;
+    --warning: #B5760D;
+    --warning-tint: #FBEBD3;
+    --danger: #B23A2E;
+    --danger-tint: #F7E3E0;
+    --border: #E6DCC8;
+    --radius: 10px;
+    --font-display: 'Fraunces', 'Tiro Devanagari Nepali', serif;
+    --font-body: 'Inter', 'Noto Sans Devanagari', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --shadow-sm: 0 1px 2px rgba(37,31,26,0.06), 0 1px 1px rgba(37,31,26,0.04);
+    --shadow-md: 0 6px 20px rgba(37,31,26,0.08);
+    --shadow-lg: 0 16px 40px rgba(37,31,26,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:14.5px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{min-height:100vh;}
+  h1,h2,h3,.display{font-family:var(--font-display);}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;font-size:inherit;}
+  a{color:inherit;}
+  ::selection{background:var(--gold-tint);}
+
+  /* ---------- ridge motif ---------- */
+  .ridge{width:100%;height:14px;display:block;}
+  .ridge svg{width:100%;height:100%;display:block;}
+
+  /* ---------- scrollbars ---------- */
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 26px;background:var(--indigo);color:#fff;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:8px;background:linear-gradient(155deg,var(--crimson),var(--crimson-dark));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:17px;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .brand-text .en{font-family:var(--font-display);font-weight:600;font-size:17px;letter-spacing:0.2px;line-height:1.1;}
+  .brand-text .np{font-size:11px;color:rgba(255,255,255,0.68);letter-spacing:0.3px;}
+  .top-right{display:flex;align-items:center;gap:14px;}
+  .lang-toggle{
+    display:flex;background:rgba(255,255,255,0.1);border-radius:999px;padding:3px;gap:2px;
+    border:1px solid rgba(255,255,255,0.18);
+  }
+  .lang-toggle button{
+    border:none;background:transparent;color:rgba(255,255,255,0.75);padding:6px 14px;border-radius:999px;
+    font-size:12.5px;font-weight:600;letter-spacing:0.3px;transition:all .15s ease;
+  }
+  .lang-toggle button.active{background:var(--gold);color:#241a05;}
+  .user-chip{
+    display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.16);padding:6px 12px 6px 6px;border-radius:999px;font-size:12.5px;
+  }
+  .user-chip .dot{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#241a05;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  .logout-btn{
+    background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 13px;border-radius:8px;font-size:12.5px;font-weight:600;
+  }
+  .logout-btn:hover{background:rgba(255,255,255,0.12);}
+
+  /* ---------- shell layout ---------- */
+  .shell{display:flex;min-height:calc(100vh - 62px);}
+  .sidebar{
+    width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+    padding:18px 12px;display:flex;flex-direction:column;gap:2px;
+  }
+  .side-label{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-faint);padding:10px 12px 6px;font-weight:700;}
+  .side-link{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--ink-soft);
+    font-size:13.5px;font-weight:600;border:none;background:transparent;width:100%;text-align:left;
+  }
+  .side-link .ic{width:18px;text-align:center;font-size:14px;}
+  .side-link:hover{background:var(--surface-2);color:var(--ink);}
+  .side-link.active{background:var(--crimson-tint);color:var(--crimson-dark);}
+  .side-sub{font-size:10.5px;color:var(--ink-faint);padding:0 12px;margin-top:-2px;margin-bottom:6px;}
+  .main{flex:1;padding:26px 30px 60px;min-width:0;}
+
+  /* ---------- generic ---------- */
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .page-head h1{font-size:24px;margin:0 0 2px;font-weight:600;}
+  .page-head .sub{color:var(--ink-soft);font-size:13px;}
+  .btn{
+    border:none;padding:9px 16px;border-radius:8px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;
+    transition:transform .06s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--crimson);color:#fff;}
+  .btn-primary:hover{background:var(--crimson-dark);}
+  .btn-indigo{background:var(--indigo);color:#fff;}
+  .btn-indigo:hover{background:var(--indigo-soft);}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--ink);}
+  .btn-outline:hover{background:var(--surface-2);}
+  .btn-gold{background:var(--gold);color:#2a1e06;}
+  .btn-sm{padding:6px 11px;font-size:12px;border-radius:7px;}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn[disabled]{opacity:0.45;cursor:not-allowed;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+  .card-pad{padding:18px 20px;}
+
+  .grid{display:grid;gap:16px;}
+  .grid-4{grid-template-columns:repeat(4,1fr);}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+  @media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);}}
+
+  .stat-card{padding:16px 18px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);}
+  .stat-card .label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-faint);font-weight:700;}
+  .stat-card .value{font-family:var(--font-display);font-size:26px;font-weight:600;margin-top:4px;}
+  .stat-card .foot{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+  .stat-card.accent-crimson{border-top:3px solid var(--crimson);}
+  .stat-card.accent-indigo{border-top:3px solid var(--indigo);}
+  .stat-card.accent-gold{border-top:3px solid var(--gold);}
+  .stat-card.accent-success{border-top:3px solid var(--success);}
+  .stat-card.accent-warning{border-top:3px solid var(--warning);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-faint);
+    border-bottom:1px solid var(--border);padding:9px 10px;font-weight:700;background:var(--surface-2);
+  }
+  tbody td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FCFAF5;}
+  .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+  .table-wrap table{border:none;}
+  .table-wrap thead th{border-top:none;}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+  .badge-success{background:var(--success-tint);color:var(--success);}
+  .badge-warning{background:var(--warning-tint);color:var(--warning);}
+  .badge-danger{background:var(--danger-tint);color:var(--danger);}
+  .badge-indigo{background:var(--indigo-tint);color:var(--indigo);}
+  .badge-gold{background:var(--gold-tint);color:#7a5613;}
+
+  label.field-label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+  input.field, select.field, textarea.field{
+    width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink);
+    outline:none;
+  }
+  input.field:focus, select.field:focus, textarea.field:focus{border-color:var(--indigo-soft);box-shadow:0 0 0 3px var(--indigo-tint);}
+  .field-row{margin-bottom:14px;}
+  .field-hint{font-size:11px;color:var(--ink-faint);margin-top:4px;}
+  .field-error{font-size:11.5px;color:var(--danger);margin-top:4px;font-weight:600;}
+
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(22,17,10,0.45);display:flex;align-items:center;justify-content:center;
+    z-index:100;padding:20px;
+  }
+  .modal{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2;}
+  .modal-head h3{margin:0;font-size:17px;}
+  .modal-close{border:none;background:var(--surface-2);width:28px;height:28px;border-radius:50%;font-size:14px;color:var(--ink-soft);}
+  .modal-body{padding:20px 22px;}
+  .modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;}
+
+  .toast-wrap{position:fixed;top:18px;right:18px;z-index:300;display:flex;flex-direction:column;gap:8px;}
+  .toast{
+    background:var(--ink);color:#fff;padding:11px 16px;border-radius:9px;font-size:13px;box-shadow:var(--shadow-md);
+    display:flex;align-items:center;gap:8px;min-width:220px;animation:toastIn .18s ease;
+  }
+  .toast.success{background:var(--success);}
+  .toast.error{background:var(--danger);}
+  @keyframes toastIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+
+  .empty-state{padding:40px 20px;text-align:center;color:var(--ink-soft);}
+  .empty-state .ic{font-size:28px;margin-bottom:8px;}
+
+  /* ---------- login ---------- */
+  .login-wrap{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(161,29,51,0.08), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(22,48,92,0.10), transparent 45%),
+      var(--bg);
+    padding:20px;position:relative;overflow:hidden;
+  }
+  .login-card{
+    width:100%;max-width:400px;background:#fff;border-radius:16px;box-shadow:var(--shadow-lg);border:1px solid var(--border);
+    overflow:hidden;position:relative;z-index:2;
+  }
+  .login-top{background:var(--indigo);padding:26px 26px 20px;color:#fff;text-align:center;}
+  .login-top .mark{
+    width:46px;height:46px;border-radius:11px;background:linear-gradient(155deg,var(--crimson),var(--crimson-dark));
+    display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-family:var(--font-display);font-weight:700;font-size:21px;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.25);
+  }
+  .login-top h1{font-size:19px;margin:0;font-weight:600;}
+  .login-top .np{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;}
+  .login-body{padding:22px 26px 26px;}
+  .role-tabs{display:flex;gap:6px;background:var(--surface-2);padding:4px;border-radius:9px;margin-bottom:18px;}
+  .role-tabs button{flex:1;border:none;background:transparent;padding:8px 6px;border-radius:7px;font-size:12.5px;font-weight:700;color:var(--ink-soft);}
+  .role-tabs button.active{background:#fff;color:var(--crimson-dark);box-shadow:var(--shadow-sm);}
+  .demo-box{background:var(--gold-tint);border:1px dashed #d8b866;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#6b4e10;margin-top:14px;line-height:1.5;}
+  .demo-box b{cursor:pointer;text-decoration:underline;}
+  .login-error{background:var(--danger-tint);color:var(--danger);border-radius:8px;padding:9px 12px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
+
+  /* ridge across login bottom */
+  .login-ridge{position:absolute;bottom:0;left:0;width:100%;z-index:1;opacity:0.9;}
+
+  /* ---------- invoice ---------- */
+  .invoice-sheet{background:#fff;border:1px solid var(--border);border-radius:12px;max-width:480px;margin:0 auto;overflow:hidden;}
+  .invoice-head{background:var(--indigo);color:#fff;padding:18px 20px;}
+  .invoice-head .shopname{font-family:var(--font-display);font-size:18px;font-weight:600;}
+  .invoice-head .meta{font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;}
+  .invoice-body{padding:18px 20px;}
+  .invoice-row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;}
+  .invoice-items table{font-size:12px;}
+  .invoice-totals{border-top:1px dashed var(--border);margin-top:10px;padding-top:10px;}
+  .invoice-qr{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0 6px;border-top:1px dashed var(--border);margin-top:12px;}
+  .invoice-qr img, .invoice-qr canvas{border-radius:8px;border:1px solid var(--border);padding:6px;background:#fff;}
+  .invoice-foot{text-align:center;font-size:11px;color:var(--ink-faint);padding:12px 20px 18px;}
+
+  .kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px;}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--ink-soft);}
+  .kv .v{font-weight:600;}
+
+  .search-box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px;}
+  .search-box input{border:none;outline:none;flex:1;background:transparent;font-size:13px;}
+
+  .tag-pill{display:inline-flex;padding:3px 10px;border-radius:999px;background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--ink-soft);}
+
+  @media print{
+    body *{visibility:hidden;}
+    #printable-invoice, #printable-invoice *{visibility:visible;}
+    #printable-invoice{position:absolute;top:0;left:0;width:100%;margin:0;box-shadow:none;border:none;}
+  }
+  .np-text{font-family:'Noto Sans Devanagari','Inter',sans-serif;}
+  .muted{color:var(--ink-soft);}
+  .flex-between{display:flex;align-items:center;justify-content:space-between;}
+  .flex-gap{display:flex;align-items:center;gap:8px;}
+  hr.hair{border:none;border-top:1px solid var(--border);margin:16px 0;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="fbStatusBadge" style="position:fixed;bottom:14px;left:14px;z-index:400;font-size:11px;font-family:'JetBrains Mono',monospace;padding:5px 10px;border-radius:999px;background:#251F1A;color:#fff;opacity:0.85;display:none;"></div>
+
+<!-- =========================================================
+     FIREBASE INTEGRATION
+     Modular Firebase v12 SDK. Initializes the app + Firestore
+     and exposes a small helper API on window.__fb that the
+     classic app script below calls into for persistence.
+     This runs as an ES module, so it is fetched/executed
+     asynchronously — the classic script waits for it via the
+     'firebase-ready' event (see boot() near the bottom).
+     ========================================================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import { getAnalytics, isSupported as analyticsIsSupported } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
+  import {
+    getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAwZJcftX3RvwC72eUE0XVUG7oWtqeb9FY",
+    authDomain: "pasal-manager-91685.firebaseapp.com",
+    projectId: "pasal-manager-91685",
+    storageBucket: "pasal-manager-91685.firebasestorage.app",
+    messagingSenderId: "1026986996000",
+    appId: "1:1026986996000:web:b4b5301225c92628b3a745",
+    measurementId: "G-GCM03HPXKL"
+  };
+
+  function setFbBadge(text, bg){
+    var el = document.getElementById('fbStatusBadge');
+    if(!el) return;
+    el.textContent = text;
+    el.style.display = 'block';
+    if(bg) el.style.background = bg;
+  }
+
+  (async function initFirebase(){
+    try{
+      var app = initializeApp(firebaseConfig);
+      var db = getFirestore(app);
+
+      // Analytics only works in real browser contexts with support; guard it.
+      try{
+        if(await analyticsIsSupported()){
+          getAnalytics(app);
+        }
+      }catch(e){ /* analytics not available in this environment, ignore */ }
+
+      var SHOPS_COLLECTION = 'shops';
+
+      window.__fb = {
+        db: db,
+
+        // Load every shop document from Firestore.
+        async loadShops(){
+          var snap = await getDocs(collection(db, SHOPS_COLLECTION));
+          var shops = [];
+          snap.forEach(function(d){ shops.push(d.data()); });
+          return shops;
+        },
+
+        // Create or overwrite a single shop document (id = shop.id).
+        async saveShop(shop){
+          if(!shop || !shop.id) return;
+          try{
+            await setDoc(doc(db, SHOPS_COLLECTION, shop.id), Object.assign({}, shop, {
+              _updatedAt: serverTimestamp()
+            }));
+            setFbBadge('Firebase: synced', '#2F7D5B');
+          }catch(e){
+            console.error('Firestore saveShop failed:', e);
+            setFbBadge('Firebase: sync error (saved locally only)', '#B23A2E');
+          }
+        },
+
+        // Remove a shop document entirely.
+        async deleteShop(shopId){
+          try{
+            await deleteDoc(doc(db, SHOPS_COLLECTION, shopId));
+          }catch(e){
+            console.error('Firestore deleteShop failed:', e);
+          }
+        }
+      };
+
+      setFbBadge('Firebase: connected', '#16305C');
+      window.dispatchEvent(new Event('firebase-ready'));
+    }catch(e){
+      console.error('Firebase initialization failed:', e);
+      setFbBadge('Firebase: offline (using local demo data)', '#B23A2E');
+      // Let the app boot anyway with local in-memory data.
+      window.dispatchEvent(new Event('firebase-ready'));
+    }
+  })();
+</script>
+
+<script>
+/* =========================================================
+   PASAL MANAGER — multi-shop management demo system
+   Data now persists to Firebase Firestore (see the module
+   script above). On boot, the app loads shops from Firestore;
+   if the "shops" collection is empty it seeds it with the
+   built-in demo shop. Every mutation to a shop (products,
+   customers, sales, settings, stock, QR, etc.) is written
+   back to Firestore via fbSaveShop(shop) so changes survive
+   page reloads and are shared across sessions.
+   ========================================================= */
+
+/* ---------------- utilities ---------------- */
+function uid(prefix){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+function fmtMoney(n){
+  n = Number(n)||0;
+  return 'Rs. ' + n.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtDate(d){
+  var dt = new Date(d);
+  return dt.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+}
+function fmtDateTime(d){
+  var dt = new Date(d);
+  return dt.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) + ', ' +
+         dt.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+}
+function toast(msg, type){
+  var wrap = document.getElementById('toastWrap');
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type||'');
+  el.innerHTML = (type==='success' ? '&#10003; ' : type==='error' ? '&#9888; ' : '') + escapeHtml(msg);
+  wrap.appendChild(el);
+  setTimeout(function(){ el.style.opacity='0'; el.style.transition='opacity .25s'; setTimeout(function(){ el.remove(); }, 250); }, 2600);
+}
+function initials(name){
+  return (name||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+}
+
+/* ---------------- i18n ---------------- */
+var I18N = {
+  en: {
+    app_name:'Pasal Manager', app_sub:'Multi-Shop Management System',
+    lang_en:'EN', lang_np:'ने',
+    login_super_tab:'Super Admin', login_shop_tab:'Shop Admin',
+    login_title:'Sign in to your account', login_username:'Username', login_password:'Password',
+    login_btn:'Sign In', login_shop_id:'Shop ID / Username',
+    login_error_creds:'Invalid username or password.',
+    login_error_noshops:'No shop accounts exist yet. Ask your Super Admin to create one.',
+    demo_creds_title:'Demo credentials',
+    demo_super:'Super Admin', demo_shop:'Shop Admin (Everest Mart)',
+    logout:'Log out',
+    nav_shops:'Shops', nav_create_shop:'Register New Shop',
+    nav_dashboard:'Dashboard', nav_inventory:'Inventory', nav_billing:'Billing / POS',
+    nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings',
+    super_section:'Platform', shop_section:'Shop Console',
+
+    shops_title:'Registered Shops', shops_sub:'Manage every shop admin account from one place.',
+    shops_empty:'No shops registered yet. Create the first one to get started.',
+    btn_new_shop:'+ New Shop',
+    shop_card_products:'products', shop_card_sales:'sales this month', shop_card_login:'Admin login',
+    btn_manage:'Manage', btn_deactivate:'Deactivate', btn_activate:'Activate',
+
+    create_shop_title:'Register a New Shop', create_shop_sub:'Step 1: identify the business by PAN. Step 2: set up admin login.',
+    pan_label:'PAN Number', pan_placeholder:'e.g. 301234567', btn_fetch:'Fetch Details',
+    pan_fetching:'Looking up PAN registry…', pan_found:'Business details found and filled in automatically.',
+    pan_notfound:'No match found in the PAN registry. Please enter the business details manually below.',
+    manual_toggle:'Enter details manually instead',
+    business_name:'Business Name', owner_name:'Owner / Proprietor Name', reg_type:'Registration Type',
+    business_address:'Registered Address', shop_category:'Shop Category', shop_location:'Shop Location (branch)',
+    shop_location_hint:'The physical location of this outlet, e.g. district / municipality / street.',
+    admin_login_section:'Shop Admin Login', admin_username:'Admin Username', admin_password:'Temporary Password',
+    generate_pw:'Generate', vat_rate:'VAT Rate (%)',
+    btn_create_shop:'Create Shop Account', btn_cancel:'Cancel',
+    err_required:'This field is required.', err_pan_digits:'PAN should be 9 digits.',
+    err_username_taken:'This username is already used by another shop.',
+    toast_shop_created:'Shop and admin account created successfully.',
+
+    dash_welcome:'Welcome back', dash_today:"Today's overview",
+    stat_today_sales:"Today's Sales", stat_today_bills:"Bills Today", stat_low_stock:'Low Stock Items', stat_customers:'Total Customers',
+    stat_month_sales:'This Month', stat_products:'Products in Inventory',
+    recent_sales:'Recent Sales', view_all:'View all', no_recent_sales:'No sales recorded yet.',
+    low_stock_alert:'Low Stock Alert', low_stock_none:'All products are sufficiently stocked.',
+    low_stock_cta:'Restock in Inventory',
+
+    inv_title:'Inventory', inv_sub:'Track stock levels and add new products.',
+    btn_add_product:'+ Add Product', search_products:'Search products…',
+    th_product:'Product', th_category:'Category', th_price:'Price', th_stock:'Stock', th_status:'Status', th_actions:'Actions',
+    status_ok:'In Stock', status_low:'Low Stock', status_out:'Out of Stock',
+    btn_restock:'Add Stock', btn_edit:'Edit', btn_remove:'Remove',
+    add_product_title:'Add New Product', edit_product_title:'Edit Product',
+    product_name:'Product Name', product_category:'Category', product_unit:'Unit',
+    product_price:'Selling Price (Rs.)', product_cost:'Cost Price (Rs.)', product_stock:'Opening Stock',
+    product_lowstock:'Low Stock Threshold', btn_save_product:'Save Product',
+    add_stock_title:'Add Stock', add_stock_qty:'Quantity to Add', add_stock_note:'Note (optional)',
+    btn_confirm_addstock:'Add to Stock', toast_product_added:'Product added to inventory.',
+    toast_stock_added:'Stock updated.', toast_product_updated:'Product updated.',
+    confirm_remove_product:'Remove this product from inventory?',
+    inv_empty:'No products yet. Add your first product to start selling.',
+
+    bill_title:'Billing / Point of Sale', bill_sub:'Build an invoice, take payment, and print a VAT bill.',
+    bill_search:'Search product to add…', bill_cart:'Current Bill', bill_cart_empty:'Cart is empty. Search and add products above.',
+    bill_customer:'Customer', bill_customer_walkin:'Walk-in Customer', bill_new_customer:'+ New customer',
+    bill_payment:'Payment Method', bill_subtotal:'Subtotal', bill_vat:'VAT', bill_total:'Total Payable',
+    bill_generate:'Generate VAT Bill', bill_qty:'Qty', bill_price:'Price', bill_line_total:'Total',
+    pay_cash:'Cash', pay_qr:'QR / Mobile Payment', pay_card:'Card', pay_credit:'Credit (Due)',
+    toast_sale_recorded:'Sale recorded and stock updated.', err_cart_empty:'Add at least one product first.',
+    err_insufficient_stock:'Not enough stock available.',
+
+    invoice_title:'VAT Invoice', invoice_no:'Invoice No', invoice_date:'Date', invoice_pan:'PAN',
+    invoice_customer:'Customer', invoice_payment:'Payment', invoice_scan_pay:'Scan to Pay',
+    invoice_scan_note:'Scan with any mobile payment app. Amount is pre-filled.',
+    invoice_scan_note_static:"Scan the shop's payment QR, then enter the amount shown below.",
+    invoice_thanks:'Thank you for your business!', invoice_print:'Print / Save PDF', invoice_close:'Close',
+    invoice_vat_reg:'VAT Registered Business',
+
+    rep_title:'Sales Reports', rep_sub:'Understand performance across time, products and payment methods.',
+    rep_range:'Range', range_7:'Last 7 days', range_30:'Last 30 days', range_90:'Last 90 days', range_all:'All time',
+    rep_total_sales:'Total Sales', rep_total_vat:'Total VAT Collected', rep_bills:'Bills Issued', rep_avg_bill:'Average Bill',
+    rep_trend:'Sales Trend', rep_by_payment:'By Payment Method', rep_top_products:'Top Products', rep_no_data:'No sales in this range yet.',
+
+    cust_title:'Customers', cust_sub:'Keep track of who buys from you and how often.',
+    btn_add_customer:'+ Add Customer', search_customers:'Search customers…',
+    th_name:'Name', th_phone:'Phone', th_address:'Address', th_purchases:'Total Purchases', th_visits:'Bills',
+    add_customer_title:'Add Customer', customer_name:'Full Name', customer_phone:'Phone Number', customer_address:'Address',
+    btn_save_customer:'Save Customer', toast_customer_added:'Customer added.', cust_empty:'No customers yet.',
+
+    set_title:'Settings', set_sub:'Configure how your shop bills and accepts payment.',
+    set_shop_info:'Shop Information', set_qr_section:'Payment QR Code', set_qr_desc:"By default, a fresh QR with the exact bill amount is generated for every invoice. You can instead upload your own static payment QR (e.g. from eSewa, Khalti, or your bank) — it will be printed on every bill alongside the amount.",
+    set_qr_upload:'Upload Custom QR', set_qr_remove:'Remove custom QR, use auto-generated QR',
+    set_qr_current:'Currently using', set_qr_auto:'Auto-generated dynamic QR (amount embedded)', set_qr_custom:'Your uploaded QR',
+    set_vat:'VAT Rate', set_merchant_id:'Payment / Merchant ID', set_merchant_hint:'Used inside the auto-generated QR payload.',
+    toast_qr_updated:'Payment QR settings updated.', btn_save_settings:'Save Settings', toast_settings_saved:'Settings saved.',
+
+    shop_admins_title:'Admin Login', shop_manage_title:'Shop Details',
+    field_optional:'optional',
+  },
+  np: {
+    app_name:'पसल व्यवस्थापक', app_sub:'बहु-पसल व्यवस्थापन प्रणाली',
+    lang_en:'EN', lang_np:'ने',
+    login_super_tab:'सुपर एडमिन', login_shop_tab:'पसल एडमिन',
+    login_title:'आफ्नो खातामा लगइन गर्नुहोस्', login_username:'प्रयोगकर्ता नाम', login_password:'पासवर्ड',
+    login_btn:'लगइन गर्नुहोस्', login_shop_id:'पसल आईडी / प्रयोगकर्ता नाम',
+    login_error_creds:'प्रयोगकर्ता नाम वा पासवर्ड मिलेन।',
+    login_error_noshops:'हालसम्म कुनै पसल खाता छैन। सुपर एडमिनलाई एउटा खाता बनाउन अनुरोध गर्नुहोस्।',
+    demo_creds_title:'डेमो लगइन विवरण',
+    demo_super:'सुपर एडमिन', demo_shop:'पसल एडमिन (एभरेस्ट मार्ट)',
+    logout:'लगआउट',
+    nav_shops:'पसलहरू', nav_create_shop:'नयाँ पसल दर्ता',
+    nav_dashboard:'ड्यासबोर्ड', nav_inventory:'सामान सूची', nav_billing:'बिलिङ / बिक्री',
+    nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ',
+    super_section:'प्लेटफर्म', shop_section:'पसल कन्सोल',
+
+    shops_title:'दर्ता भएका पसलहरू', shops_sub:'सबै पसल एडमिन खाता एकै ठाउँबाट व्यवस्थापन गर्नुहोस्।',
+    shops_empty:'हालसम्म कुनै पसल दर्ता भएको छैन। सुरु गर्न पहिलो पसल बनाउनुहोस्।',
+    btn_new_shop:'+ नयाँ पसल',
+    shop_card_products:'सामानहरू', shop_card_sales:'यस महिनाको बिक्री', shop_card_login:'एडमिन लगइन',
+    btn_manage:'व्यवस्थापन', btn_deactivate:'निष्क्रिय गर्नुहोस्', btn_activate:'सक्रिय गर्नुहोस्',
+
+    create_shop_title:'नयाँ पसल दर्ता गर्नुहोस्', create_shop_sub:'चरण १: प्यानबाट व्यवसाय पहिचान गर्नुहोस्। चरण २: एडमिन लगइन सेट गर्नुहोस्।',
+    pan_label:'प्यान नम्बर', pan_placeholder:'उदाहरण: 301234567', btn_fetch:'विवरण खोज्नुहोस्',
+    pan_fetching:'प्यान रजिस्ट्रीमा खोजी हुँदैछ…', pan_found:'व्यवसायको विवरण फेला पर्यो र स्वतः भरियो।',
+    pan_notfound:'प्यान रजिस्ट्रीमा मिल्दो विवरण फेला परेन। कृपया तल व्यवसायको विवरण आफैं भर्नुहोस्।',
+    manual_toggle:'बरु आफैं विवरण भर्नुहोस्',
+    business_name:'व्यवसायको नाम', owner_name:'मालिक / प्रोपराइटरको नाम', reg_type:'दर्ताको प्रकार',
+    business_address:'दर्ता ठेगाना', shop_category:'पसलको प्रकार', shop_location:'पसलको स्थान (शाखा)',
+    shop_location_hint:'यस पसलको भौतिक स्थान, जस्तै जिल्ला / नगरपालिका / सडक।',
+    admin_login_section:'पसल एडमिन लगइन', admin_username:'एडमिन प्रयोगकर्ता नाम', admin_password:'अस्थायी पासवर्ड',
+    generate_pw:'उत्पन्न गर्नुहोस्', vat_rate:'भ्याट दर (%)',
+    btn_create_shop:'पसल खाता बनाउनुहोस्', btn_cancel:'रद्द गर्नुहोस्',
+    err_required:'यो फिल्ड आवश्यक छ।', err_pan_digits:'प्यान ९ अंकको हुनुपर्छ।',
+    err_username_taken:'यो प्रयोगकर्ता नाम अर्को पसलले प्रयोग गरिसकेको छ।',
+    toast_shop_created:'पसल र एडमिन खाता सफलतापूर्वक बनाइयो।',
+
+    dash_welcome:'फेरि स्वागत छ', dash_today:'आजको सारांश',
+    stat_today_sales:'आजको बिक्री', stat_today_bills:'आजका बिलहरू', stat_low_stock:'कम स्टक भएका सामान', stat_customers:'कुल ग्राहक',
+    stat_month_sales:'यस महिनाको', stat_products:'सामान सूचीमा वस्तुहरू',
+    recent_sales:'हालैका बिक्रीहरू', view_all:'सबै हेर्नुहोस्', no_recent_sales:'हालसम्म कुनै बिक्री दर्ता भएको छैन।',
+    low_stock_alert:'कम स्टक चेतावनी', low_stock_none:'सबै सामानको पर्याप्त स्टक छ।',
+    low_stock_cta:'सामान सूचीमा पुनः स्टक गर्नुहोस्',
+
+    inv_title:'सामान सूची', inv_sub:'स्टक स्तर ट्र्याक गर्नुहोस् र नयाँ सामान थप्नुहोस्।',
+    btn_add_product:'+ सामान थप्नुहोस्', search_products:'सामान खोज्नुहोस्…',
+    th_product:'सामान', th_category:'प्रकार', th_price:'मूल्य', th_stock:'स्टक', th_status:'स्थिति', th_actions:'कार्य',
+    status_ok:'स्टकमा छ', status_low:'कम स्टक', status_out:'स्टक सकियो',
+    btn_restock:'स्टक थप्नुहोस्', btn_edit:'सम्पादन', btn_remove:'हटाउनुहोस्',
+    add_product_title:'नयाँ सामान थप्नुहोस्', edit_product_title:'सामान सम्पादन गर्नुहोस्',
+    product_name:'सामानको नाम', product_category:'प्रकार', product_unit:'एकाइ',
+    product_price:'बिक्री मूल्य (रु.)', product_cost:'लागत मूल्य (रु.)', product_stock:'सुरुको स्टक',
+    product_lowstock:'कम स्टक सीमा', btn_save_product:'सामान सुरक्षित गर्नुहोस्',
+    add_stock_title:'स्टक थप्नुहोस्', add_stock_qty:'थप्ने परिमाण', add_stock_note:'टिप्पणी (ऐच्छिक)',
+    btn_confirm_addstock:'स्टकमा थप्नुहोस्', toast_product_added:'सामान सूचीमा थपियो।',
+    toast_stock_added:'स्टक अद्यावधिक भयो।', toast_product_updated:'सामान अद्यावधिक भयो।',
+    confirm_remove_product:'यो सामान सूचीबाट हटाउने हो?',
+    inv_empty:'हालसम्म कुनै सामान छैन। बेच्न सुरु गर्न पहिलो सामान थप्नुहोस्।',
+
+    bill_title:'बिलिङ / बिक्री केन्द्र', bill_sub:'बिल बनाउनुहोस्, भुक्तानी लिनुहोस्, र भ्याट बिल छाप्नुहोस्।',
+    bill_search:'थप्न सामान खोज्नुहोस्…', bill_cart:'हालको बिल', bill_cart_empty:'बिल खाली छ। माथि सामान खोजेर थप्नुहोस्।',
+    bill_customer:'ग्राहक', bill_customer_walkin:'सामान्य ग्राहक', bill_new_customer:'+ नयाँ ग्राहक',
+    bill_payment:'भुक्तानी विधि', bill_subtotal:'जम्मा', bill_vat:'भ्याट', bill_total:'तिर्नुपर्ने रकम',
+    bill_generate:'भ्याट बिल बनाउनुहोस्', bill_qty:'संख्या', bill_price:'मूल्य', bill_line_total:'जम्मा',
+    pay_cash:'नगद', pay_qr:'क्युआर / मोबाइल भुक्तानी', pay_card:'कार्ड', pay_credit:'उधारो',
+    toast_sale_recorded:'बिक्री दर्ता भयो र स्टक अद्यावधिक भयो।', err_cart_empty:'पहिले कम्तिमा एउटा सामान थप्नुहोस्।',
+    err_insufficient_stock:'पर्याप्त स्टक उपलब्ध छैन।',
+
+    invoice_title:'भ्याट बिल', invoice_no:'बिल नं.', invoice_date:'मिति', invoice_pan:'प्यान',
+    invoice_customer:'ग्राहक', invoice_payment:'भुक्तानी', invoice_scan_pay:'भुक्तानीको लागि स्क्यान गर्नुहोस्',
+    invoice_scan_note:'कुनै पनि मोबाइल भुक्तानी एपले स्क्यान गर्नुहोस्। रकम पहिल्यै भरिएको छ।',
+    invoice_scan_note_static:'पसलको भुक्तानी क्युआर स्क्यान गरी तल देखाइएको रकम राख्नुहोस्।',
+    invoice_thanks:'तपाईंको व्यवसायको लागि धन्यवाद!', invoice_print:'प्रिन्ट / PDF सुरक्षित गर्नुहोस्', invoice_close:'बन्द गर्नुहोस्',
+    invoice_vat_reg:'भ्याट दर्ता भएको व्यवसाय',
+
+    rep_title:'बिक्री प्रतिवेदन', rep_sub:'समय, सामान र भुक्तानी विधि अनुसार प्रदर्शन बुझ्नुहोस्।',
+    rep_range:'अवधि', range_7:'गत ७ दिन', range_30:'गत ३० दिन', range_90:'गत ९० दिन', range_all:'सबै समय',
+    rep_total_sales:'कुल बिक्री', rep_total_vat:'कुल संकलित भ्याट', rep_bills:'जारी बिलहरू', rep_avg_bill:'औसत बिल',
+    rep_trend:'बिक्री प्रवृत्ति', rep_by_payment:'भुक्तानी विधि अनुसार', rep_top_products:'उत्कृष्ट सामानहरू', rep_no_data:'यस अवधिमा हालसम्म कुनै बिक्री छैन।',
+
+    cust_title:'ग्राहकहरू', cust_sub:'तपाईंबाट कसले र कति पटक किन्छ भन्ने ट्र्याक राख्नुहोस्।',
+    btn_add_customer:'+ ग्राहक थप्नुहोस्', search_customers:'ग्राहक खोज्नुहोस्…',
+    th_name:'नाम', th_phone:'फोन', th_address:'ठेगाना', th_purchases:'कुल खरिद', th_visits:'बिलहरू',
+    add_customer_title:'ग्राहक थप्नुहोस्', customer_name:'पूरा नाम', customer_phone:'फोन नम्बर', customer_address:'ठेगाना',
+    btn_save_customer:'ग्राहक सुरक्षित गर्नुहोस्', toast_customer_added:'ग्राहक थपियो।', cust_empty:'हालसम्म कुनै ग्राहक छैन।',
+
+    set_title:'सेटिङ', set_sub:'तपाईंको पसलले कसरी बिल बनाउँछ र भुक्तानी लिन्छ भनी कन्फिगर गर्नुहोस्।',
+    set_shop_info:'पसलको जानकारी', set_qr_section:'भुक्तानी क्युआर कोड', set_qr_desc:'पूर्वनिर्धारित रूपमा, प्रत्येक बिलको लागि सही रकम सहितको नयाँ क्युआर उत्पन्न हुन्छ। तपाईं आफ्नै स्थिर भुक्तानी क्युआर (जस्तै eSewa, Khalti, वा बैंकबाट) अपलोड गर्न सक्नुहुन्छ — यो हरेक बिलमा रकमसँगै छापिनेछ।',
+    set_qr_upload:'आफ्नै क्युआर अपलोड गर्नुहोस्', set_qr_remove:'स्थिर क्युआर हटाउनुहोस्, स्वतः-उत्पन्न क्युआर प्रयोग गर्नुहोस्',
+    set_qr_current:'हाल प्रयोगमा', set_qr_auto:'स्वतः-उत्पन्न गतिशील क्युआर (रकम सहित)', set_qr_custom:'तपाईंले अपलोड गर्नुभएको क्युआर',
+    set_vat:'भ्याट दर', set_merchant_id:'भुक्तानी / मर्चेन्ट आईडी', set_merchant_hint:'स्वतः-उत्पन्न क्युआर भित्र प्रयोग हुन्छ।',
+    toast_qr_updated:'भुक्तानी क्युआर सेटिङ अद्यावधिक भयो।', btn_save_settings:'सेटिङ सुरक्षित गर्नुहोस्', toast_settings_saved:'सेटिङ सुरक्षित भयो।',
+
+    shop_admins_title:'एडमिन लगइन', shop_manage_title:'पसल विवरण',
+    field_optional:'ऐच्छिक',
+  }
+};
+function t(key){
+  var d = I18N[state.lang] || I18N.en;
+  return (d[key] !== undefined) ? d[key] : (I18N.en[key] || key);
+}
+
+/* ---------------- mock PAN registry (simulates IRD Nepal lookup) ---------------- */
+var PAN_DB = {
+  '301234567': { businessName:'Everest Mart Pvt. Ltd.', ownerName:'Rajesh Sharma', address:'Thamel Marg, Kathmandu', regType:'Private Limited', category:'Grocery & Daily Needs' },
+  '302345678': { businessName:'Himal Fashion House', ownerName:'Sabina Gurung', address:'New Road, Pokhara', regType:'Sole Proprietorship', category:'Clothing & Apparel' },
+  '303456789': { businessName:'Annapurna Electronics', ownerName:'Bikash Thapa', address:'Mahendrapool, Pokhara', regType:'Private Limited', category:'Electronics' },
+  '304567890': { businessName:'Bagmati Hardware Suppliers', ownerName:'Suresh Maharjan', address:'Kalanki, Kathmandu', regType:'Partnership', category:'Hardware & Tools' },
+};
+
+/* ---------------- initial state & demo data ---------------- */
+var SUPER_CREDS = { username:'superadmin', password:'super123' };
+
+function makeDemoShop(){
+  var now = Date.now();
+  var day = 24*60*60*1000;
+  return {
+    id:'s1',
+    businessName:'Everest Mart Pvt. Ltd.',
+    ownerName:'Rajesh Sharma',
+    pan:'301234567',
+    regType:'Private Limited',
+    address:'Thamel Marg, Kathmandu',
+    category:'Grocery & Daily Needs',
+    location:'Thamel, Kathmandu Metropolitan City',
+    adminUsername:'everest',
+    adminPassword:'shop123',
+    vatRate:13,
+    merchantId:'EVERESTMART.MOBILE@BANK',
+    customQr:null,
+    active:true,
+    invoiceSeq:1004,
+    products:[
+      {id:uid('p'), name:'Basmati Rice 5kg', category:'Groceries', unit:'bag', price:850, cost:720, stock:34, lowStockThreshold:10},
+      {id:uid('p'), name:'Mustard Oil 1L', category:'Groceries', unit:'bottle', price:320, cost:270, stock:6, lowStockThreshold:8},
+      {id:uid('p'), name:'Wai Wai Noodles (pack of 12)', category:'Snacks', unit:'pack', price:480, cost:400, stock:22, lowStockThreshold:6},
+      {id:uid('p'), name:'CG Instant Tea 100g', category:'Beverages', unit:'box', price:180, cost:145, stock:3, lowStockThreshold:5},
+      {id:uid('p'), name:'Dettol Soap (3-pack)', category:'Personal Care', unit:'pack', price:210, cost:170, stock:18, lowStockThreshold:6},
+      {id:uid('p'), name:'Real Gold Detergent 1kg', category:'Household', unit:'pack', price:260, cost:210, stock:0, lowStockThreshold:5},
+    ],
+    customers:[
+      {id:uid('c'), name:'Anita Koirala', phone:'98410-22456', address:'Jyatha, Kathmandu'},
+      {id:uid('c'), name:'Prakash Rana', phone:'98023-11987', address:'Baneshwor, Kathmandu'},
+    ],
+    sales:[]
+  };
+}
+
+function seedDemoSales(shop){
+  var day = 24*60*60*1000;
+  var now = Date.now();
+  var pRice = shop.products[0], pOil = shop.products[1], pNoodle = shop.products[2], pTea = shop.products[3], pSoap = shop.products[4];
+  var cust1 = shop.customers[0], cust2 = shop.customers[1];
+  var seeds = [
+    {daysAgo:14, payment:'cash', items:[[pRice,2],[pSoap,1]], customer:cust1},
+    {daysAgo:11, payment:'qr', items:[[pOil,3],[pNoodle,2]], customer:null},
+    {daysAgo:9, payment:'card', items:[[pTea,4]], customer:cust2},
+    {daysAgo:6, payment:'qr', items:[[pRice,1],[pOil,1],[pSoap,2]], customer:cust1},
+    {daysAgo:4, payment:'cash', items:[[pNoodle,5]], customer:null},
+    {daysAgo:2, payment:'credit', items:[[pRice,3],[pTea,2]], customer:cust2},
+    {daysAgo:1, payment:'qr', items:[[pSoap,3],[pNoodle,1]], customer:cust1},
+    {daysAgo:0, payment:'cash', items:[[pOil,2]], customer:null},
+  ];
+  seeds.forEach(function(s, idx){
+    var subtotal = 0;
+    var items = s.items.map(function(pair){
+      var p = pair[0], qty = pair[1];
+      var lineTotal = p.price*qty;
+      subtotal += lineTotal;
+      return {productId:p.id, name:p.name, qty:qty, price:p.price, total:lineTotal};
+    });
+    var vat = subtotal*(shop.vatRate/100);
+    var total = subtotal+vat;
+    shop.invoiceSeq++;
+    shop.sales.push({
+      id: uid('inv'), invoiceNo: nextInvoiceNo(shop), date: now - s.daysAgo*day - idx*1000,
+      items:items, subtotal:subtotal, vat:vat, total:total, payment:s.payment,
+      customerId: s.customer?s.customer.id:null, customerName: s.customer?s.customer.name:null
+    });
+  });
+}
+
+var state = {
+  lang:'en',
+  currentUser:null,
+  loginRole:'super',
+  loginError:'',
+  superView:'shops',
+  shopView:'dashboard',
+  shops:(function(){ var s = makeDemoShop(); seedDemoSales(s); return [s]; })(),
+  cart:[],
+  billingCustomerId:'',
+  billingPayment:'cash',
+  productSearch:'',
+  customerSearch:'',
+  repRange:'30',
+  showCreateShopModal:false,
+  createShopStep:1,
+  createShop:blankCreateShop(),
+  showAddProductModal:false,
+  editingProductId:null,
+  showAddStockModal:null,
+  showAddCustomerModal:false,
+  showReceiptModal:false,
+  lastInvoice:null,
+};
+
+function blankCreateShop(){
+  return { pan:'', fetchState:'idle', businessName:'', ownerName:'', address:'', regType:'', category:'', location:'', adminUsername:'', adminPassword:genPassword(), vatRate:13 };
+}
+function genPassword(){
+  var chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  var s='';
+  for(var i=0;i<8;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+function currentShop(){
+  if(!state.currentUser || state.currentUser.role!=='shop') return null;
+  return state.shops.find(function(s){ return s.id===state.currentUser.shopId; }) || null;
+}
+
+/* ---------------- Firebase sync helpers ----------------
+   Fire-and-forget wrappers around window.__fb (set up by the
+   module script in <head>/<body> above). Safe to call even
+   before Firebase finishes initializing — they just no-op. */
+function fbSaveShop(shopObj){
+  if(window.__fb && shopObj){
+    window.__fb.saveShop(shopObj).catch(function(e){ console.error('fbSaveShop error:', e); });
+  }
+}
+function fbDeleteShop(shopId){
+  if(window.__fb && shopId){
+    window.__fb.deleteShop(shopId).catch(function(e){ console.error('fbDeleteShop error:', e); });
+  }
+}
+
+/* ---------------- data helpers ---------------- */
+function sumBy(arr, key){ return arr.reduce(function(a,b){ return a + (Number(b[key])||0); }, 0); }
+function filteredSales(shop, days){
+  if(!shop) return [];
+  if(days==='all' || days===0) return shop.sales.slice();
+  var cutoff = Date.now() - Number(days)*24*60*60*1000;
+  return shop.sales.filter(function(s){ return s.date >= cutoff; });
+}
+function todaySales(shop){
+  var start = new Date(); start.setHours(0,0,0,0);
+  return shop.sales.filter(function(s){ return s.date >= start.getTime(); });
+}
+function lowStockProducts(shop){
+  return shop.products.filter(function(p){ return p.stock <= p.lowStockThreshold; });
+}
+function paymentLabel(method){
+  return t('pay_'+method) || method;
+}
+function nextInvoiceNo(shop){
+  var code = (shop.businessName||'SHOP').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,4);
+  return 'INV-'+code+'-'+String(shop.invoiceSeq);
+}
+function topProductsFrom(sales){
+  var map = {};
+  sales.forEach(function(s){
+    s.items.forEach(function(it){
+      if(!map[it.name]) map[it.name] = {name:it.name, qty:0, revenue:0};
+      map[it.name].qty += it.qty;
+      map[it.name].revenue += it.total;
+    });
+  });
+  return Object.values(map).sort(function(a,b){ return b.revenue - a.revenue; }).slice(0,6);
+}
+function paymentBreakdownFrom(sales){
+  var map = {cash:0, qr:0, card:0, credit:0};
+  sales.forEach(function(s){ map[s.payment] = (map[s.payment]||0) + s.total; });
+  return map;
+}
+function dailyTrendFrom(sales, days){
+  var n = days==='all' ? 30 : Number(days);
+  var buckets = {}; var order = [];
+  for(var i=n-1;i>=0;i--){
+    var d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i);
+    var key = d.getMonth()+1+'/'+d.getDate();
+    buckets[key] = 0; order.push(key);
+  }
+  sales.forEach(function(s){
+    var d = new Date(s.date);
+    var key = (d.getMonth()+1)+'/'+d.getDate();
+    if(buckets[key] !== undefined) buckets[key] += s.total;
+  });
+  return { labels: order, values: order.map(function(k){ return Math.round(buckets[k]); }) };
+}
+
+/* ---------------- render dispatcher ---------------- */
+function render(){
+  var app = document.getElementById('app');
+  var html = '';
+  if(!state.currentUser){
+    html = renderLogin();
+  } else if(state.currentUser.role==='super'){
+    html = renderTopbar() + '<div class="shell">' + renderSuperSidebar() + '<div class="main">' + renderSuperMain() + '</div></div>';
+  } else {
+    html = renderTopbar() + '<div class="shell">' + renderShopSidebar() + '<div class="main">' + renderShopMain() + '</div></div>';
+  }
+  app.innerHTML = html;
+  afterRender();
+}
+
+function ridgeSvg(colorA, colorB){
+  colorA = colorA || 'var(--crimson)'; colorB = colorB || 'var(--gold)';
+  return '<div class="ridge"><svg viewBox="0 0 1200 28" preserveAspectRatio="none">'+
+    '<polyline points="0,28 0,18 60,6 120,20 180,4 260,22 330,10 400,24 470,8 540,20 610,2 690,18 760,9 840,22 910,6 990,19 1060,10 1140,23 1200,12 1200,28" style="fill:'+colorA+';opacity:0.9;"></polyline>'+
+    '<polyline points="0,28 0,24 80,16 150,25 230,14 300,26 380,17 460,27 540,15 620,26 700,18 790,27 870,16 950,26 1030,19 1110,27 1200,20 1200,28" style="fill:'+colorB+';opacity:0.55;"></polyline>'+
+    '</svg></div>';
+}
+
+/* ---------------- topbar ---------------- */
+function renderTopbar(){
+  var isSuper = state.currentUser.role==='super';
+  var name = isSuper ? 'Super Admin' : currentShop().businessName;
+  var sub = isSuper ? 'Platform Administrator' : (state.lang==='np' ? 'पसल एडमिन' : 'Shop Admin');
+  return ''+
+  '<div class="topbar">'+
+    '<div class="brand">'+
+      '<div class="brand-mark">P</div>'+
+      '<div class="brand-text"><div class="en">'+escapeHtml(t('app_name'))+'</div><div class="np">'+escapeHtml(t('app_sub'))+'</div></div>'+
+    '</div>'+
+    '<div class="top-right">'+
+      '<div class="lang-toggle">'+
+        '<button data-action="set-lang" data-lang="en" class="'+(state.lang==='en'?'active':'')+'">'+t('lang_en')+'</button>'+
+        '<button data-action="set-lang" data-lang="np" class="'+(state.lang==='np'?'active':'')+'">'+t('lang_np')+'</button>'+
+      '</div>'+
+      '<div class="user-chip"><div class="dot">'+initials(name)+'</div><div><div style="font-weight:700;">'+escapeHtml(name)+'</div><div style="opacity:0.65;font-size:10.5px;">'+escapeHtml(sub)+'</div></div></div>'+
+      '<button class="logout-btn" data-action="logout">'+t('logout')+'</button>'+
+    '</div>'+
+  '</div>'+
+  ridgeSvg();
+}
+
+/* ---------------- super admin: sidebar ---------------- */
+function renderSuperSidebar(){
+  return ''+
+  '<div class="sidebar">'+
+    '<div class="side-label">'+t('super_section')+'</div>'+
+    '<button class="side-link '+(state.superView==='shops'?'active':'')+'" data-action="super-nav" data-view="shops"><span class="ic">&#127978;</span>'+t('nav_shops')+'</button>'+
+    '<button class="side-link" data-action="open-create-shop"><span class="ic">&#10133;</span>'+t('nav_create_shop')+'</button>'+
+  '</div>';
+}
+
+function renderSuperMain(){
+  var body = renderShopsList();
+  if(state.showCreateShopModal) body += renderCreateShopModal();
+  return body;
+}
+
+function renderShopsList(){
+  var shops = state.shops;
+  var cards = shops.map(function(shop){
+    var monthSales = filteredSales(shop, 30);
+    var monthTotal = sumBy(monthSales, 'total');
+    return ''+
+    '<div class="card card-pad" style="display:flex;flex-direction:column;gap:10px;">'+
+      '<div class="flex-between">'+
+        '<div class="flex-gap">'+
+          '<div style="width:38px;height:38px;border-radius:9px;background:var(--indigo-tint);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--font-display);">'+initials(shop.businessName)+'</div>'+
+          '<div>'+
+            '<div style="font-weight:700;font-size:14.5px;">'+escapeHtml(shop.businessName)+'</div>'+
+            '<div class="muted" style="font-size:11.5px;">'+escapeHtml(shop.location)+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<span class="badge '+(shop.active!==false?'badge-success':'badge-danger')+'">'+(shop.active!==false ? '&#9679; Active' : '&#9679; Inactive')+'</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;font-size:12px;">'+
+        '<span class="tag-pill">PAN '+escapeHtml(shop.pan)+'</span>'+
+        '<span class="tag-pill">'+escapeHtml(shop.category)+'</span>'+
+      '</div>'+
+      '<hr class="hair" style="margin:2px 0;">'+
+      '<div style="display:flex;justify-content:space-between;font-size:12.5px;">'+
+        '<div><b>'+shop.products.length+'</b> <span class="muted">'+t('shop_card_products')+'</span></div>'+
+        '<div><b>'+fmtMoney(monthTotal)+'</b> <span class="muted">'+t('shop_card_sales')+'</span></div>'+
+      '</div>'+
+      '<div class="muted" style="font-size:11.5px;">'+t('shop_card_login')+': <span style="font-family:var(--font-mono);color:var(--ink);">'+escapeHtml(shop.adminUsername)+'</span></div>'+
+      '<div style="display:flex;gap:8px;margin-top:4px;">'+
+        '<button class="btn btn-outline btn-sm" data-action="login-as-shop" data-id="'+shop.id+'" style="flex:1;justify-content:center;">'+t('btn_manage')+'</button>'+
+        '<button class="btn btn-sm '+(shop.active!==false?'btn-outline':'btn-gold')+'" data-action="toggle-shop-active" data-id="'+shop.id+'">'+(shop.active!==false?t('btn_deactivate'):t('btn_activate'))+'</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  return ''+
+  '<div class="page-head">'+
+    '<div><h1>'+t('shops_title')+'</h1><div class="sub">'+t('shops_sub')+'</div></div>'+
+    '<button class="btn btn-primary" data-action="open-create-shop">'+t('btn_new_shop')+'</button>'+
+  '</div>'+
+  (shops.length===0 ? '<div class="card empty-state"><div class="ic">&#127978;</div>'+t('shops_empty')+'</div>' :
+   '<div class="grid grid-3">'+cards+'</div>');
+}
+
+function renderCreateShopModal(){
+  var cs = state.createShop;
+  var fs = cs.fetchState; // idle | loading | found | notfound
+  var showManual = (fs==='found' || fs==='notfound' || cs.manualOverride);
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="create-shop">'+
+    '<div class="modal" data-stop>'+
+      '<div class="modal-head"><h3>'+t('create_shop_title')+'</h3><button class="modal-close" data-action="close-create-shop">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12.5px;margin-bottom:16px;">'+t('create_shop_sub')+'</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('pan_label')+'</label>'+
+          '<div style="display:flex;gap:8px;">'+
+            '<input class="field" id="cs-pan" maxlength="9" placeholder="'+t('pan_placeholder')+'" value="'+escapeHtml(cs.pan)+'" style="font-family:var(--font-mono);letter-spacing:1px;">'+
+            '<button class="btn btn-indigo btn-sm" style="white-space:nowrap;" data-action="fetch-pan">'+t('btn_fetch')+'</button>'+
+          '</div>'+
+          (fs==='loading' ? '<div class="field-hint">&#8987; '+t('pan_fetching')+'</div>' : '')+
+          (fs==='found' ? '<div class="field-hint" style="color:var(--success);font-weight:600;">&#10003; '+t('pan_found')+'</div>' : '')+
+          (fs==='notfound' ? '<div class="field-hint" style="color:var(--warning);font-weight:600;">&#9888; '+t('pan_notfound')+'</div>' : '')+
+        '</div>'+
+        (!showManual ? '' : ''+
+        '<div class="grid grid-2">'+
+          field('cs-businessName','business_name',cs.businessName)+
+          field('cs-ownerName','owner_name',cs.ownerName)+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          field('cs-regType','reg_type',cs.regType)+
+          field('cs-category','shop_category',cs.category)+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('business_address')+'</label>'+
+          '<input class="field" id="cs-address" value="'+escapeHtml(cs.address)+'">'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('shop_location')+'</label>'+
+          '<input class="field" id="cs-location" value="'+escapeHtml(cs.location)+'" placeholder="'+t('shop_location')+'">'+
+          '<div class="field-hint">'+t('shop_location_hint')+'</div>'+
+        '</div>'+
+        '<hr class="hair">'+
+        '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('admin_login_section')+'</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('admin_username')+'</label><input class="field" id="cs-username" value="'+escapeHtml(cs.adminUsername)+'" placeholder="e.g. everest"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('admin_password')+'</label>'+
+            '<div style="display:flex;gap:6px;"><input class="field" id="cs-password" value="'+escapeHtml(cs.adminPassword)+'" style="font-family:var(--font-mono);">'+
+            '<button type="button" class="btn btn-outline btn-sm" data-action="regen-password">&#8635;</button></div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="field-row" style="max-width:160px;">'+
+          '<label class="field-label">'+t('vat_rate')+'</label>'+
+          '<input class="field" id="cs-vat" value="'+cs.vatRate+'" type="number">'+
+        '</div>'+
+        '')+
+      '</div>'+
+      '<div class="modal-foot">'+
+        '<button class="btn btn-outline" data-action="close-create-shop">'+t('btn_cancel')+'</button>'+
+        (showManual ? '<button class="btn btn-primary" data-action="submit-create-shop">'+t('btn_create_shop')+'</button>' : '')+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+function field(id,key,val){
+  return '<div class="field-row"><label class="field-label">'+t(key)+'</label><input class="field" id="'+id+'" value="'+escapeHtml(val)+'"></div>';
+}
+
+/* ---------------- shop admin: sidebar ---------------- */
+function renderShopSidebar(){
+  var shop = currentShop();
+  var lowCount = lowStockProducts(shop).length;
+  function link(view, icon, key, badge){
+    return '<button class="side-link '+(state.shopView===view?'active':'')+'" data-action="shop-nav" data-view="'+view+'"><span class="ic">'+icon+'</span>'+t(key)+
+      (badge ? '<span class="badge badge-warning" style="margin-left:auto;">'+badge+'</span>' : '')+'</button>';
+  }
+  return ''+
+  '<div class="sidebar">'+
+    '<div class="side-label">'+t('shop_section')+'</div>'+
+    link('dashboard','&#128202;','nav_dashboard')+
+    link('inventory','&#128230;','nav_inventory', lowCount>0?lowCount:0)+
+    link('billing','&#128179;','nav_billing')+
+    link('reports','&#128200;','nav_reports')+
+    link('customers','&#128101;','nav_customers')+
+    link('settings','&#9881;','nav_settings')+
+  '</div>';
+}
+
+function renderShopMain(){
+  var body = '';
+  switch(state.shopView){
+    case 'inventory': body = renderInventoryView(); break;
+    case 'billing': body = renderBillingView(); break;
+    case 'reports': body = renderReportsView(); break;
+    case 'customers': body = renderCustomersView(); break;
+    case 'settings': body = renderSettingsView(); break;
+    default: body = renderDashboardView();
+  }
+  if(state.showAddProductModal) body += renderProductModal();
+  if(state.showAddStockModal) body += renderAddStockModal();
+  if(state.showAddCustomerModal) body += renderCustomerModal();
+  if(state.showReceiptModal && state.lastInvoice) body += renderReceiptModal();
+  return body;
+}
+
+/* ---------------- shop admin: dashboard ---------------- */
+function renderDashboardView(){
+  var shop = currentShop();
+  var tSales = todaySales(shop);
+  var tTotal = sumBy(tSales, 'total');
+  var mSales = filteredSales(shop, 30);
+  var mTotal = sumBy(mSales, 'total');
+  var low = lowStockProducts(shop);
+  var recent = shop.sales.slice(-6).reverse();
+
+  var recentRows = recent.length ? recent.map(function(s){
+    return '<tr><td style="font-family:var(--font-mono);">'+s.invoiceNo+'</td><td>'+fmtDateTime(s.date)+'</td><td>'+escapeHtml(s.customerName||t('bill_customer_walkin'))+'</td>'+
+      '<td><span class="badge badge-indigo">'+paymentLabel(s.payment)+'</span></td><td style="text-align:right;font-weight:700;">'+fmtMoney(s.total)+'</td></tr>';
+  }).join('') : '';
+
+  var lowRows = low.length ? low.map(function(p){
+    return '<tr><td>'+escapeHtml(p.name)+'</td><td>'+escapeHtml(p.category)+'</td>'+
+      '<td><span class="badge '+(p.stock===0?'badge-danger':'badge-warning')+'">'+p.stock+' '+p.unit+(p.stock===0?'':'')+'</span></td>'+
+      '<td><button class="btn btn-outline btn-sm" data-action="open-add-stock" data-id="'+p.id+'">'+t('btn_restock')+'</button></td></tr>';
+  }).join('') : '';
+
+  return ''+
+  '<div class="page-head"><div><h1>'+t('dash_welcome')+', '+escapeHtml(shop.ownerName.split(' ')[0])+'</h1><div class="sub">'+t('dash_today')+' · '+fmtDate(Date.now())+'</div></div></div>'+
+  '<div class="grid grid-4" style="margin-bottom:20px;">'+
+    '<div class="stat-card accent-crimson"><div class="label">'+t('stat_today_sales')+'</div><div class="value">'+fmtMoney(tTotal)+'</div><div class="foot">'+tSales.length+' '+ (state.lang==='np'?'बिलहरू':'bills') +'</div></div>'+
+    '<div class="stat-card accent-indigo"><div class="label">'+t('stat_month_sales')+'</div><div class="value">'+fmtMoney(mTotal)+'</div><div class="foot">'+t('range_30')+'</div></div>'+
+    '<div class="stat-card accent-warning"><div class="label">'+t('stat_low_stock')+'</div><div class="value">'+low.length+'</div><div class="foot">'+t('stat_products')+': '+shop.products.length+'</div></div>'+
+    '<div class="stat-card accent-success"><div class="label">'+t('stat_customers')+'</div><div class="value">'+shop.customers.length+'</div><div class="foot">'+t('shop_card_login')+': '+escapeHtml(shop.adminUsername)+'</div></div>'+
+  '</div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card">'+
+      '<div class="card-pad" style="padding-bottom:0;"><div class="flex-between"><h3 style="margin:0;font-size:15px;">'+t('recent_sales')+'</h3>'+
+      '<button class="btn btn-outline btn-sm" data-action="shop-nav" data-view="reports">'+t('view_all')+'</button></div></div>'+
+      (recent.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>Bill</th><th>Time</th><th>'+t('bill_customer')+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">Amount</th></tr></thead><tbody>'+recentRows+'</tbody></table></div>'
+        : '<div class="empty-state">'+t('no_recent_sales')+'</div>')+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;color:var(--warning);">&#9888; '+t('low_stock_alert')+'</h3></div>'+
+      (low.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_stock')+'</th><th></th></tr></thead><tbody>'+lowRows+'</tbody></table></div>'
+        : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('low_stock_none')+'</div>')+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- shop admin: inventory ---------------- */
+function renderInventoryView(){
+  var shop = currentShop();
+  var q = (state.productSearch||'').toLowerCase();
+  var products = shop.products.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q)>=0 || p.category.toLowerCase().indexOf(q)>=0; });
+
+  var rows = products.map(function(p){
+    var status = p.stock===0 ? 'out' : (p.stock<=p.lowStockThreshold ? 'low' : 'ok');
+    var badge = status==='out' ? '<span class="badge badge-danger">'+t('status_out')+'</span>' : status==='low' ? '<span class="badge badge-warning">'+t('status_low')+'</span>' : '<span class="badge badge-success">'+t('status_ok')+'</span>';
+    return '<tr>'+
+      '<td><div style="font-weight:700;">'+escapeHtml(p.name)+'</div><div class="muted" style="font-size:11px;">'+fmtMoney(p.cost)+' '+(state.lang==='np'?'लागत':'cost')+'</div></td>'+
+      '<td><span class="tag-pill">'+escapeHtml(p.category)+'</span></td>'+
+      '<td style="font-weight:600;">'+fmtMoney(p.price)+'</td>'+
+      '<td>'+p.stock+' <span class="muted">'+escapeHtml(p.unit)+'</span></td>'+
+      '<td>'+badge+'</td>'+
+      '<td><div style="display:flex;gap:6px;">'+
+        '<button class="btn btn-outline btn-sm" data-action="open-add-stock" data-id="'+p.id+'">'+t('btn_restock')+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="open-edit-product" data-id="'+p.id+'">'+t('btn_edit')+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="remove-product" data-id="'+p.id+'" style="color:var(--danger);">&times;</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+
+  return ''+
+  '<div class="page-head"><div><h1>'+t('inv_title')+'</h1><div class="sub">'+t('inv_sub')+'</div></div>'+
+    '<button class="btn btn-primary" data-action="open-add-product">'+t('btn_add_product')+'</button></div>'+
+  '<div class="search-box" style="max-width:320px;margin-bottom:14px;">&#128269;<input id="product-search-input" placeholder="'+t('search_products')+'" value="'+escapeHtml(state.productSearch)+'" data-action="search-products"></div>'+
+  (shop.products.length===0 ? '<div class="card empty-state"><div class="ic">&#128230;</div>'+t('inv_empty')+'</div>' :
+  '<div class="table-wrap"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_price')+'</th><th>'+t('th_stock')+'</th><th>'+t('th_status')+'</th><th>'+t('th_actions')+'</th></tr></thead><tbody>'+
+  (rows || '<tr><td colspan="6" class="empty-state">No matches.</td></tr>')+
+  '</tbody></table></div>');
+}
+
+function renderProductModal(){
+  var shop = currentShop();
+  var editing = state.editingProductId ? shop.products.find(function(p){return p.id===state.editingProductId;}) : null;
+  var p = editing || {name:'',category:'',unit:'pcs',price:'',cost:'',stock:0,lowStockThreshold:5};
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="product">'+
+    '<div class="modal" style="max-width:520px;" data-stop>'+
+      '<div class="modal-head"><h3>'+(editing?t('edit_product_title'):t('add_product_title'))+'</h3><button class="modal-close" data-action="close-product-modal">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="field-row"><label class="field-label">'+t('product_name')+'</label><input class="field" id="pm-name" value="'+escapeHtml(p.name)+'"></div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('product_category')+'</label><input class="field" id="pm-category" value="'+escapeHtml(p.category)+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_unit')+'</label><input class="field" id="pm-unit" value="'+escapeHtml(p.unit)+'" placeholder="pcs / kg / bag"></div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('product_price')+'</label><input class="field" id="pm-price" type="number" value="'+p.price+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_cost')+'</label><input class="field" id="pm-cost" type="number" value="'+p.cost+'"></div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('product_stock')+(editing?' ('+t('field_optional')+')':'')+'</label><input class="field" id="pm-stock" type="number" value="'+(editing?0:p.stock)+'" '+(editing?'disabled':'')+'></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_lowstock')+'</label><input class="field" id="pm-lowstock" type="number" value="'+p.lowStockThreshold+'"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-product-modal">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="save-product" data-id="'+(editing?editing.id:'')+'">'+t('btn_save_product')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderAddStockModal(){
+  var shop = currentShop();
+  var p = shop.products.find(function(x){return x.id===state.showAddStockModal;});
+  if(!p) return '';
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="stock">'+
+    '<div class="modal" style="max-width:420px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('add_stock_title')+'</h3><button class="modal-close" data-action="close-add-stock">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="kv"><div class="k">'+t('th_product')+'</div><div class="v">'+escapeHtml(p.name)+'</div></div>'+
+        '<div class="kv"><div class="k">'+t('th_stock')+' ('+(state.lang==='np'?'हालको':'current')+')</div><div class="v">'+p.stock+' '+escapeHtml(p.unit)+'</div></div>'+
+        '<div class="field-row" style="margin-top:14px;"><label class="field-label">'+t('add_stock_qty')+'</label><input class="field" id="as-qty" type="number" value="10" min="1"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('add_stock_note')+'</label><input class="field" id="as-note" placeholder="e.g. supplier delivery"></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-add-stock">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="confirm-add-stock" data-id="'+p.id+'">'+t('btn_confirm_addstock')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- shop admin: billing / POS ---------------- */
+function renderBillingView(){
+  var shop = currentShop();
+  var cart = state.cart;
+  var lines = cart.map(function(item){
+    var p = shop.products.find(function(x){return x.id===item.productId;});
+    if(!p) return '';
+    var lineTotal = p.price * item.qty;
+    return '<tr>'+
+      '<td><div style="font-weight:600;">'+escapeHtml(p.name)+'</div><div class="muted" style="font-size:11px;">'+p.stock+' '+escapeHtml(p.unit)+' '+(state.lang==='np'?'बाँकी':'in stock')+'</div></td>'+
+      '<td style="width:110px;"><div style="display:flex;align-items:center;gap:6px;">'+
+        '<button class="btn btn-outline btn-sm" data-action="cart-dec" data-id="'+p.id+'" style="padding:3px 9px;">−</button>'+
+        '<span style="min-width:20px;text-align:center;font-weight:700;">'+item.qty+'</span>'+
+        '<button class="btn btn-outline btn-sm" data-action="cart-inc" data-id="'+p.id+'" style="padding:3px 9px;">+</button>'+
+      '</div></td>'+
+      '<td>'+fmtMoney(p.price)+'</td>'+
+      '<td style="font-weight:700;">'+fmtMoney(lineTotal)+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" data-action="cart-remove" data-id="'+p.id+'" style="color:var(--danger);">&times;</button></td>'+
+    '</tr>';
+  }).join('');
+
+  var subtotal = cart.reduce(function(sum,item){
+    var p = shop.products.find(function(x){return x.id===item.productId;});
+    return sum + (p ? p.price*item.qty : 0);
+  }, 0);
+  var vat = subtotal * (shop.vatRate/100);
+  var total = subtotal + vat;
+
+  var q = (state.productSearch||'').toLowerCase();
+  var results = q ? shop.products.filter(function(p){ return p.stock>0 && p.name.toLowerCase().indexOf(q)>=0; }).slice(0,6) : [];
+
+  var customerOptions = '<option value="">'+t('bill_customer_walkin')+'</option>' + shop.customers.map(function(c){
+    return '<option value="'+c.id+'" '+(state.billingCustomerId===c.id?'selected':'')+'>'+escapeHtml(c.name)+' — '+escapeHtml(c.phone)+'</option>';
+  }).join('');
+
+  var payMethods = ['cash','qr','card','credit'];
+
+  return ''+
+  '<div class="page-head"><div><h1>'+t('bill_title')+'</h1><div class="sub">'+t('bill_sub')+'</div></div></div>'+
+  '<div class="grid" style="grid-template-columns:1.5fr 1fr;align-items:start;">'+
+    '<div>'+
+      '<div class="card card-pad" style="margin-bottom:14px;position:relative;">'+
+        '<div class="search-box"><span>&#128269;</span><input id="billing-search-input" placeholder="'+t('bill_search')+'" value="'+escapeHtml(state.productSearch)+'" data-action="search-billing" autocomplete="off"></div>'+
+        (results.length ? '<div style="position:absolute;left:20px;right:20px;top:56px;background:#fff;border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow-md);z-index:5;overflow:hidden;">'+
+          results.map(function(p){
+            return '<button data-action="cart-add" data-id="'+p.id+'" style="display:flex;justify-content:space-between;width:100%;text-align:left;padding:10px 14px;border:none;background:#fff;border-bottom:1px solid var(--border);">'+
+              '<span>'+escapeHtml(p.name)+'</span><span style="font-weight:700;">'+fmtMoney(p.price)+'</span></button>';
+          }).join('')+
+        '</div>' : '')+
+      '</div>'+
+      '<div class="card">'+
+        '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;">'+t('bill_cart')+'</h3></div>'+
+        (cart.length ? '<div class="table-wrap" style="border:none;margin-top:10px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('bill_price')+'</th><th>'+t('bill_line_total')+'</th><th></th></tr></thead><tbody>'+lines+'</tbody></table></div>'
+          : '<div class="empty-state">'+t('bill_cart_empty')+'</div>')+
+      '</div>'+
+    '</div>'+
+    '<div class="card card-pad">'+
+      '<div class="field-row"><label class="field-label">'+t('bill_customer')+'</label><select class="field" id="bill-customer" data-action="set-billing-customer">'+customerOptions+'</select>'+
+        '<button class="btn btn-outline btn-sm" style="margin-top:8px;" data-action="open-add-customer">'+t('bill_new_customer')+'</button></div>'+
+      '<div class="field-row"><label class="field-label">'+t('bill_payment')+'</label>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+        payMethods.map(function(m){
+          return '<button class="btn btn-sm '+(state.billingPayment===m?'btn-indigo':'btn-outline')+'" data-action="set-payment" data-method="'+m+'" style="justify-content:center;">'+paymentLabel(m)+'</button>';
+        }).join('')+
+        '</div>'+
+      '</div>'+
+      '<hr class="hair">'+
+      '<div class="kv"><div class="k">'+t('bill_subtotal')+'</div><div class="v">'+fmtMoney(subtotal)+'</div></div>'+
+      '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>'+
+      '<div class="kv" style="font-size:16px;"><div class="k" style="color:var(--ink);font-weight:700;">'+t('bill_total')+'</div><div class="v" style="color:var(--crimson-dark);">'+fmtMoney(total)+'</div></div>'+
+      '<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:14px;font-size:14px;" data-action="generate-bill" '+(cart.length===0?'disabled':'')+'>&#128196; '+t('bill_generate')+'</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- shop admin: customers ---------------- */
+function renderCustomersView(){
+  var shop = currentShop();
+  var q = (state.customerSearch||'').toLowerCase();
+  var list = shop.customers.filter(function(c){ return !q || c.name.toLowerCase().indexOf(q)>=0 || c.phone.indexOf(q)>=0; });
+  var rows = list.map(function(c){
+    var purchases = shop.sales.filter(function(s){ return s.customerId===c.id; });
+    var total = sumBy(purchases, 'total');
+    return '<tr><td style="font-weight:700;">'+escapeHtml(c.name)+'</td><td>'+escapeHtml(c.phone)+'</td><td class="muted">'+escapeHtml(c.address||'—')+'</td>'+
+      '<td style="font-weight:700;">'+fmtMoney(total)+'</td><td>'+purchases.length+'</td></tr>';
+  }).join('');
+  return ''+
+  '<div class="page-head"><div><h1>'+t('cust_title')+'</h1><div class="sub">'+t('cust_sub')+'</div></div>'+
+    '<button class="btn btn-primary" data-action="open-add-customer">'+t('btn_add_customer')+'</button></div>'+
+  '<div class="search-box" style="max-width:320px;margin-bottom:14px;">&#128269;<input placeholder="'+t('search_customers')+'" value="'+escapeHtml(state.customerSearch)+'" data-action="search-customers"></div>'+
+  (shop.customers.length===0 ? '<div class="card empty-state"><div class="ic">&#128101;</div>'+t('cust_empty')+'</div>' :
+  '<div class="table-wrap"><table><thead><tr><th>'+t('th_name')+'</th><th>'+t('th_phone')+'</th><th>'+t('th_address')+'</th><th>'+t('th_purchases')+'</th><th>'+t('th_visits')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>');
+}
+
+function renderCustomerModal(){
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="customer">'+
+    '<div class="modal" style="max-width:420px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('add_customer_title')+'</h3><button class="modal-close" data-action="close-add-customer">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="field-row"><label class="field-label">'+t('customer_name')+'</label><input class="field" id="cm-name"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('customer_phone')+'</label><input class="field" id="cm-phone"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('customer_address')+' ('+t('field_optional')+')</label><input class="field" id="cm-address"></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-add-customer">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="save-customer">'+t('btn_save_customer')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- shop admin: reports ---------------- */
+function renderReportsView(){
+  var shop = currentShop();
+  var sales = filteredSales(shop, state.repRange);
+  var total = sumBy(sales, 'total');
+  var vatTotal = sumBy(sales, 'vat');
+  var avg = sales.length ? total/sales.length : 0;
+  var pay = paymentBreakdownFrom(sales);
+  var top = topProductsFrom(sales);
+
+  var ranges = [['7','range_7'],['30','range_30'],['90','range_90'],['all','range_all']];
+  var rangeBtns = ranges.map(function(r){
+    return '<button class="btn btn-sm '+(state.repRange===r[0]?'btn-indigo':'btn-outline')+'" data-action="set-range" data-range="'+r[0]+'">'+t(r[1])+'</button>';
+  }).join('');
+
+  var topRows = top.length ? top.map(function(p,i){
+    return '<tr><td>'+(i+1)+'.</td><td style="font-weight:600;">'+escapeHtml(p.name)+'</td><td>'+p.qty+'</td><td style="font-weight:700;">'+fmtMoney(p.revenue)+'</td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty-state">'+t('rep_no_data')+'</td></tr>';
+
+  var payRows = ['cash','qr','card','credit'].map(function(m){
+    var v = pay[m]||0;
+    var pct = total>0 ? Math.round(v/total*100) : 0;
+    return '<div style="margin-bottom:10px;">'+
+      '<div class="flex-between" style="font-size:12.5px;margin-bottom:4px;"><span>'+paymentLabel(m)+'</span><b>'+fmtMoney(v)+'</b></div>'+
+      '<div style="height:8px;background:var(--surface-2);border-radius:6px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:var(--indigo);"></div></div>'+
+    '</div>';
+  }).join('');
+
+  return ''+
+  '<div class="page-head"><div><h1>'+t('rep_title')+'</h1><div class="sub">'+t('rep_sub')+'</div></div>'+
+    '<div style="display:flex;gap:6px;">'+rangeBtns+'</div></div>'+
+  '<div class="grid grid-4" style="margin-bottom:18px;">'+
+    '<div class="stat-card accent-crimson"><div class="label">'+t('rep_total_sales')+'</div><div class="value">'+fmtMoney(total)+'</div></div>'+
+    '<div class="stat-card accent-gold"><div class="label">'+t('rep_total_vat')+'</div><div class="value">'+fmtMoney(vatTotal)+'</div></div>'+
+    '<div class="stat-card accent-indigo"><div class="label">'+t('rep_bills')+'</div><div class="value">'+sales.length+'</div></div>'+
+    '<div class="stat-card accent-success"><div class="label">'+t('rep_avg_bill')+'</div><div class="value">'+fmtMoney(avg)+'</div></div>'+
+  '</div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card card-pad">'+
+      '<h3 style="margin:0 0 12px;font-size:15px;">'+t('rep_trend')+'</h3>'+
+      (sales.length ? '<canvas id="trendChart" height="180"></canvas>' : '<div class="empty-state">'+t('rep_no_data')+'</div>')+
+    '</div>'+
+    '<div>'+
+      '<div class="card card-pad" style="margin-bottom:16px;">'+
+        '<h3 style="margin:0 0 12px;font-size:15px;">'+t('rep_by_payment')+'</h3>'+
+        (sales.length ? payRows : '<div class="empty-state">'+t('rep_no_data')+'</div>')+
+      '</div>'+
+      '<div class="card card-pad">'+
+        '<h3 style="margin:0 0 12px;font-size:15px;">'+t('rep_top_products')+'</h3>'+
+        '<table><tbody>'+topRows+'</tbody></table>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- shop admin: settings ---------------- */
+function renderSettingsView(){
+  var shop = currentShop();
+  return ''+
+  '<div class="page-head"><div><h1>'+t('set_title')+'</h1><div class="sub">'+t('set_sub')+'</div></div></div>'+
+  '<div class="grid grid-2" style="align-items:start;">'+
+    '<div class="card card-pad">'+
+      '<h3 style="margin:0 0 14px;font-size:15px;">'+t('set_shop_info')+'</h3>'+
+      '<div class="field-row"><label class="field-label">'+t('business_name')+'</label><input class="field" id="st-name" value="'+escapeHtml(shop.businessName)+'"></div>'+
+      '<div class="field-row"><label class="field-label">'+t('shop_location')+'</label><input class="field" id="st-location" value="'+escapeHtml(shop.location)+'"></div>'+
+      '<div class="grid grid-2">'+
+        '<div class="field-row"><label class="field-label">'+t('set_vat')+' (%)</label><input class="field" id="st-vat" type="number" value="'+shop.vatRate+'"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('set_merchant_id')+'</label><input class="field" id="st-merchant" value="'+escapeHtml(shop.merchantId)+'"><div class="field-hint">'+t('set_merchant_hint')+'</div></div>'+
+      '</div>'+
+      '<button class="btn btn-primary" data-action="save-shop-settings">'+t('btn_save_settings')+'</button>'+
+    '</div>'+
+    '<div class="card card-pad">'+
+      '<h3 style="margin:0 0 6px;font-size:15px;">'+t('set_qr_section')+'</h3>'+
+      '<div class="muted" style="font-size:12px;line-height:1.6;margin-bottom:14px;">'+t('set_qr_desc')+'</div>'+
+      '<div class="kv"><div class="k">'+t('set_qr_current')+'</div><div class="v">'+(shop.customQr? t('set_qr_custom') : t('set_qr_auto'))+'</div></div>'+
+      (shop.customQr ? '<div style="text-align:center;margin:14px 0;"><img src="'+shop.customQr+'" style="width:150px;height:150px;object-fit:contain;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>' : '')+
+      '<div style="margin-top:12px;">'+
+        '<input type="file" id="qr-upload" accept="image/*" style="display:none;" data-action="qr-file-selected">'+
+        '<button class="btn btn-outline" style="width:100%;justify-content:center;" data-action="trigger-qr-upload">&#128247; '+t('set_qr_upload')+'</button>'+
+        (shop.customQr ? '<button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:8px;color:var(--danger);" data-action="remove-qr">'+t('set_qr_remove')+'</button>' : '')+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- receipt / invoice modal ---------------- */
+function renderReceiptModal(){
+  var inv = state.lastInvoice;
+  var shop = currentShop();
+  var itemRows = inv.items.map(function(it){
+    return '<tr><td>'+escapeHtml(it.name)+'</td><td style="text-align:center;">'+it.qty+'</td><td style="text-align:right;">'+fmtMoney(it.price)+'</td><td style="text-align:right;">'+fmtMoney(it.total)+'</td></tr>';
+  }).join('');
+  var qrPayload = 'PASALPAY|MERCHANT:'+(shop.merchantId||shop.businessName)+'|INV:'+inv.invoiceNo+'|AMT:'+inv.total.toFixed(2)+'|CUR:NPR';
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="receipt">'+
+    '<div class="modal" style="max-width:560px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('invoice_title')+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
+      '<div class="modal-body" style="background:var(--surface-2);">'+
+        '<div class="invoice-sheet" id="printable-invoice">'+
+          '<div class="invoice-head">'+
+            '<div class="shopname">'+escapeHtml(shop.businessName)+'</div>'+
+            '<div class="meta">'+escapeHtml(shop.location)+'</div>'+
+            '<div class="meta">'+t('invoice_vat_reg')+' · '+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
+          '</div>'+
+          '<div class="invoice-body">'+
+            '<div class="invoice-row"><span>'+t('invoice_no')+'</span><b style="font-family:var(--font-mono);">'+inv.invoiceNo+'</b></div>'+
+            '<div class="invoice-row"><span>'+t('invoice_date')+'</span><b>'+fmtDateTime(inv.date)+'</b></div>'+
+            '<div class="invoice-row"><span>'+t('invoice_customer')+'</span><b>'+escapeHtml(inv.customerName||t('bill_customer_walkin'))+'</b></div>'+
+            '<div class="invoice-row"><span>'+t('invoice_payment')+'</span><b>'+paymentLabel(inv.payment)+'</b></div>'+
+            '<hr class="hair" style="margin:10px 0;">'+
+            '<div class="invoice-items"><table><thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Total</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'+
+            '<div class="invoice-totals">'+
+              '<div class="invoice-row"><span>'+t('bill_subtotal')+'</span><span>'+fmtMoney(inv.subtotal)+'</span></div>'+
+              '<div class="invoice-row"><span>'+t('bill_vat')+' ('+shop.vatRate+'%)</span><span>'+fmtMoney(inv.vat)+'</span></div>'+
+              '<div class="invoice-row" style="font-size:16px;font-weight:800;color:var(--crimson-dark);"><span>'+t('bill_total')+'</span><span>'+fmtMoney(inv.total)+'</span></div>'+
+            '</div>'+
+            '<div class="invoice-qr">'+
+              (shop.customQr ?
+                '<img src="'+shop.customQr+'" width="150" height="150">'+
+                '<div style="font-weight:700;">'+t('invoice_scan_pay')+' — '+fmtMoney(inv.total)+'</div>'+
+                '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'
+                :
+                '<div id="qrcode-target"></div>'+
+                '<div style="font-weight:700;">'+t('invoice_scan_pay')+' — '+fmtMoney(inv.total)+'</div>'+
+                '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note')+'</div>'
+              )+
+            '</div>'+
+          '</div>'+
+          '<div class="invoice-foot">'+t('invoice_thanks')+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-receipt">'+t('invoice_close')+'</button>'+
+        '<button class="btn btn-primary" data-action="print-invoice">&#128424; '+t('invoice_print')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderLogin(){
+  var role = state.loginRole;
+  return ''+
+  '<div class="login-wrap">'+
+    '<div class="login-card">'+
+      '<div class="login-top">'+
+        '<div class="mark">P</div>'+
+        '<h1>'+escapeHtml(t('app_name'))+'</h1>'+
+        '<div class="np">'+escapeHtml(t('app_sub'))+'</div>'+
+      '</div>'+
+      '<div class="login-body">'+
+        '<div class="lang-toggle" style="justify-content:center;margin-bottom:16px;background:var(--surface-2);border-color:var(--border);width:fit-content;">'+
+          '<button data-action="set-lang" data-lang="en" class="'+(state.lang==='en'?'active':'')+'" style="color:'+(state.lang==='en'?'':'#6E6459')+'">'+t('lang_en')+'</button>'+
+          '<button data-action="set-lang" data-lang="np" class="'+(state.lang==='np'?'active':'')+'" style="color:'+(state.lang==='np'?'':'#6E6459')+'">'+t('lang_np')+'</button>'+
+        '</div>'+
+        '<div class="role-tabs">'+
+          '<button data-action="login-role" data-role="super" class="'+(role==='super'?'active':'')+'">'+t('login_super_tab')+'</button>'+
+          '<button data-action="login-role" data-role="shop" class="'+(role==='shop'?'active':'')+'">'+t('login_shop_tab')+'</button>'+
+        '</div>'+
+        (state.loginError ? '<div class="login-error">'+escapeHtml(state.loginError)+'</div>' : '')+
+        '<div>'+
+          '<div class="field-row">'+
+            '<label class="field-label">'+ (role==='super' ? t('login_username') : t('login_shop_id')) +'</label>'+
+            '<input class="field" id="li-username" autocomplete="username" placeholder="'+(role==='super'?'superadmin':'everest')+'">'+
+          '</div>'+
+          '<div class="field-row">'+
+            '<label class="field-label">'+t('login_password')+'</label>'+
+            '<input class="field" id="li-password" type="password" autocomplete="current-password" placeholder="••••••••">'+
+          '</div>'+
+          '<button type="button" data-action="do-login" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;">'+t('login_btn')+'</button>'+
+        '</div>'+
+        '<div class="demo-box">'+
+          '<b>'+t('demo_creds_title')+':</b><br>'+
+          '<span data-action="fill-demo" data-role="super" style="cursor:pointer;">'+
+            '&#128100; <u>'+t('demo_super')+'</u> — superadmin / super123</span><br>'+
+          '<span data-action="fill-demo" data-role="shop" style="cursor:pointer;">'+
+            '&#127978; <u>'+t('demo_shop')+'</u> — everest / shop123</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- post-render side effects (QR / charts) ---------------- */
+function afterRender(){
+  if(state.showReceiptModal && state.lastInvoice){
+    var shop = currentShop();
+    if(shop && !shop.customQr){
+      var target = document.getElementById('qrcode-target');
+      if(target && window.QRCode){
+        target.innerHTML='';
+        var payload = 'PASALPAY|MERCHANT:'+(shop.merchantId||shop.businessName)+'|INV:'+state.lastInvoice.invoiceNo+'|AMT:'+state.lastInvoice.total.toFixed(2)+'|CUR:NPR';
+        try{ new QRCode(target, {text: payload, width:150, height:150, colorDark:'#16305C', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M}); }catch(e){}
+      }
+    }
+  }
+  if(state.currentUser && state.currentUser.role==='shop' && state.shopView==='reports'){
+    var shop2 = currentShop();
+    var sales = filteredSales(shop2, state.repRange);
+    var canvas = document.getElementById('trendChart');
+    if(canvas && sales.length && window.Chart){
+      var trend = dailyTrendFrom(sales, state.repRange);
+      if(window.__trendChartInstance){ window.__trendChartInstance.destroy(); }
+      window.__trendChartInstance = new Chart(canvas.getContext('2d'), {
+        type:'line',
+        data:{ labels: trend.labels, datasets:[{ label:'Sales', data: trend.values, borderColor:'#A11D33', backgroundColor:'rgba(161,29,51,0.10)', fill:true, tension:0.35, pointRadius:0, borderWidth:2 }] },
+        options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ ticks:{ callback:function(v){return 'Rs '+v;}, font:{size:10} } }, x:{ ticks:{font:{size:10}} } } }
+      });
+    }
+  }
+}
+
+function reRenderKeepFocus(){
+  var active = document.activeElement;
+  var id = active && active.id;
+  var selStart = active && typeof active.selectionStart === 'number' ? active.selectionStart : null;
+  render();
+  if(id){
+    var el = document.getElementById(id);
+    if(el){
+      el.focus();
+      if(selStart!=null && el.setSelectionRange){ try{ el.setSelectionRange(selStart, selStart); }catch(e){} }
+    }
+  }
+}
+
+/* ---------------- auth ---------------- */
+function attemptLogin(role, username, password){
+  if(role==='super'){
+    if(username===SUPER_CREDS.username && password===SUPER_CREDS.password){
+      state.currentUser = {role:'super'};
+      state.superView = 'shops';
+      state.loginError = '';
+    } else {
+      state.loginError = t('login_error_creds');
+    }
+  } else {
+    if(state.shops.length===0){
+      state.loginError = t('login_error_noshops');
+    } else {
+      var shop = state.shops.find(function(s){ return s.adminUsername===username && s.adminPassword===password && s.active!==false; });
+      if(shop){
+        state.currentUser = {role:'shop', shopId:shop.id};
+        state.shopView = 'dashboard';
+        state.cart = [];
+        state.loginError = '';
+      } else {
+        state.loginError = t('login_error_creds');
+      }
+    }
+  }
+  render();
+}
+
+/* ---------------- modal close helper ---------------- */
+function closeModalByName(name){
+  if(name==='create-shop') state.showCreateShopModal = false;
+  else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; }
+  else if(name==='stock') state.showAddStockModal = null;
+  else if(name==='customer') state.showAddCustomerModal = false;
+  else if(name==='receipt') state.showReceiptModal = false;
+  render();
+}
+
+/* ---------------- action dispatcher ---------------- */
+function handleAction(action, el){
+  var shop = currentShop();
+  switch(action){
+
+    case 'do-login':
+      var loginU = document.getElementById('li-username').value.trim();
+      var loginP = document.getElementById('li-password').value;
+      attemptLogin(state.loginRole, loginU, loginP);
+      break;
+
+    case 'set-lang':
+      state.lang = el.getAttribute('data-lang');
+      render();
+      break;
+
+    case 'login-role':
+      state.loginRole = el.getAttribute('data-role');
+      state.loginError = '';
+      render();
+      break;
+
+    case 'fill-demo':
+      var r = el.getAttribute('data-role');
+      state.loginRole = r;
+      if(r==='super') attemptLogin('super', SUPER_CREDS.username, SUPER_CREDS.password);
+      else attemptLogin('shop', 'everest', 'shop123');
+      break;
+
+    case 'logout':
+      state.currentUser = null;
+      state.loginError = '';
+      render();
+      break;
+
+    /* ---- super admin ---- */
+    case 'super-nav':
+      state.superView = el.getAttribute('data-view');
+      render();
+      break;
+
+    case 'open-create-shop':
+      state.createShop = blankCreateShop();
+      state.showCreateShopModal = true;
+      render();
+      break;
+
+    case 'close-create-shop':
+      closeModalByName('create-shop');
+      break;
+
+    case 'fetch-pan':
+      var panInput = document.getElementById('cs-pan');
+      var panVal = (panInput.value||'').trim();
+      if(!/^\d{9}$/.test(panVal)){
+        toast(t('err_pan_digits'), 'error');
+        return;
+      }
+      state.createShop.pan = panVal;
+      state.createShop.fetchState = 'loading';
+      render();
+      setTimeout(function(){
+        var rec = PAN_DB[panVal];
+        if(rec){
+          state.createShop.businessName = rec.businessName;
+          state.createShop.ownerName = rec.ownerName;
+          state.createShop.address = rec.address;
+          state.createShop.regType = rec.regType;
+          state.createShop.category = rec.category;
+          state.createShop.fetchState = 'found';
+        } else {
+          state.createShop.fetchState = 'notfound';
+        }
+        render();
+      }, 650);
+      break;
+
+    case 'regen-password':
+      document.getElementById('cs-password').value = genPassword();
+      break;
+
+    case 'submit-create-shop':
+      var g = function(id){ var e2=document.getElementById(id); return e2 ? e2.value.trim() : ''; };
+      var pan = g('cs-pan'), bname = g('cs-businessName'), oname = g('cs-ownerName'),
+          addr = g('cs-address'), reg = g('cs-regType'), cat = g('cs-category'),
+          loc = g('cs-location'), uname = g('cs-username'), pwd = g('cs-password'), vatv = g('cs-vat');
+      if(!bname || !oname || !addr || !cat || !loc || !uname || !pwd){
+        toast(t('err_required'), 'error');
+        return;
+      }
+      if(!/^\d{9}$/.test(pan)){
+        toast(t('err_pan_digits'), 'error');
+        return;
+      }
+      var taken = state.shops.some(function(s){ return s.adminUsername.toLowerCase()===uname.toLowerCase(); });
+      if(taken){
+        toast(t('err_username_taken'), 'error');
+        return;
+      }
+      var newShop = {
+        id: uid('s'), businessName:bname, ownerName:oname, pan:pan, regType:reg||'—',
+        address:addr, category:cat||'General', location:loc,
+        adminUsername:uname, adminPassword:pwd, vatRate: Number(vatv)||13,
+        merchantId: uname.toUpperCase()+'.MOBILE@BANK', customQr:null, active:true,
+        invoiceSeq:1000, products:[], customers:[], sales:[]
+      };
+      state.shops.push(newShop);
+      state.showCreateShopModal = false;
+      fbSaveShop(newShop);
+      toast(t('toast_shop_created'), 'success');
+      render();
+      break;
+
+    case 'login-as-shop':
+      state.currentUser = {role:'shop', shopId: el.getAttribute('data-id')};
+      state.shopView = 'dashboard';
+      state.cart = [];
+      render();
+      break;
+
+    case 'toggle-shop-active':
+      var sId = el.getAttribute('data-id');
+      var sObj = state.shops.find(function(s){ return s.id===sId; });
+      if(sObj){ sObj.active = !(sObj.active!==false); fbSaveShop(sObj); }
+      render();
+      break;
+
+    /* ---- shop admin nav ---- */
+    case 'shop-nav':
+      state.shopView = el.getAttribute('data-view');
+      state.productSearch = '';
+      state.customerSearch = '';
+      render();
+      break;
+
+    /* ---- inventory ---- */
+    case 'open-add-product':
+      state.editingProductId = null;
+      state.showAddProductModal = true;
+      render();
+      break;
+
+    case 'open-edit-product':
+      state.editingProductId = el.getAttribute('data-id');
+      state.showAddProductModal = true;
+      render();
+      break;
+
+    case 'close-product-modal':
+      closeModalByName('product');
+      break;
+
+    case 'save-product':
+      var pid = el.getAttribute('data-id');
+      var name = document.getElementById('pm-name').value.trim();
+      var category = document.getElementById('pm-category').value.trim();
+      var unit = document.getElementById('pm-unit').value.trim() || 'pcs';
+      var price = parseFloat(document.getElementById('pm-price').value);
+      var cost = parseFloat(document.getElementById('pm-cost').value) || 0;
+      var lowstock = parseInt(document.getElementById('pm-lowstock').value) || 5;
+      if(!name || isNaN(price)){
+        toast(t('err_required'), 'error');
+        return;
+      }
+      if(pid){
+        var existing = shop.products.find(function(p){ return p.id===pid; });
+        if(existing){
+          existing.name=name; existing.category=category; existing.unit=unit;
+          existing.price=price; existing.cost=cost; existing.lowStockThreshold=lowstock;
+        }
+        toast(t('toast_product_updated'), 'success');
+      } else {
+        var stock = parseInt(document.getElementById('pm-stock').value) || 0;
+        shop.products.push({ id: uid('p'), name:name, category:category||'General', unit:unit, price:price, cost:cost, stock:stock, lowStockThreshold:lowstock });
+        toast(t('toast_product_added'), 'success');
+      }
+      state.showAddProductModal = false;
+      state.editingProductId = null;
+      fbSaveShop(shop);
+      render();
+      break;
+
+    case 'remove-product':
+      var rmId = el.getAttribute('data-id');
+      if(window.confirm(t('confirm_remove_product'))){
+        shop.products = shop.products.filter(function(p){ return p.id!==rmId; });
+        fbSaveShop(shop);
+        render();
+      }
+      break;
+
+    case 'open-add-stock':
+      state.showAddStockModal = el.getAttribute('data-id');
+      render();
+      break;
+
+    case 'close-add-stock':
+      closeModalByName('stock');
+      break;
+
+    case 'confirm-add-stock':
+      var asId = el.getAttribute('data-id');
+      var qty = parseInt(document.getElementById('as-qty').value) || 0;
+      var prod = shop.products.find(function(p){ return p.id===asId; });
+      if(prod && qty>0){
+        prod.stock += qty;
+        fbSaveShop(shop);
+        toast(t('toast_stock_added'), 'success');
+      }
+      state.showAddStockModal = null;
+      render();
+      break;
+
+    case 'search-billing':
+      break; // handled by input listener
+
+    /* ---- billing / POS ---- */
+    case 'cart-add':
+      var addId = el.getAttribute('data-id');
+      var addProd = shop.products.find(function(p){ return p.id===addId; });
+      if(!addProd) return;
+      var existingItem = state.cart.find(function(c){ return c.productId===addId; });
+      if(existingItem){
+        if(existingItem.qty < addProd.stock) existingItem.qty++;
+      } else {
+        state.cart.push({productId:addId, qty:1});
+      }
+      state.productSearch = '';
+      render();
+      break;
+
+    case 'cart-inc':
+      var incId = el.getAttribute('data-id');
+      var incProd = shop.products.find(function(p){ return p.id===incId; });
+      var incItem = state.cart.find(function(c){ return c.productId===incId; });
+      if(incItem && incProd && incItem.qty < incProd.stock) incItem.qty++;
+      render();
+      break;
+
+    case 'cart-dec':
+      var decId = el.getAttribute('data-id');
+      var decItem = state.cart.find(function(c){ return c.productId===decId; });
+      if(decItem){
+        decItem.qty--;
+        if(decItem.qty<=0) state.cart = state.cart.filter(function(c){ return c.productId!==decId; });
+      }
+      render();
+      break;
+
+    case 'cart-remove':
+      var remId = el.getAttribute('data-id');
+      state.cart = state.cart.filter(function(c){ return c.productId!==remId; });
+      render();
+      break;
+
+    case 'set-payment':
+      state.billingPayment = el.getAttribute('data-method');
+      render();
+      break;
+
+    case 'generate-bill':
+      actionGenerateBill();
+      break;
+
+    case 'close-receipt':
+      closeModalByName('receipt');
+      break;
+
+    case 'print-invoice':
+      window.print();
+      break;
+
+    /* ---- customers ---- */
+    case 'open-add-customer':
+      state.showAddCustomerModal = true;
+      render();
+      break;
+
+    case 'close-add-customer':
+      closeModalByName('customer');
+      break;
+
+    case 'save-customer':
+      var cname = document.getElementById('cm-name').value.trim();
+      var cphone = document.getElementById('cm-phone').value.trim();
+      var caddr = document.getElementById('cm-address').value.trim();
+      if(!cname || !cphone){
+        toast(t('err_required'), 'error');
+        return;
+      }
+      var newCust = {id:uid('c'), name:cname, phone:cphone, address:caddr};
+      shop.customers.push(newCust);
+      state.billingCustomerId = newCust.id;
+      state.showAddCustomerModal = false;
+      fbSaveShop(shop);
+      toast(t('toast_customer_added'), 'success');
+      render();
+      break;
+
+    /* ---- reports ---- */
+    case 'set-range':
+      state.repRange = el.getAttribute('data-range');
+      render();
+      break;
+
+    /* ---- settings ---- */
+    case 'save-shop-settings':
+      var stName = document.getElementById('st-name').value.trim();
+      var stLoc = document.getElementById('st-location').value.trim();
+      var stVat = Number(document.getElementById('st-vat').value) || shop.vatRate;
+      var stMerchant = document.getElementById('st-merchant').value.trim();
+      if(stName) shop.businessName = stName;
+      if(stLoc) shop.location = stLoc;
+      shop.vatRate = stVat;
+      if(stMerchant) shop.merchantId = stMerchant;
+      fbSaveShop(shop);
+      toast(t('toast_settings_saved'), 'success');
+      render();
+      break;
+
+    case 'trigger-qr-upload':
+      document.getElementById('qr-upload').click();
+      break;
+
+    case 'remove-qr':
+      shop.customQr = null;
+      fbSaveShop(shop);
+      toast(t('toast_qr_updated'), 'success');
+      render();
+      break;
+
+    default:
+      break;
+  }
+}
+
+function actionGenerateBill(){
+  var shop = currentShop();
+  if(state.cart.length===0){ toast(t('err_cart_empty'), 'error'); return; }
+  for(var i=0;i<state.cart.length;i++){
+    var ci = state.cart[i];
+    var cp = shop.products.find(function(p){ return p.id===ci.productId; });
+    if(!cp || ci.qty > cp.stock){ toast(t('err_insufficient_stock'), 'error'); return; }
+  }
+  var subtotal = 0;
+  var items = state.cart.map(function(ci){
+    var p = shop.products.find(function(x){ return x.id===ci.productId; });
+    var lineTotal = p.price * ci.qty;
+    subtotal += lineTotal;
+    return {productId:p.id, name:p.name, qty:ci.qty, price:p.price, total:lineTotal};
+  });
+  var vat = subtotal * (shop.vatRate/100);
+  var total = subtotal + vat;
+  items.forEach(function(it){
+    var p = shop.products.find(function(x){ return x.id===it.productId; });
+    p.stock -= it.qty;
+  });
+  var customer = shop.customers.find(function(c){ return c.id===state.billingCustomerId; });
+  var invoiceNo = nextInvoiceNo(shop);
+  shop.invoiceSeq++;
+  var invoice = {
+    id: uid('inv'), invoiceNo:invoiceNo, date:Date.now(), items:items,
+    subtotal:subtotal, vat:vat, total:total, payment:state.billingPayment,
+    customerId: customer ? customer.id : null, customerName: customer ? customer.name : null
+  };
+  shop.sales.push(invoice);
+  state.cart = [];
+  state.billingCustomerId = '';
+  state.billingPayment = 'cash';
+  state.productSearch = '';
+  state.lastInvoice = invoice;
+  state.showReceiptModal = true;
+  fbSaveShop(shop);
+  render();
+  toast(t('toast_sale_recorded'), 'success');
+}
+
+function handleQrFile(inputEl){
+  var file = inputEl.files && inputEl.files[0];
+  if(!file) return;
+  // Firestore documents are capped at ~1MB; keep the embedded QR image
+  // well under that so the whole shop document still fits.
+  if(file.size > 700*1024){
+    toast(state.lang==='np' ? 'फाइल धेरै ठूलो छ (700KB भन्दा सानो हुनुपर्छ)।' : 'Image is too large — please use a file under 700KB.', 'error');
+    inputEl.value = '';
+    return;
+  }
+  var shop = currentShop();
+  var reader = new FileReader();
+  reader.onload = function(){
+    shop.customQr = reader.result;
+    fbSaveShop(shop);
+    toast(t('toast_qr_updated'), 'success');
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ---------------- event binding (delegated, bound once) ---------------- */
+function bindEvents(){
+  var app = document.getElementById('app');
+
+  app.addEventListener('click', function(e){
+    var backdrop = e.target.closest('[data-action="backdrop-close"]');
+    if(backdrop && e.target === backdrop){
+      closeModalByName(backdrop.getAttribute('data-modal'));
+      return;
+    }
+    var el = e.target.closest('[data-action]');
+    if(!el) return;
+    var action = el.getAttribute('data-action');
+    if(action==='backdrop-close') return;
+    handleAction(action, el);
+  });
+
+  app.addEventListener('keydown', function(e){
+    if(e.key==='Enter' && (e.target.id==='li-username' || e.target.id==='li-password')){
+      e.preventDefault();
+      var u = document.getElementById('li-username').value.trim();
+      var p = document.getElementById('li-password').value;
+      attemptLogin(state.loginRole, u, p);
+    }
+  });
+
+  app.addEventListener('input', function(e){
+    var el = e.target;
+    if(el.id==='product-search-input'){
+      state.productSearch = el.value;
+      reRenderKeepFocus();
+    } else if(el.id==='billing-search-input'){
+      state.productSearch = el.value;
+      reRenderKeepFocus();
+    } else if(el.getAttribute && el.getAttribute('data-action')==='search-customers'){
+      state.customerSearch = el.value;
+      reRenderKeepFocus();
+    }
+  });
+
+  app.addEventListener('change', function(e){
+    var el = e.target;
+    if(el.id==='bill-customer'){ state.billingCustomerId = el.value; }
+    if(el.id==='qr-upload'){ handleQrFile(el); }
+  });
+}
+
+/* ---------------- boot ---------------- */
+function boot(){
+  bindEvents();
+  initFirebaseThenRender();
+}
+
+async function initFirebaseThenRender(){
+  // Show the local demo data immediately so the UI never looks blank,
+  // then swap in Firestore data (or push the demo data to Firestore)
+  // once the module script above has finished initializing.
+  render();
+
+  if(!window.__fb){
+    await new Promise(function(resolve){
+      if(window.__fb) return resolve();
+      window.addEventListener('firebase-ready', resolve, {once:true});
+      setTimeout(resolve, 4000); // fallback if the CDN/module fails to load
+    });
+  }
+
+  if(window.__fb){
+    try{
+      var remoteShops = await window.__fb.loadShops();
+      if(remoteShops && remoteShops.length){
+        state.shops = remoteShops;
+      } else {
+        // First run: seed Firestore with the built-in demo shop.
+        for(var i=0;i<state.shops.length;i++){
+          await window.__fb.saveShop(state.shops[i]);
+        }
+      }
+    }catch(e){
+      console.error('Loading shops from Firebase failed, staying on local demo data:', e);
+    }
+  }
+  render();
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+</script>
+</body>
+</html>
