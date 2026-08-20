@@ -545,6 +545,7 @@ var I18N = {
     app_name:'Pasal Manager', app_sub:'Multi-Shop Management System',
     lang_en:'EN', lang_np:'ने',
     login_super_tab:'Super Admin', login_shop_tab:'Shop Admin',
+    login_unified_tab:'Admin Login', login_username_placeholder:'Username',
     login_title:'Sign in to your account', login_username:'Username', login_password:'Password',
     login_btn:'Sign In', login_shop_id:'Shop ID / Username',
     login_error_creds:'Invalid username or password.',
@@ -564,6 +565,8 @@ var I18N = {
     btn_manage:'Manage', btn_deactivate:'Deactivate', btn_activate:'Activate',
 
     create_shop_title:'Register a New Shop', create_shop_sub:'Step 1: identify the business by PAN. Step 2: set up admin login.',
+    edit_shop_title:'Edit Shop Details', edit_shop_sub:'Update business information, address, and VAT/PAN registration for this shop.',
+    btn_save_shop:'Save Changes',
     pan_label:'PAN Number', pan_placeholder:'e.g. 301234567', btn_fetch:'Fetch Details',
     pan_fetching:'Looking up PAN registry…', pan_found:'Business details found and filled in automatically.',
     pan_notfound:'No match found in the PAN registry. Please enter the business details manually below.',
@@ -573,10 +576,15 @@ var I18N = {
     shop_location_hint:'The physical location of this outlet, e.g. district / municipality / street.',
     admin_login_section:'Shop Admin Login', admin_username:'Admin Username', admin_password:'Temporary Password',
     generate_pw:'Generate', vat_rate:'VAT Rate (%)',
+    field_email:'Email Address', field_phone:'Phone Number',
+    tax_reg_type:'Tax Registration Type', tax_reg_vat:'VAT Registered (13% applied)', tax_reg_pan:'PAN Only (no VAT)',
+    tax_reg_vat_short:'VAT', tax_reg_pan_short:'PAN Only',
+    tax_reg_hint:'Choose VAT if this shop is VAT-registered — 13% VAT is added to every bill automatically. Choose PAN Only if it is not VAT-registered — no VAT is applied.',
     btn_create_shop:'Create Shop Account', btn_cancel:'Cancel',
     err_required:'This field is required.', err_pan_digits:'PAN should be 9 digits.',
     err_username_taken:'This username is already used by another shop.',
     toast_shop_created:'Shop and admin account created successfully.',
+    toast_shop_updated:'Shop details updated successfully.',
 
     dash_welcome:'Welcome back', dash_today:"Today's overview",
     stat_today_sales:"Today's Sales", stat_today_bills:"Bills Today", stat_low_stock:'Low Stock Items', stat_customers:'Total Customers',
@@ -609,12 +617,12 @@ var I18N = {
     toast_sale_recorded:'Sale recorded and stock updated.', err_cart_empty:'Add at least one product first.',
     err_insufficient_stock:'Not enough stock available.',
 
-    invoice_title:'VAT Invoice', invoice_no:'Invoice No', invoice_date:'Date', invoice_pan:'PAN',
+    invoice_title:'VAT Invoice', invoice_title_pan:'Sales Invoice', invoice_no:'Invoice No', invoice_date:'Date', invoice_pan:'PAN',
     invoice_customer:'Customer', invoice_payment:'Payment', invoice_scan_pay:'Scan to Pay',
     invoice_scan_note:'Scan with any mobile payment app. Amount is pre-filled.',
     invoice_scan_note_static:"Scan the shop's payment QR, then enter the amount shown below.",
     invoice_thanks:'Thank you for your business!', invoice_print:'Print / Save PDF', invoice_close:'Close',
-    invoice_vat_reg:'VAT Registered Business',
+    invoice_vat_reg:'VAT Registered Business', invoice_pan_reg:'PAN Registered Business (No VAT)',
 
     rep_title:'Sales Reports', rep_sub:'Understand performance across time, products and payment methods.',
     rep_range:'Range', range_7:'Last 7 days', range_30:'Last 30 days', range_90:'Last 90 days', range_all:'All time',
@@ -641,6 +649,7 @@ var I18N = {
     app_name:'पसल व्यवस्थापक', app_sub:'बहु-पसल व्यवस्थापन प्रणाली',
     lang_en:'EN', lang_np:'ने',
     login_super_tab:'सुपर एडमिन', login_shop_tab:'पसल एडमिन',
+    login_unified_tab:'एडमिन लगइन', login_username_placeholder:'प्रयोगकर्ता नाम',
     login_title:'आफ्नो खातामा लगइन गर्नुहोस्', login_username:'प्रयोगकर्ता नाम', login_password:'पासवर्ड',
     login_btn:'लगइन गर्नुहोस्', login_shop_id:'पसल आईडी / प्रयोगकर्ता नाम',
     login_error_creds:'प्रयोगकर्ता नाम वा पासवर्ड मिलेन।',
@@ -660,6 +669,8 @@ var I18N = {
     btn_manage:'व्यवस्थापन', btn_deactivate:'निष्क्रिय गर्नुहोस्', btn_activate:'सक्रिय गर्नुहोस्',
 
     create_shop_title:'नयाँ पसल दर्ता गर्नुहोस्', create_shop_sub:'चरण १: प्यानबाट व्यवसाय पहिचान गर्नुहोस्। चरण २: एडमिन लगइन सेट गर्नुहोस्।',
+    edit_shop_title:'पसलको विवरण सम्पादन गर्नुहोस्', edit_shop_sub:'यस पसलको व्यवसाय जानकारी, ठेगाना, र भ्याट/प्यान दर्ता अद्यावधिक गर्नुहोस्।',
+    btn_save_shop:'परिवर्तन सुरक्षित गर्नुहोस्',
     pan_label:'प्यान नम्बर', pan_placeholder:'उदाहरण: 301234567', btn_fetch:'विवरण खोज्नुहोस्',
     pan_fetching:'प्यान रजिस्ट्रीमा खोजी हुँदैछ…', pan_found:'व्यवसायको विवरण फेला पर्यो र स्वतः भरियो।',
     pan_notfound:'प्यान रजिस्ट्रीमा मिल्दो विवरण फेला परेन। कृपया तल व्यवसायको विवरण आफैं भर्नुहोस्।',
@@ -669,10 +680,15 @@ var I18N = {
     shop_location_hint:'यस पसलको भौतिक स्थान, जस्तै जिल्ला / नगरपालिका / सडक।',
     admin_login_section:'पसल एडमिन लगइन', admin_username:'एडमिन प्रयोगकर्ता नाम', admin_password:'अस्थायी पासवर्ड',
     generate_pw:'उत्पन्न गर्नुहोस्', vat_rate:'भ्याट दर (%)',
+    field_email:'इमेल ठेगाना', field_phone:'फोन नम्बर',
+    tax_reg_type:'कर दर्ताको प्रकार', tax_reg_vat:'भ्याट दर्ता (१३% लाग्छ)', tax_reg_pan:'प्यान मात्र (भ्याट लाग्दैन)',
+    tax_reg_vat_short:'भ्याट', tax_reg_pan_short:'प्यान मात्र',
+    tax_reg_hint:'यदि यो पसल भ्याट दर्ता भएको हो भने भ्याट छान्नुहोस् — हरेक बिलमा स्वतः १३% भ्याट थपिन्छ। भ्याट दर्ता नभएको भए प्यान मात्र छान्नुहोस् — भ्याट लाग्दैन।',
     btn_create_shop:'पसल खाता बनाउनुहोस्', btn_cancel:'रद्द गर्नुहोस्',
     err_required:'यो फिल्ड आवश्यक छ।', err_pan_digits:'प्यान ९ अंकको हुनुपर्छ।',
     err_username_taken:'यो प्रयोगकर्ता नाम अर्को पसलले प्रयोग गरिसकेको छ।',
     toast_shop_created:'पसल र एडमिन खाता सफलतापूर्वक बनाइयो।',
+    toast_shop_updated:'पसलको विवरण सफलतापूर्वक अद्यावधिक भयो।',
 
     dash_welcome:'फेरि स्वागत छ', dash_today:'आजको सारांश',
     stat_today_sales:'आजको बिक्री', stat_today_bills:'आजका बिलहरू', stat_low_stock:'कम स्टक भएका सामान', stat_customers:'कुल ग्राहक',
@@ -705,12 +721,12 @@ var I18N = {
     toast_sale_recorded:'बिक्री दर्ता भयो र स्टक अद्यावधिक भयो।', err_cart_empty:'पहिले कम्तिमा एउटा सामान थप्नुहोस्।',
     err_insufficient_stock:'पर्याप्त स्टक उपलब्ध छैन।',
 
-    invoice_title:'भ्याट बिल', invoice_no:'बिल नं.', invoice_date:'मिति', invoice_pan:'प्यान',
+    invoice_title:'भ्याट बिल', invoice_title_pan:'बिक्री बिल', invoice_no:'बिल नं.', invoice_date:'मिति', invoice_pan:'प्यान',
     invoice_customer:'ग्राहक', invoice_payment:'भुक्तानी', invoice_scan_pay:'भुक्तानीको लागि स्क्यान गर्नुहोस्',
     invoice_scan_note:'कुनै पनि मोबाइल भुक्तानी एपले स्क्यान गर्नुहोस्। रकम पहिल्यै भरिएको छ।',
     invoice_scan_note_static:'पसलको भुक्तानी क्युआर स्क्यान गरी तल देखाइएको रकम राख्नुहोस्।',
     invoice_thanks:'तपाईंको व्यवसायको लागि धन्यवाद!', invoice_print:'प्रिन्ट / PDF सुरक्षित गर्नुहोस्', invoice_close:'बन्द गर्नुहोस्',
-    invoice_vat_reg:'भ्याट दर्ता भएको व्यवसाय',
+    invoice_vat_reg:'भ्याट दर्ता भएको व्यवसाय', invoice_pan_reg:'प्यान दर्ता भएको व्यवसाय (भ्याट लाग्दैन)',
 
     rep_title:'बिक्री प्रतिवेदन', rep_sub:'समय, सामान र भुक्तानी विधि अनुसार प्रदर्शन बुझ्नुहोस्।',
     rep_range:'अवधि', range_7:'गत ७ दिन', range_30:'गत ३० दिन', range_90:'गत ९० दिन', range_all:'सबै समय',
@@ -762,6 +778,9 @@ function makeDemoShop(){
     address:'Thamel Marg, Kathmandu',
     category:'Grocery & Daily Needs',
     location:'Thamel, Kathmandu Metropolitan City',
+    email:'contact@everestmart.com.np',
+    phone:'01-4123456',
+    taxType:'vat',
     adminUsername:'everest',
     adminPassword:'shop123',
     vatRate:13,
@@ -822,7 +841,6 @@ function seedDemoSales(shop){
 var state = {
   lang:'en',
   currentUser:null,
-  loginRole:'super',
   loginError:'',
   superView:'shops',
   shopView:'dashboard',
@@ -836,6 +854,7 @@ var state = {
   showCreateShopModal:false,
   createShopStep:1,
   createShop:blankCreateShop(),
+  showEditShopModal:null,
   showAddProductModal:false,
   editingProductId:null,
   showAddStockModal:null,
@@ -845,7 +864,7 @@ var state = {
 };
 
 function blankCreateShop(){
-  return { pan:'', fetchState:'idle', businessName:'', ownerName:'', address:'', regType:'', category:'', location:'', adminUsername:'', adminPassword:genPassword(), vatRate:13 };
+  return { pan:'', fetchState:'idle', businessName:'', ownerName:'', address:'', regType:'', category:'', location:'', email:'', phone:'', taxType:'vat', adminUsername:'', adminPassword:genPassword(), vatRate:13 };
 }
 function genPassword(){
   var chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -986,6 +1005,7 @@ function renderSuperSidebar(){
 function renderSuperMain(){
   var body = renderShopsList();
   if(state.showCreateShopModal) body += renderCreateShopModal();
+  if(state.showEditShopModal) body += renderEditShopModal();
   return body;
 }
 
@@ -1006,9 +1026,10 @@ function renderShopsList(){
         '</div>'+
         '<span class="badge '+(shop.active!==false?'badge-success':'badge-danger')+'">'+(shop.active!==false ? '&#9679; Active' : '&#9679; Inactive')+'</span>'+
       '</div>'+
-      '<div style="display:flex;gap:8px;font-size:12px;">'+
+      '<div style="display:flex;gap:8px;font-size:12px;flex-wrap:wrap;">'+
         '<span class="tag-pill">PAN '+escapeHtml(shop.pan)+'</span>'+
         '<span class="tag-pill">'+escapeHtml(shop.category)+'</span>'+
+        '<span class="badge '+(shop.taxType==='pan'?'badge-gold':'badge-indigo')+'">'+(shop.taxType==='pan' ? t('tax_reg_pan_short') : t('tax_reg_vat_short'))+'</span>'+
       '</div>'+
       '<hr class="hair" style="margin:2px 0;">'+
       '<div style="display:flex;justify-content:space-between;font-size:12.5px;">'+
@@ -1018,6 +1039,7 @@ function renderShopsList(){
       '<div class="muted" style="font-size:11.5px;">'+t('shop_card_login')+': <span style="font-family:var(--font-mono);color:var(--ink);">'+escapeHtml(shop.adminUsername)+'</span></div>'+
       '<div style="display:flex;gap:8px;margin-top:4px;">'+
         '<button class="btn btn-outline btn-sm" data-action="login-as-shop" data-id="'+shop.id+'" style="flex:1;justify-content:center;">'+t('btn_manage')+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="open-edit-shop" data-id="'+shop.id+'">'+t('btn_edit')+'</button>'+
         '<button class="btn btn-sm '+(shop.active!==false?'btn-outline':'btn-gold')+'" data-action="toggle-shop-active" data-id="'+shop.id+'">'+(shop.active!==false?t('btn_deactivate'):t('btn_activate'))+'</button>'+
       '</div>'+
     '</div>';
@@ -1070,6 +1092,10 @@ function renderCreateShopModal(){
           '<input class="field" id="cs-location" value="'+escapeHtml(cs.location)+'" placeholder="'+t('shop_location')+'">'+
           '<div class="field-hint">'+t('shop_location_hint')+'</div>'+
         '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('field_email')+'</label><input class="field" id="cs-email" type="email" value="'+escapeHtml(cs.email||'')+'" placeholder="shop@example.com"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('field_phone')+'</label><input class="field" id="cs-phone" type="tel" value="'+escapeHtml(cs.phone||'')+'" placeholder="98XXXXXXXX"></div>'+
+        '</div>'+
         '<hr class="hair">'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('admin_login_section')+'</div>'+
         '<div class="grid grid-2">'+
@@ -1079,9 +1105,13 @@ function renderCreateShopModal(){
             '<button type="button" class="btn btn-outline btn-sm" data-action="regen-password">&#8635;</button></div>'+
           '</div>'+
         '</div>'+
-        '<div class="field-row" style="max-width:160px;">'+
-          '<label class="field-label">'+t('vat_rate')+'</label>'+
-          '<input class="field" id="cs-vat" value="'+cs.vatRate+'" type="number">'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('tax_reg_type')+'</label>'+
+          '<select class="field" id="cs-taxtype">'+
+            '<option value="vat" '+((cs.taxType||'vat')==='vat'?'selected':'')+'>'+t('tax_reg_vat')+'</option>'+
+            '<option value="pan" '+(cs.taxType==='pan'?'selected':'')+'>'+t('tax_reg_pan')+'</option>'+
+          '</select>'+
+          '<div class="field-hint">'+t('tax_reg_hint')+'</div>'+
         '</div>'+
         '')+
       '</div>'+
@@ -1094,6 +1124,57 @@ function renderCreateShopModal(){
 }
 function field(id,key,val){
   return '<div class="field-row"><label class="field-label">'+t(key)+'</label><input class="field" id="'+id+'" value="'+escapeHtml(val)+'"></div>';
+}
+
+function renderEditShopModal(){
+  var shop = state.shops.find(function(s){ return s.id===state.showEditShopModal; });
+  if(!shop) return '';
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="edit-shop">'+
+    '<div class="modal" data-stop>'+
+      '<div class="modal-head"><h3>'+t('edit_shop_title')+'</h3><button class="modal-close" data-action="close-edit-shop">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12.5px;margin-bottom:16px;">'+t('edit_shop_sub')+'</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('pan_label')+'</label>'+
+          '<input class="field" id="es-pan" maxlength="9" value="'+escapeHtml(shop.pan)+'" style="font-family:var(--font-mono);letter-spacing:1px;">'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('business_name')+'</label><input class="field" id="es-businessName" value="'+escapeHtml(shop.businessName)+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('owner_name')+'</label><input class="field" id="es-ownerName" value="'+escapeHtml(shop.ownerName)+'"></div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('reg_type')+'</label><input class="field" id="es-regType" value="'+escapeHtml(shop.regType||'')+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('shop_category')+'</label><input class="field" id="es-category" value="'+escapeHtml(shop.category||'')+'"></div>'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('business_address')+'</label>'+
+          '<input class="field" id="es-address" value="'+escapeHtml(shop.address||'')+'">'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('shop_location')+'</label>'+
+          '<input class="field" id="es-location" value="'+escapeHtml(shop.location||'')+'">'+
+          '<div class="field-hint">'+t('shop_location_hint')+'</div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('field_email')+'</label><input class="field" id="es-email" type="email" value="'+escapeHtml(shop.email||'')+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('field_phone')+'</label><input class="field" id="es-phone" type="tel" value="'+escapeHtml(shop.phone||'')+'"></div>'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('tax_reg_type')+'</label>'+
+          '<select class="field" id="es-taxtype">'+
+            '<option value="vat" '+((shop.taxType||'vat')==='vat'?'selected':'')+'>'+t('tax_reg_vat')+'</option>'+
+            '<option value="pan" '+(shop.taxType==='pan'?'selected':'')+'>'+t('tax_reg_pan')+'</option>'+
+          '</select>'+
+          '<div class="field-hint">'+t('tax_reg_hint')+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot">'+
+        '<button class="btn btn-outline" data-action="close-edit-shop">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="submit-edit-shop" data-id="'+shop.id+'">'+t('btn_save_shop')+'</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
 }
 
 /* ---------------- shop admin: sidebar ---------------- */
@@ -1327,7 +1408,7 @@ function renderBillingView(){
       '</div>'+
       '<hr class="hair">'+
       '<div class="kv"><div class="k">'+t('bill_subtotal')+'</div><div class="v">'+fmtMoney(subtotal)+'</div></div>'+
-      '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>'+
+      (shop.taxType==='pan' ? '' : '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>')+
       '<div class="kv" style="font-size:16px;"><div class="k" style="color:var(--ink);font-weight:700;">'+t('bill_total')+'</div><div class="v" style="color:var(--crimson-dark);">'+fmtMoney(total)+'</div></div>'+
       '<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:14px;font-size:14px;" data-action="generate-bill" '+(cart.length===0?'disabled':'')+'>&#128196; '+t('bill_generate')+'</button>'+
     '</div>'+
@@ -1435,7 +1516,14 @@ function renderSettingsView(){
       '<div class="field-row"><label class="field-label">'+t('business_name')+'</label><input class="field" id="st-name" value="'+escapeHtml(shop.businessName)+'"></div>'+
       '<div class="field-row"><label class="field-label">'+t('shop_location')+'</label><input class="field" id="st-location" value="'+escapeHtml(shop.location)+'"></div>'+
       '<div class="grid grid-2">'+
-        '<div class="field-row"><label class="field-label">'+t('set_vat')+' (%)</label><input class="field" id="st-vat" type="number" value="'+shop.vatRate+'"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('field_email')+'</label><input class="field" id="st-email" type="email" value="'+escapeHtml(shop.email||'')+'"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('field_phone')+'</label><input class="field" id="st-phone" type="tel" value="'+escapeHtml(shop.phone||'')+'"></div>'+
+      '</div>'+
+      '<div class="grid grid-2">'+
+        '<div class="field-row"><label class="field-label">'+t('tax_reg_type')+'</label><select class="field" id="st-taxtype">'+
+          '<option value="vat" '+((shop.taxType||'vat')==='vat'?'selected':'')+'>'+t('tax_reg_vat')+'</option>'+
+          '<option value="pan" '+(shop.taxType==='pan'?'selected':'')+'>'+t('tax_reg_pan')+'</option>'+
+        '</select><div class="field-hint">'+t('tax_reg_hint')+'</div></div>'+
         '<div class="field-row"><label class="field-label">'+t('set_merchant_id')+'</label><input class="field" id="st-merchant" value="'+escapeHtml(shop.merchantId)+'"><div class="field-hint">'+t('set_merchant_hint')+'</div></div>'+
       '</div>'+
       '<button class="btn btn-primary" data-action="save-shop-settings">'+t('btn_save_settings')+'</button>'+
@@ -1465,13 +1553,13 @@ function renderReceiptModal(){
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="receipt">'+
     '<div class="modal" style="max-width:560px;" data-stop>'+
-      '<div class="modal-head"><h3>'+t('invoice_title')+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
+      '<div class="modal-head"><h3>'+(shop.taxType==='pan' ? t('invoice_title_pan') : t('invoice_title'))+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
       '<div class="modal-body" style="background:var(--surface-2);">'+
         '<div class="invoice-sheet" id="printable-invoice">'+
           '<div class="invoice-head">'+
             '<div class="shopname">'+escapeHtml(shop.businessName)+'</div>'+
             '<div class="meta">'+escapeHtml(shop.location)+'</div>'+
-            '<div class="meta">'+t('invoice_vat_reg')+' · '+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
+            '<div class="meta">'+(shop.taxType==='pan' ? t('invoice_pan_reg') : t('invoice_vat_reg'))+' · '+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
           '</div>'+
           '<div class="invoice-body">'+
             '<div class="invoice-row"><span>'+t('invoice_no')+'</span><b style="font-family:var(--font-mono);">'+inv.invoiceNo+'</b></div>'+
@@ -1482,7 +1570,7 @@ function renderReceiptModal(){
             '<div class="invoice-items"><table><thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Total</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'+
             '<div class="invoice-totals">'+
               '<div class="invoice-row"><span>'+t('bill_subtotal')+'</span><span>'+fmtMoney(inv.subtotal)+'</span></div>'+
-              '<div class="invoice-row"><span>'+t('bill_vat')+' ('+shop.vatRate+'%)</span><span>'+fmtMoney(inv.vat)+'</span></div>'+
+              (shop.taxType==='pan' ? '' : '<div class="invoice-row"><span>'+t('bill_vat')+' ('+shop.vatRate+'%)</span><span>'+fmtMoney(inv.vat)+'</span></div>')+
               '<div class="invoice-row" style="font-size:16px;font-weight:800;color:var(--crimson-dark);"><span>'+t('bill_total')+'</span><span>'+fmtMoney(inv.total)+'</span></div>'+
             '</div>'+
             '<div class="invoice-qr">'+
@@ -1507,7 +1595,6 @@ function renderReceiptModal(){
 }
 
 function renderLogin(){
-  var role = state.loginRole;
   return ''+
   '<div class="login-wrap">'+
     '<div class="login-card">'+
@@ -1521,28 +1608,18 @@ function renderLogin(){
           '<button data-action="set-lang" data-lang="en" class="'+(state.lang==='en'?'active':'')+'" style="color:'+(state.lang==='en'?'':'#6E6459')+'">'+t('lang_en')+'</button>'+
           '<button data-action="set-lang" data-lang="np" class="'+(state.lang==='np'?'active':'')+'" style="color:'+(state.lang==='np'?'':'#6E6459')+'">'+t('lang_np')+'</button>'+
         '</div>'+
-        '<div class="role-tabs">'+
-          '<button data-action="login-role" data-role="super" class="'+(role==='super'?'active':'')+'">'+t('login_super_tab')+'</button>'+
-          '<button data-action="login-role" data-role="shop" class="'+(role==='shop'?'active':'')+'">'+t('login_shop_tab')+'</button>'+
-        '</div>'+
+        '<div class="role-tabs"><button class="active" style="cursor:default;">'+t('login_unified_tab')+'</button></div>'+
         (state.loginError ? '<div class="login-error">'+escapeHtml(state.loginError)+'</div>' : '')+
         '<div>'+
           '<div class="field-row">'+
-            '<label class="field-label">'+ (role==='super' ? t('login_username') : t('login_shop_id')) +'</label>'+
-            '<input class="field" id="li-username" autocomplete="username" placeholder="'+(role==='super'?'superadmin':'everest')+'">'+
+            '<label class="field-label">'+t('login_username')+'</label>'+
+            '<input class="field" id="li-username" autocomplete="username" placeholder="'+t('login_username_placeholder')+'">'+
           '</div>'+
           '<div class="field-row">'+
             '<label class="field-label">'+t('login_password')+'</label>'+
             '<input class="field" id="li-password" type="password" autocomplete="current-password" placeholder="••••••••">'+
           '</div>'+
           '<button type="button" data-action="do-login" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;">'+t('login_btn')+'</button>'+
-        '</div>'+
-        '<div class="demo-box">'+
-          '<b>'+t('demo_creds_title')+':</b><br>'+
-          '<span data-action="fill-demo" data-role="super" style="cursor:pointer;">'+
-            '&#128100; <u>'+t('demo_super')+'</u> — superadmin / super123</span><br>'+
-          '<span data-action="fill-demo" data-role="shop" style="cursor:pointer;">'+
-            '&#127978; <u>'+t('demo_shop')+'</u> — everest / shop123</span>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -1592,37 +1669,35 @@ function reRenderKeepFocus(){
   }
 }
 
-/* ---------------- auth ---------------- */
-function attemptLogin(role, username, password){
-  if(role==='super'){
-    if(username===SUPER_CREDS.username && password===SUPER_CREDS.password){
-      state.currentUser = {role:'super'};
-      state.superView = 'shops';
-      state.loginError = '';
-    } else {
-      state.loginError = t('login_error_creds');
-    }
-  } else {
-    if(state.shops.length===0){
-      state.loginError = t('login_error_noshops');
-    } else {
-      var shop = state.shops.find(function(s){ return s.adminUsername===username && s.adminPassword===password && s.active!==false; });
-      if(shop){
-        state.currentUser = {role:'shop', shopId:shop.id};
-        state.shopView = 'dashboard';
-        state.cart = [];
-        state.loginError = '';
-      } else {
-        state.loginError = t('login_error_creds');
-      }
-    }
+/* ---------------- auth ----------------
+   Single unified login: tries Super Admin credentials first, then
+   falls back to matching a Shop Admin account, so the person never
+   has to pick a role — the app figures out which account it is. */
+function attemptLogin(username, password){
+  if(username===SUPER_CREDS.username && password===SUPER_CREDS.password){
+    state.currentUser = {role:'super'};
+    state.superView = 'shops';
+    state.loginError = '';
+    render();
+    return;
   }
+  var shop = state.shops.find(function(s){ return s.adminUsername===username && s.adminPassword===password && s.active!==false; });
+  if(shop){
+    state.currentUser = {role:'shop', shopId:shop.id};
+    state.shopView = 'dashboard';
+    state.cart = [];
+    state.loginError = '';
+    render();
+    return;
+  }
+  state.loginError = t('login_error_creds');
   render();
 }
 
 /* ---------------- modal close helper ---------------- */
 function closeModalByName(name){
   if(name==='create-shop') state.showCreateShopModal = false;
+  else if(name==='edit-shop') state.showEditShopModal = null;
   else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; }
   else if(name==='stock') state.showAddStockModal = null;
   else if(name==='customer') state.showAddCustomerModal = false;
@@ -1638,25 +1713,12 @@ function handleAction(action, el){
     case 'do-login':
       var loginU = document.getElementById('li-username').value.trim();
       var loginP = document.getElementById('li-password').value;
-      attemptLogin(state.loginRole, loginU, loginP);
+      attemptLogin(loginU, loginP);
       break;
 
     case 'set-lang':
       state.lang = el.getAttribute('data-lang');
       render();
-      break;
-
-    case 'login-role':
-      state.loginRole = el.getAttribute('data-role');
-      state.loginError = '';
-      render();
-      break;
-
-    case 'fill-demo':
-      var r = el.getAttribute('data-role');
-      state.loginRole = r;
-      if(r==='super') attemptLogin('super', SUPER_CREDS.username, SUPER_CREDS.password);
-      else attemptLogin('shop', 'everest', 'shop123');
       break;
 
     case 'logout':
@@ -1715,8 +1777,10 @@ function handleAction(action, el){
       var g = function(id){ var e2=document.getElementById(id); return e2 ? e2.value.trim() : ''; };
       var pan = g('cs-pan'), bname = g('cs-businessName'), oname = g('cs-ownerName'),
           addr = g('cs-address'), reg = g('cs-regType'), cat = g('cs-category'),
-          loc = g('cs-location'), uname = g('cs-username'), pwd = g('cs-password'), vatv = g('cs-vat');
-      if(!bname || !oname || !addr || !cat || !loc || !uname || !pwd){
+          loc = g('cs-location'), email = g('cs-email'), phone = g('cs-phone'),
+          uname = g('cs-username'), pwd = g('cs-password'),
+          taxTypeEl = document.getElementById('cs-taxtype'), taxType = taxTypeEl ? taxTypeEl.value : 'vat';
+      if(!bname || !oname || !addr || !cat || !loc || !email || !phone || !uname || !pwd){
         toast(t('err_required'), 'error');
         return;
       }
@@ -1729,10 +1793,12 @@ function handleAction(action, el){
         toast(t('err_username_taken'), 'error');
         return;
       }
+      // VAT-registered shops always bill at 13%; PAN-only shops never add VAT.
+      var newVatRate = (taxType==='vat') ? 13 : 0;
       var newShop = {
         id: uid('s'), businessName:bname, ownerName:oname, pan:pan, regType:reg||'—',
-        address:addr, category:cat||'General', location:loc,
-        adminUsername:uname, adminPassword:pwd, vatRate: Number(vatv)||13,
+        address:addr, category:cat||'General', location:loc, email:email, phone:phone,
+        taxType:taxType, adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
         merchantId: uname.toUpperCase()+'.MOBILE@BANK', customQr:null, active:true,
         invoiceSeq:1000, products:[], customers:[], sales:[]
       };
@@ -1740,6 +1806,50 @@ function handleAction(action, el){
       state.showCreateShopModal = false;
       fbSaveShop(newShop);
       toast(t('toast_shop_created'), 'success');
+      render();
+      break;
+
+    case 'open-edit-shop':
+      state.showEditShopModal = el.getAttribute('data-id');
+      render();
+      break;
+
+    case 'close-edit-shop':
+      closeModalByName('edit-shop');
+      break;
+
+    case 'submit-edit-shop':
+      var editId = el.getAttribute('data-id');
+      var editShop = state.shops.find(function(s){ return s.id===editId; });
+      if(!editShop) return;
+      var ge = function(id){ var e3=document.getElementById(id); return e3 ? e3.value.trim() : ''; };
+      var ePan = ge('es-pan'), eBname = ge('es-businessName'), eOname = ge('es-ownerName'),
+          eReg = ge('es-regType'), eCat = ge('es-category'), eAddr = ge('es-address'),
+          eLoc = ge('es-location'), eEmail = ge('es-email'), ePhone = ge('es-phone'),
+          eTaxTypeEl = document.getElementById('es-taxtype'), eTaxType = eTaxTypeEl ? eTaxTypeEl.value : (editShop.taxType||'vat');
+      if(!eBname || !eOname || !eAddr || !eCat || !eLoc || !eEmail || !ePhone){
+        toast(t('err_required'), 'error');
+        return;
+      }
+      if(!/^\d{9}$/.test(ePan)){
+        toast(t('err_pan_digits'), 'error');
+        return;
+      }
+      editShop.pan = ePan;
+      editShop.businessName = eBname;
+      editShop.ownerName = eOname;
+      editShop.regType = eReg || '—';
+      editShop.category = eCat || 'General';
+      editShop.address = eAddr;
+      editShop.location = eLoc;
+      editShop.email = eEmail;
+      editShop.phone = ePhone;
+      editShop.taxType = eTaxType;
+      // VAT-registered shops always bill at 13%; PAN-only shops never add VAT.
+      editShop.vatRate = (eTaxType==='vat') ? 13 : 0;
+      state.showEditShopModal = null;
+      fbSaveShop(editShop);
+      toast(t('toast_shop_updated'), 'success');
       render();
       break;
 
@@ -1939,11 +2049,18 @@ function handleAction(action, el){
     case 'save-shop-settings':
       var stName = document.getElementById('st-name').value.trim();
       var stLoc = document.getElementById('st-location').value.trim();
-      var stVat = Number(document.getElementById('st-vat').value) || shop.vatRate;
+      var stEmail = document.getElementById('st-email').value.trim();
+      var stPhone = document.getElementById('st-phone').value.trim();
+      var stTaxTypeEl = document.getElementById('st-taxtype');
+      var stTaxType = stTaxTypeEl ? stTaxTypeEl.value : (shop.taxType||'vat');
       var stMerchant = document.getElementById('st-merchant').value.trim();
       if(stName) shop.businessName = stName;
       if(stLoc) shop.location = stLoc;
-      shop.vatRate = stVat;
+      shop.email = stEmail;
+      shop.phone = stPhone;
+      shop.taxType = stTaxType;
+      // VAT-registered shops always bill at 13%; PAN-only shops never add VAT.
+      shop.vatRate = (stTaxType==='vat') ? 13 : 0;
       if(stMerchant) shop.merchantId = stMerchant;
       fbSaveShop(shop);
       toast(t('toast_settings_saved'), 'success');
@@ -2050,7 +2167,7 @@ function bindEvents(){
       e.preventDefault();
       var u = document.getElementById('li-username').value.trim();
       var p = document.getElementById('li-password').value;
-      attemptLogin(state.loginRole, u, p);
+      attemptLogin(u, p);
     }
   });
 
