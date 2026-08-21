@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Tiro+Devanagari+Nepali&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root{
     --bg: #FAF6EE;
@@ -90,10 +91,24 @@
   }
   .lang-toggle button.active{background:var(--gold);color:#241a05;}
   .user-chip{
-    display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);
+    display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);color:#fff;
     border:1px solid rgba(255,255,255,0.16);padding:6px 12px 6px 6px;border-radius:999px;font-size:12.5px;
+    font-family:inherit;text-align:left;
   }
-  .user-chip .dot{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#241a05;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  .user-chip:hover{background:rgba(255,255,255,0.14);}
+  .user-chip .dot{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#241a05;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
+  .user-menu-dropdown{
+    position:absolute;top:calc(100% + 8px);right:0;min-width:200px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;box-shadow:var(--shadow-lg);overflow:hidden;z-index:150;
+  }
+  .user-menu-item{
+    display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:11px 14px;border:none;background:#fff;
+    color:var(--ink);font-size:13px;font-weight:600;border-bottom:1px solid var(--border);
+  }
+  .user-menu-item:last-child{border-bottom:none;}
+  .user-menu-item:hover{background:var(--surface-2);}
+  .user-menu-item .ic{width:16px;text-align:center;font-size:14px;}
+  .user-menu-item-danger{color:var(--danger);}
   .logout-btn{
     background:transparent;border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 13px;border-radius:8px;font-size:12.5px;font-weight:600;
   }
@@ -591,6 +606,66 @@ function initials(name){
   return (name||'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
 }
 
+/* =========================================================
+   EMAIL NOTIFICATIONS (EmailJS — no backend required)
+   Sends a security notice whenever a shop admin's password is
+   changed. This app is a single static HTML file with no
+   server, so it uses EmailJS: a service designed to send email
+   directly from client-side JS using a PUBLIC key (safe to
+   expose — restrict it to your domain in the EmailJS
+   dashboard), not a secret API key.
+
+   SETUP REQUIRED (one-time, free tier available):
+   1. Create an account at https://www.emailjs.com
+   2. Add an Email Service (e.g. Gmail) → note its Service ID
+   3. Create an Email Template with variables: {{to_email}},
+      {{shop_name}}, {{changed_at}} → note its Template ID
+   4. Account → General → copy your Public Key
+   5. Paste all three below. Until you do, password changes
+      still save correctly — only the email step is skipped,
+      with a toast letting the admin know.
+
+   SECURITY NOTE: this notification deliberately does NOT
+   include the new password itself. Emailing a live password
+   is an unnecessary extra exposure — the notice's job is just
+   to alert the shop owner that a change happened, so they can
+   act fast if it wasn't them.
+   ========================================================= */
+var EMAILJS_CONFIG = {
+  serviceId: 'YOUR_EMAILJS_SERVICE_ID',
+  templateId: 'YOUR_EMAILJS_TEMPLATE_ID',
+  publicKey: 'YOUR_EMAILJS_PUBLIC_KEY'
+};
+var emailjsReady = false;
+try{
+  if(window.emailjs && EMAILJS_CONFIG.publicKey.indexOf('YOUR_') !== 0){
+    emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+    emailjsReady = true;
+  }
+}catch(e){ console.error('EmailJS init failed:', e); }
+
+function sendPasswordChangeEmail(shop){
+  if(!shop.email){
+    toast(t('cp_no_email_on_file'), 'error');
+    return;
+  }
+  if(!emailjsReady){
+    console.warn('EmailJS is not configured yet — see EMAILJS_CONFIG near the top of the script. Skipping email notification.');
+    toast(t('cp_email_not_configured'), 'error');
+    return;
+  }
+  emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+    to_email: shop.email,
+    shop_name: shop.businessName,
+    changed_at: fmtDateTime(Date.now())
+  }).then(function(){
+    toast(t('cp_email_sent') + ': ' + shop.email, 'success');
+  }).catch(function(err){
+    console.error('EmailJS send failed:', err);
+    toast(t('cp_email_failed'), 'error');
+  });
+}
+
 /* ---------------- i18n ---------------- */
 var I18N = {
   en: {
@@ -605,6 +680,17 @@ var I18N = {
     demo_creds_title:'Demo credentials',
     demo_super:'Super Admin', demo_shop:'Shop Admin (Everest Mart)',
     logout:'Log out',
+    change_password:'Change Password',
+    change_password_sub:'Choose a new password for your Shop Admin login. You will need your current password to confirm.',
+    cp_current_password:'Current Password', cp_new_password:'New Password', cp_confirm_password:'Confirm New Password',
+    cp_email_notice:'A confirmation email will be sent to', cp_no_email_notice:'No email is on file for this shop — add one in Settings to receive change confirmations.',
+    cp_submit:'Update Password',
+    cp_err_wrong_current:'Current password is incorrect.', cp_err_too_short:'New password must be at least 6 characters.',
+    cp_err_mismatch:'New password and confirmation do not match.',
+    cp_success:'Password updated successfully.',
+    cp_no_email_on_file:'Password updated, but no email is on file to send a confirmation to.',
+    cp_email_not_configured:'Password updated, but email notifications are not set up yet (see EMAILJS_CONFIG in the code).',
+    cp_email_sent:'Confirmation email sent to', cp_email_failed:'Password updated, but the confirmation email failed to send.',
     nav_shops:'Shops', nav_create_shop:'Register New Shop',
     nav_dashboard:'Dashboard', nav_inventory:'Inventory', nav_billing:'Billing / POS',
     nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings',
@@ -618,6 +704,8 @@ var I18N = {
 
     create_shop_title:'Register a New Shop', create_shop_sub:'Step 1: identify the business by PAN. Step 2: set up admin login.',
     edit_shop_title:'Edit Shop Details', edit_shop_sub:'Update business information, address, and VAT/PAN registration for this shop.',
+    es_password_sync_note:'This always reflects the shop admin\'s current password — it updates automatically whenever they use Change Password.',
+    es_current_password:'Current Password', es_password_last_changed:'Password last changed:',
     btn_save_shop:'Save Changes',
     pan_label:'PAN Number', pan_placeholder:'e.g. 301234567', btn_fetch:'Fetch Details',
     pan_fetching:'Looking up PAN registry…', pan_found:'Business details found and filled in automatically.',
@@ -728,6 +816,17 @@ var I18N = {
     demo_creds_title:'डेमो लगइन विवरण',
     demo_super:'सुपर एडमिन', demo_shop:'पसल एडमिन (एभरेस्ट मार्ट)',
     logout:'लगआउट',
+    change_password:'पासवर्ड परिवर्तन गर्नुहोस्',
+    change_password_sub:'आफ्नो पसल एडमिन लगइनको लागि नयाँ पासवर्ड छान्नुहोस्। पुष्टि गर्न हालको पासवर्ड चाहिन्छ।',
+    cp_current_password:'हालको पासवर्ड', cp_new_password:'नयाँ पासवर्ड', cp_confirm_password:'नयाँ पासवर्ड पुष्टि गर्नुहोस्',
+    cp_email_notice:'पुष्टिकरण इमेल यहाँ पठाइनेछ:', cp_no_email_notice:'यस पसलको लागि कुनै इमेल छैन — पुष्टिकरण पाउन सेटिङमा थप्नुहोस्।',
+    cp_submit:'पासवर्ड अद्यावधिक गर्नुहोस्',
+    cp_err_wrong_current:'हालको पासवर्ड मिलेन।', cp_err_too_short:'नयाँ पासवर्ड कम्तिमा ६ अक्षरको हुनुपर्छ।',
+    cp_err_mismatch:'नयाँ पासवर्ड र पुष्टिकरण मिलेन।',
+    cp_success:'पासवर्ड सफलतापूर्वक अद्यावधिक भयो।',
+    cp_no_email_on_file:'पासवर्ड अद्यावधिक भयो, तर पुष्टिकरण पठाउन कुनै इमेल छैन।',
+    cp_email_not_configured:'पासवर्ड अद्यावधिक भयो, तर इमेल सूचना अझै सेटअप भएको छैन (कोडमा EMAILJS_CONFIG हेर्नुहोस्)।',
+    cp_email_sent:'पुष्टिकरण इमेल यहाँ पठाइयो:', cp_email_failed:'पासवर्ड अद्यावधिक भयो, तर पुष्टिकरण इमेल पठाउन सकिएन।',
     nav_shops:'पसलहरू', nav_create_shop:'नयाँ पसल दर्ता',
     nav_dashboard:'ड्यासबोर्ड', nav_inventory:'सामान सूची', nav_billing:'बिलिङ / बिक्री',
     nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ',
@@ -741,6 +840,8 @@ var I18N = {
 
     create_shop_title:'नयाँ पसल दर्ता गर्नुहोस्', create_shop_sub:'चरण १: प्यानबाट व्यवसाय पहिचान गर्नुहोस्। चरण २: एडमिन लगइन सेट गर्नुहोस्।',
     edit_shop_title:'पसलको विवरण सम्पादन गर्नुहोस्', edit_shop_sub:'यस पसलको व्यवसाय जानकारी, ठेगाना, र भ्याट/प्यान दर्ता अद्यावधिक गर्नुहोस्।',
+    es_password_sync_note:'यसले सधैं पसल एडमिनको हालको पासवर्ड देखाउँछ — तिनीहरूले पासवर्ड परिवर्तन गर्दा यो स्वतः अद्यावधिक हुन्छ।',
+    es_current_password:'हालको पासवर्ड', es_password_last_changed:'पासवर्ड पछिल्लो पटक परिवर्तन:',
     btn_save_shop:'परिवर्तन सुरक्षित गर्नुहोस्',
     pan_label:'प्यान नम्बर', pan_placeholder:'उदाहरण: 301234567', btn_fetch:'विवरण खोज्नुहोस्',
     pan_fetching:'प्यान रजिस्ट्रीमा खोजी हुँदैछ…', pan_found:'व्यवसायको विवरण फेला पर्यो र स्वतः भरियो।',
@@ -946,6 +1047,7 @@ var state = {
   createShopStep:1,
   createShop:blankCreateShop(),
   showEditShopModal:null,
+  revealEditShopPassword:false,
   showAddProductModal:false,
   editingProductId:null,
   showAddStockModal:null,
@@ -953,6 +1055,9 @@ var state = {
   showBillsListModal:false,
   showEditBillModal:null,
   editBillDraft:null,
+  showUserMenu:false,
+  showChangePasswordModal:false,
+  changePasswordError:'',
   viewingReceiptFromBillsList:false,
   showReceiptModal:false,
   lastInvoice:null,
@@ -1054,6 +1159,7 @@ function render(){
   } else {
     html = renderTopbar() + '<div class="shell">' + renderShopSidebar() + '<div class="main">' + renderShopMain() + '</div></div>';
   }
+  if(state.currentUser && state.showChangePasswordModal) html += renderChangePasswordModal();
   app.innerHTML = html;
   afterRender();
 }
@@ -1082,8 +1188,19 @@ function renderTopbar(){
         '<button data-action="set-lang" data-lang="en" class="'+(state.lang==='en'?'active':'')+'">'+t('lang_en')+'</button>'+
         '<button data-action="set-lang" data-lang="np" class="'+(state.lang==='np'?'active':'')+'">'+t('lang_np')+'</button>'+
       '</div>'+
-      '<div class="user-chip"><div class="dot">'+initials(name)+'</div><div><div style="font-weight:700;">'+escapeHtml(name)+'</div><div style="opacity:0.65;font-size:10.5px;">'+escapeHtml(sub)+'</div></div></div>'+
-      '<button class="logout-btn" data-action="logout">'+t('logout')+'</button>'+
+      '<div class="user-menu-wrap" style="position:relative;">'+
+        '<button class="user-chip" data-action="toggle-user-menu" style="cursor:pointer;border:1px solid rgba(255,255,255,0.16);">'+
+          '<div class="dot">'+initials(name)+'</div>'+
+          '<div><div style="font-weight:700;">'+escapeHtml(name)+'</div><div style="opacity:0.65;font-size:10.5px;">'+escapeHtml(sub)+'</div></div>'+
+          '<span style="margin-left:6px;opacity:0.7;font-size:10px;">&#9662;</span>'+
+        '</button>'+
+        (state.showUserMenu ? ''+
+          '<div class="user-menu-dropdown">'+
+            (isSuper ? '' : '<button data-action="open-change-password" class="user-menu-item"><span class="ic">&#128273;</span>'+t('change_password')+'</button>')+
+            '<button data-action="logout" class="user-menu-item user-menu-item-danger"><span class="ic">&#8618;</span>'+t('logout')+'</button>'+
+          '</div>'
+        : '')+
+      '</div>'+
     '</div>'+
   '</div>'+
   ridgeSvg();
@@ -1265,6 +1382,19 @@ function renderEditShopModal(){
           '</select>'+
           '<div class="field-hint">'+t('tax_reg_hint')+'</div>'+
         '</div>'+
+        '<hr class="hair">'+
+        '<div style="font-weight:700;font-size:13px;margin-bottom:6px;">'+t('admin_login_section')+'</div>'+
+        '<div class="field-hint" style="margin-bottom:10px;">'+t('es_password_sync_note')+'</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('admin_username')+'</label><input class="field" value="'+escapeHtml(shop.adminUsername)+'" readonly style="background:var(--surface-2);font-family:var(--font-mono);"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('es_current_password')+'</label>'+
+            '<div style="display:flex;gap:6px;">'+
+              '<input class="field" value="'+escapeHtml(shop.adminPassword)+'" readonly type="'+(state.revealEditShopPassword?'text':'password')+'" style="background:var(--surface-2);font-family:var(--font-mono);">'+
+              '<button type="button" class="btn btn-outline btn-sm" data-action="toggle-reveal-shop-password">'+(state.revealEditShopPassword?'&#128065;':'&#128065;&#8203;')+'</button>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        (shop.passwordChangedAt ? '<div class="field-hint">'+t('es_password_last_changed')+' '+fmtDateTime(shop.passwordChangedAt)+'</div>' : '')+
       '</div>'+
       '<div class="modal-foot">'+
         '<button class="btn btn-outline" data-action="close-edit-shop">'+t('btn_cancel')+'</button>'+
@@ -1711,6 +1841,28 @@ function renderEditBillModal(){
     '</div>'+
   '</div>';
 }
+/* ---------------- change password (shop admin) ---------------- */
+function renderChangePasswordModal(){
+  var shop = currentShop();
+  if(!shop) return '';
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="change-password">'+
+    '<div class="modal" style="max-width:420px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('change_password')+'</h3><button class="modal-close" data-action="close-change-password">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12px;margin-bottom:14px;">'+t('change_password_sub')+'</div>'+
+        (state.changePasswordError ? '<div class="login-error">'+escapeHtml(state.changePasswordError)+'</div>' : '')+
+        '<div class="field-row"><label class="field-label">'+t('cp_current_password')+'</label><input class="field" id="cp-current" type="password" autocomplete="current-password"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('cp_new_password')+'</label><input class="field" id="cp-new" type="password" autocomplete="new-password"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('cp_confirm_password')+'</label><input class="field" id="cp-confirm" type="password" autocomplete="new-password"></div>'+
+        (shop.email ? '<div class="field-hint">'+t('cp_email_notice')+' <b>'+escapeHtml(shop.email)+'</b></div>' : '<div class="field-hint" style="color:var(--warning);">'+t('cp_no_email_notice')+'</div>')+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-change-password">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="submit-change-password">'+t('cp_submit')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
 function renderSettingsView(){
   var shop = currentShop();
   return ''+
@@ -1919,12 +2071,13 @@ function attemptLogin(username, password){
 /* ---------------- modal close helper ---------------- */
 function closeModalByName(name){
   if(name==='create-shop') state.showCreateShopModal = false;
-  else if(name==='edit-shop') state.showEditShopModal = null;
+  else if(name==='edit-shop'){ state.showEditShopModal = null; state.revealEditShopPassword = false; }
   else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; }
   else if(name==='stock') state.showAddStockModal = null;
   else if(name==='customer') state.showAddCustomerModal = false;
   else if(name==='bills-list') state.showBillsListModal = false;
   else if(name==='edit-bill'){ state.showEditBillModal = null; state.editBillDraft = null; }
+  else if(name==='change-password'){ state.showChangePasswordModal = false; state.changePasswordError = ''; }
   else if(name==='receipt'){ state.showReceiptModal = false; state.viewingReceiptFromBillsList = false; }
   render();
 }
@@ -1945,9 +2098,63 @@ function handleAction(action, el){
       render();
       break;
 
+    case 'toggle-user-menu':
+      state.showUserMenu = !state.showUserMenu;
+      render();
+      break;
+
+    case 'open-change-password':
+      state.showUserMenu = false;
+      state.showChangePasswordModal = true;
+      state.changePasswordError = '';
+      render();
+      break;
+
+    case 'close-change-password':
+      closeModalByName('change-password');
+      break;
+
+    case 'submit-change-password':
+      var cpCurrent = document.getElementById('cp-current').value;
+      var cpNew = document.getElementById('cp-new').value;
+      var cpConfirm = document.getElementById('cp-confirm').value;
+      if(!cpCurrent || !cpNew || !cpConfirm){
+        state.changePasswordError = t('err_required');
+        render();
+        return;
+      }
+      if(cpCurrent !== shop.adminPassword){
+        state.changePasswordError = t('cp_err_wrong_current');
+        render();
+        return;
+      }
+      if(cpNew.length < 6){
+        state.changePasswordError = t('cp_err_too_short');
+        render();
+        return;
+      }
+      if(cpNew !== cpConfirm){
+        state.changePasswordError = t('cp_err_mismatch');
+        render();
+        return;
+      }
+      shop.adminPassword = cpNew;
+      shop.passwordChangedAt = Date.now();
+      // Firestore is the single shared source of truth for the "shops"
+      // collection — Super Admin's shop list reads from the exact same
+      // documents, so saving here is all that's needed for the updated
+      // password to show up in Super Admin's shop management view too.
+      fbSaveShop(shop);
+      sendPasswordChangeEmail(shop);
+      state.showChangePasswordModal = false;
+      toast(t('cp_success'), 'success');
+      render();
+      break;
+
     case 'logout':
       state.currentUser = null;
       state.loginError = '';
+      state.showUserMenu = false;
       render();
       break;
 
@@ -2035,11 +2242,17 @@ function handleAction(action, el){
 
     case 'open-edit-shop':
       state.showEditShopModal = el.getAttribute('data-id');
+      state.revealEditShopPassword = false;
       render();
       break;
 
     case 'close-edit-shop':
       closeModalByName('edit-shop');
+      break;
+
+    case 'toggle-reveal-shop-password':
+      state.revealEditShopPassword = !state.revealEditShopPassword;
+      render();
       break;
 
     case 'submit-edit-shop':
@@ -2546,6 +2759,11 @@ function bindEvents(){
     var backdrop = e.target.closest('[data-action="backdrop-close"]');
     if(backdrop && e.target === backdrop){
       closeModalByName(backdrop.getAttribute('data-modal'));
+      return;
+    }
+    if(state.showUserMenu && !e.target.closest('.user-menu-wrap')){
+      state.showUserMenu = false;
+      render();
       return;
     }
     var el = e.target.closest('[data-action]');
