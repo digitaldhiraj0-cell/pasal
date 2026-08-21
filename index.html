@@ -619,7 +619,8 @@ var I18N = {
 
     invoice_title:'VAT Invoice', invoice_title_pan:'Sales Invoice', invoice_no:'Invoice No', invoice_date:'Date', invoice_pan:'PAN',
     invoice_customer:'Customer', invoice_payment:'Payment', invoice_scan_pay:'Scan to Pay',
-    invoice_scan_note:'Scan with any mobile payment app. Amount is pre-filled.',
+    invoice_demo_qr_label:'Demo QR — Not For Payment',
+    invoice_scan_note:'This is a placeholder QR for preview only. It is not linked to a bank account. Please pay by cash or another method.',
     invoice_scan_note_static:"Scan the shop's payment QR, then enter the amount shown below.",
     invoice_thanks:'Thank you for your business!', invoice_print:'Print / Save PDF', invoice_close:'Close',
     invoice_vat_reg:'VAT Registered Business', invoice_pan_reg:'PAN Registered Business (No VAT)',
@@ -636,10 +637,14 @@ var I18N = {
     btn_save_customer:'Save Customer', toast_customer_added:'Customer added.', cust_empty:'No customers yet.',
 
     set_title:'Settings', set_sub:'Configure how your shop bills and accepts payment.',
-    set_shop_info:'Shop Information', set_qr_section:'Payment QR Code', set_qr_desc:"By default, a fresh QR with the exact bill amount is generated for every invoice. You can instead upload your own static payment QR (e.g. from eSewa, Khalti, or your bank) — it will be printed on every bill alongside the amount.",
+    set_shop_info:'Shop Information', set_qr_section:'Payment QR Code', set_qr_desc:"Select which payment provider your shop uses, then upload the actual QR code image that provider (Fonepay, eSewa, your bank, etc.) issued you after merchant registration — that QR is already linked to your real account. Until you upload one, invoices show a placeholder preview QR only.",
     set_qr_upload:'Upload Custom QR', set_qr_remove:'Remove custom QR, use auto-generated QR',
     set_qr_current:'Currently using', set_qr_auto:'Auto-generated dynamic QR (amount embedded)', set_qr_custom:'Your uploaded QR',
     set_vat:'VAT Rate', set_merchant_id:'Payment / Merchant ID', set_merchant_hint:'Used inside the auto-generated QR payload.',
+    set_qr_provider:'Payment Provider', set_qr_provider_hint:'For labeling your invoices correctly only — selecting a provider here does not connect to Fonepay, eSewa, or any bank. It has no effect unless you upload the real QR that provider issued you below.',
+    qr_provider_fonepay:'Fonepay', qr_provider_esewa:'eSewa', qr_provider_bank:'Bank Account Transfer', qr_provider_other:'Other',
+    set_qr_custom_note:'This is the official QR your bank or payment provider issued after merchant registration — it is already linked to your real account. This app just displays it and prints it on invoices.',
+    set_qr_demo_warning:'This is a placeholder QR generated for preview only. It is NOT linked to any real bank account and cannot receive real payments. To accept genuine Fonepay, eSewa, or bank QR payments, register as a merchant through your bank or the payment provider, then upload the QR image they issue you.',
     toast_qr_updated:'Payment QR settings updated.', btn_save_settings:'Save Settings', toast_settings_saved:'Settings saved.',
 
     shop_admins_title:'Admin Login', shop_manage_title:'Shop Details',
@@ -723,7 +728,8 @@ var I18N = {
 
     invoice_title:'भ्याट बिल', invoice_title_pan:'बिक्री बिल', invoice_no:'बिल नं.', invoice_date:'मिति', invoice_pan:'प्यान',
     invoice_customer:'ग्राहक', invoice_payment:'भुक्तानी', invoice_scan_pay:'भुक्तानीको लागि स्क्यान गर्नुहोस्',
-    invoice_scan_note:'कुनै पनि मोबाइल भुक्तानी एपले स्क्यान गर्नुहोस्। रकम पहिल्यै भरिएको छ।',
+    invoice_demo_qr_label:'नमूना क्युआर — भुक्तानीका लागि होइन',
+    invoice_scan_note:'यो केवल प्रिभ्यूका लागि नमूना क्युआर हो। यो कुनै बैंक खातासँग जोडिएको छैन। कृपया नगद वा अर्को विधिबाट भुक्तानी गर्नुहोस्।',
     invoice_scan_note_static:'पसलको भुक्तानी क्युआर स्क्यान गरी तल देखाइएको रकम राख्नुहोस्।',
     invoice_thanks:'तपाईंको व्यवसायको लागि धन्यवाद!', invoice_print:'प्रिन्ट / PDF सुरक्षित गर्नुहोस्', invoice_close:'बन्द गर्नुहोस्',
     invoice_vat_reg:'भ्याट दर्ता भएको व्यवसाय', invoice_pan_reg:'प्यान दर्ता भएको व्यवसाय (भ्याट लाग्दैन)',
@@ -740,10 +746,14 @@ var I18N = {
     btn_save_customer:'ग्राहक सुरक्षित गर्नुहोस्', toast_customer_added:'ग्राहक थपियो।', cust_empty:'हालसम्म कुनै ग्राहक छैन।',
 
     set_title:'सेटिङ', set_sub:'तपाईंको पसलले कसरी बिल बनाउँछ र भुक्तानी लिन्छ भनी कन्फिगर गर्नुहोस्।',
-    set_shop_info:'पसलको जानकारी', set_qr_section:'भुक्तानी क्युआर कोड', set_qr_desc:'पूर्वनिर्धारित रूपमा, प्रत्येक बिलको लागि सही रकम सहितको नयाँ क्युआर उत्पन्न हुन्छ। तपाईं आफ्नै स्थिर भुक्तानी क्युआर (जस्तै eSewa, Khalti, वा बैंकबाट) अपलोड गर्न सक्नुहुन्छ — यो हरेक बिलमा रकमसँगै छापिनेछ।',
+    set_shop_info:'पसलको जानकारी', set_qr_section:'भुक्तानी क्युआर कोड', set_qr_desc:'तपाईंको पसलले प्रयोग गर्ने भुक्तानी प्रदायक छान्नुहोस्, त्यसपछि मर्चेन्ट दर्ता पछि सो प्रदायक (Fonepay, eSewa, तपाईंको बैंक, आदि) ले दिएको वास्तविक क्युआर तस्बिर अपलोड गर्नुहोस् — त्यो क्युआर पहिल्यै तपाईंको वास्तविक खातासँग जोडिएको छ। अपलोड नगरेसम्म बिलमा केवल नमूना क्युआर देखिनेछ।',
     set_qr_upload:'आफ्नै क्युआर अपलोड गर्नुहोस्', set_qr_remove:'स्थिर क्युआर हटाउनुहोस्, स्वतः-उत्पन्न क्युआर प्रयोग गर्नुहोस्',
     set_qr_current:'हाल प्रयोगमा', set_qr_auto:'स्वतः-उत्पन्न गतिशील क्युआर (रकम सहित)', set_qr_custom:'तपाईंले अपलोड गर्नुभएको क्युआर',
     set_vat:'भ्याट दर', set_merchant_id:'भुक्तानी / मर्चेन्ट आईडी', set_merchant_hint:'स्वतः-उत्पन्न क्युआर भित्र प्रयोग हुन्छ।',
+    set_qr_provider:'भुक्तानी प्रदायक', set_qr_provider_hint:'यो केवल तपाईंको बिलमा सही लेबल देखाउनका लागि हो — यहाँ प्रदायक छानेर मात्र Fonepay, eSewa, वा कुनै बैंकसँग जोडिँदैन। तपाईंले तल त्यो प्रदायकले दिएको वास्तविक क्युआर अपलोड नगरेसम्म यसको कुनै प्रभाव पर्दैन।',
+    qr_provider_fonepay:'Fonepay', qr_provider_esewa:'eSewa', qr_provider_bank:'बैंक खाता ट्रान्सफर', qr_provider_other:'अन्य',
+    set_qr_custom_note:'यो तपाईंको बैंक वा भुक्तानी प्रदायकले मर्चेन्ट दर्ता पछि दिएको आधिकारिक क्युआर हो — यो पहिल्यै तपाईंको वास्तविक खातासँग जोडिएको छ। यो एपले केवल यसलाई देखाउँछ र बिलमा छाप्छ।',
+    set_qr_demo_warning:'यो प्रिभ्यूका लागि मात्र उत्पन्न गरिएको नमूना क्युआर हो। यो कुनै वास्तविक बैंक खातासँग जोडिएको छैन र वास्तविक भुक्तानी लिन सक्दैन। वास्तविक Fonepay, eSewa, वा बैंक क्युआर भुक्तानी लिन, आफ्नो बैंक वा भुक्तानी प्रदायकमार्फत मर्चेन्ट दर्ता गर्नुहोस्, त्यसपछि तिनीहरूले दिएको क्युआर तस्बिर अपलोड गर्नुहोस्।',
     toast_qr_updated:'भुक्तानी क्युआर सेटिङ अद्यावधिक भयो।', btn_save_settings:'सेटिङ सुरक्षित गर्नुहोस्', toast_settings_saved:'सेटिङ सुरक्षित भयो।',
 
     shop_admins_title:'एडमिन लगइन', shop_manage_title:'पसल विवरण',
@@ -785,6 +795,7 @@ function makeDemoShop(){
     adminPassword:'shop123',
     vatRate:13,
     merchantId:'EVERESTMART.MOBILE@BANK',
+    qrProvider:'other',
     customQr:null,
     active:true,
     invoiceSeq:1004,
@@ -1526,13 +1537,28 @@ function renderSettingsView(){
         '</select><div class="field-hint">'+t('tax_reg_hint')+'</div></div>'+
         '<div class="field-row"><label class="field-label">'+t('set_merchant_id')+'</label><input class="field" id="st-merchant" value="'+escapeHtml(shop.merchantId)+'"><div class="field-hint">'+t('set_merchant_hint')+'</div></div>'+
       '</div>'+
+      '<div class="field-row"><label class="field-label">'+t('set_qr_provider')+'</label><select class="field" id="st-qrprovider">'+
+        ['fonepay','esewa','bank','other'].map(function(p){
+          return '<option value="'+p+'" '+((shop.qrProvider||'other')===p?'selected':'')+'>'+t('qr_provider_'+p)+'</option>';
+        }).join('')+
+      '</select><div class="field-hint">'+t('set_qr_provider_hint')+'</div></div>'+
       '<button class="btn btn-primary" data-action="save-shop-settings">'+t('btn_save_settings')+'</button>'+
     '</div>'+
     '<div class="card card-pad">'+
       '<h3 style="margin:0 0 6px;font-size:15px;">'+t('set_qr_section')+'</h3>'+
       '<div class="muted" style="font-size:12px;line-height:1.6;margin-bottom:14px;">'+t('set_qr_desc')+'</div>'+
-      '<div class="kv"><div class="k">'+t('set_qr_current')+'</div><div class="v">'+(shop.customQr? t('set_qr_custom') : t('set_qr_auto'))+'</div></div>'+
-      (shop.customQr ? '<div style="text-align:center;margin:14px 0;"><img src="'+shop.customQr+'" style="width:150px;height:150px;object-fit:contain;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>' : '')+
+      (shop.customQr ?
+        ''+
+        '<div class="kv"><div class="k">'+t('set_qr_current')+'</div><div class="v" style="color:var(--success);">&#10003; '+t('set_qr_custom')+' ('+t('qr_provider_'+(shop.qrProvider||'other'))+')</div></div>'+
+        '<div style="text-align:center;margin:14px 0;"><img src="'+shop.customQr+'" style="width:150px;height:150px;object-fit:contain;border:1px solid var(--border);border-radius:10px;padding:8px;"></div>'+
+        '<div class="field-hint" style="margin-bottom:10px;">'+t('set_qr_custom_note')+'</div>'
+        :
+        ''+
+        '<div class="kv"><div class="k">'+t('set_qr_current')+'</div><div class="v" style="color:var(--warning);">&#9888; '+t('set_qr_auto')+'</div></div>'+
+        '<div style="background:var(--warning-tint);border:1px dashed var(--warning);border-radius:8px;padding:10px 12px;font-size:12px;color:#6b4e10;line-height:1.6;margin:10px 0;">'+
+          '&#9888; '+t('set_qr_demo_warning')+
+        '</div>'
+      )+
       '<div style="margin-top:12px;">'+
         '<input type="file" id="qr-upload" accept="image/*" style="display:none;" data-action="qr-file-selected">'+
         '<button class="btn btn-outline" style="width:100%;justify-content:center;" data-action="trigger-qr-upload">&#128247; '+t('set_qr_upload')+'</button>'+
@@ -1549,7 +1575,6 @@ function renderReceiptModal(){
   var itemRows = inv.items.map(function(it){
     return '<tr><td>'+escapeHtml(it.name)+'</td><td style="text-align:center;">'+it.qty+'</td><td style="text-align:right;">'+fmtMoney(it.price)+'</td><td style="text-align:right;">'+fmtMoney(it.total)+'</td></tr>';
   }).join('');
-  var qrPayload = 'PASALPAY|MERCHANT:'+(shop.merchantId||shop.businessName)+'|INV:'+inv.invoiceNo+'|AMT:'+inv.total.toFixed(2)+'|CUR:NPR';
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="receipt">'+
     '<div class="modal" style="max-width:560px;" data-stop>'+
@@ -1576,11 +1601,11 @@ function renderReceiptModal(){
             '<div class="invoice-qr">'+
               (shop.customQr ?
                 '<img src="'+shop.customQr+'" width="150" height="150">'+
-                '<div style="font-weight:700;">'+t('invoice_scan_pay')+' — '+fmtMoney(inv.total)+'</div>'+
+                '<div style="font-weight:700;">'+t('invoice_scan_pay')+(shop.qrProvider ? ' ('+t('qr_provider_'+shop.qrProvider)+')' : '')+' — '+fmtMoney(inv.total)+'</div>'+
                 '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'
                 :
                 '<div id="qrcode-target"></div>'+
-                '<div style="font-weight:700;">'+t('invoice_scan_pay')+' — '+fmtMoney(inv.total)+'</div>'+
+                '<div style="font-weight:700;color:var(--warning);">&#9888; '+t('invoice_demo_qr_label')+'</div>'+
                 '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note')+'</div>'
               )+
             '</div>'+
@@ -1634,7 +1659,7 @@ function afterRender(){
       var target = document.getElementById('qrcode-target');
       if(target && window.QRCode){
         target.innerHTML='';
-        var payload = 'PASALPAY|MERCHANT:'+(shop.merchantId||shop.businessName)+'|INV:'+state.lastInvoice.invoiceNo+'|AMT:'+state.lastInvoice.total.toFixed(2)+'|CUR:NPR';
+        var payload = 'DEMO QR - NOT A REAL PAYMENT LINK. Shop: '+(shop.businessName||'')+'. Invoice '+state.lastInvoice.invoiceNo+', Amount NPR '+state.lastInvoice.total.toFixed(2)+'. Please pay by cash or another method.';
         try{ new QRCode(target, {text: payload, width:150, height:150, colorDark:'#16305C', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M}); }catch(e){}
       }
     }
@@ -1799,7 +1824,7 @@ function handleAction(action, el){
         id: uid('s'), businessName:bname, ownerName:oname, pan:pan, regType:reg||'—',
         address:addr, category:cat||'General', location:loc, email:email, phone:phone,
         taxType:taxType, adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
-        merchantId: uname.toUpperCase()+'.MOBILE@BANK', customQr:null, active:true,
+        merchantId: uname.toUpperCase()+'.MOBILE@BANK', qrProvider:'other', customQr:null, active:true,
         invoiceSeq:1000, products:[], customers:[], sales:[]
       };
       state.shops.push(newShop);
@@ -2054,6 +2079,8 @@ function handleAction(action, el){
       var stTaxTypeEl = document.getElementById('st-taxtype');
       var stTaxType = stTaxTypeEl ? stTaxTypeEl.value : (shop.taxType||'vat');
       var stMerchant = document.getElementById('st-merchant').value.trim();
+      var stQrProviderEl = document.getElementById('st-qrprovider');
+      var stQrProvider = stQrProviderEl ? stQrProviderEl.value : (shop.qrProvider||'other');
       if(stName) shop.businessName = stName;
       if(stLoc) shop.location = stLoc;
       shop.email = stEmail;
@@ -2062,6 +2089,7 @@ function handleAction(action, el){
       // VAT-registered shops always bill at 13%; PAN-only shops never add VAT.
       shop.vatRate = (stTaxType==='vat') ? 13 : 0;
       if(stMerchant) shop.merchantId = stMerchant;
+      shop.qrProvider = stQrProvider;
       fbSaveShop(shop);
       toast(t('toast_settings_saved'), 'success');
       render();
