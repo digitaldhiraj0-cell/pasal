@@ -306,9 +306,61 @@
   .tag-pill{display:inline-flex;padding:3px 10px;border-radius:999px;background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--ink-soft);}
 
   @media print{
+    @page{
+      size: 80mm auto;
+      margin: 2mm;
+    }
+    html, body{ background:#fff !important; }
     body *{visibility:hidden;}
     #printable-invoice, #printable-invoice *{visibility:visible;}
-    #printable-invoice{position:absolute;top:0;left:0;width:100%;margin:0;box-shadow:none;border:none;}
+    #printable-invoice{
+      position:absolute;top:0;left:0;
+      width:76mm;
+      max-width:76mm;
+      margin:0;
+      box-shadow:none;border:none;border-radius:0;
+      color:#000;
+      font-size:11px;
+      line-height:1.35;
+    }
+    /* Thermal printers are monochrome — drop colored backgrounds/text
+       that would print as a solid black block or vanish entirely. */
+    #printable-invoice .invoice-head{
+      background:#fff !important;
+      color:#000 !important;
+      padding:3mm 1mm 2mm;
+      text-align:center;
+      border-bottom:1px dashed #000;
+    }
+    #printable-invoice .invoice-head .shopname{
+      font-size:15px;
+      font-weight:700;
+      color:#000 !important;
+    }
+    #printable-invoice .invoice-head .meta{
+      color:#000 !important;
+      font-size:10px;
+      opacity:1;
+    }
+    #printable-invoice .invoice-body{ padding:2mm 1mm; }
+    #printable-invoice .invoice-row{ font-size:11px; padding:1mm 0; }
+    #printable-invoice .invoice-row b{ font-size:11px; }
+    #printable-invoice .invoice-items table{ font-size:10.5px; width:100%; }
+    #printable-invoice .invoice-items th, #printable-invoice .invoice-items td{ padding:1mm 0.5mm; }
+    #printable-invoice .invoice-totals{ border-top:1px dashed #000; }
+    #printable-invoice .invoice-totals .invoice-row:last-child{
+      font-size:13px !important; font-weight:800 !important; color:#000 !important;
+    }
+    #printable-invoice .invoice-qr{ border-top:1px dashed #000; padding:3mm 0 1mm; }
+    #printable-invoice .invoice-qr img, #printable-invoice .invoice-qr canvas{
+      width:32mm !important; height:32mm !important;
+      border:none; padding:0;
+    }
+    #printable-invoice .invoice-qr div{ color:#000 !important; }
+    #printable-invoice .invoice-foot{ font-size:10px; padding:2mm 1mm; color:#000 !important; }
+    #printable-invoice hr.hair{ border:none; border-top:1px dashed #000; margin:2mm 0; }
+    /* Never print action buttons even if a stray one ends up inside the sheet. */
+    #printable-invoice button{ display:none !important; }
   }
   .np-text{font-family:'Noto Sans Devanagari','Inter',sans-serif;}
   .muted{color:var(--ink-soft);}
@@ -609,16 +661,22 @@ var I18N = {
     inv_empty:'No products yet. Add your first product to start selling.',
 
     bill_title:'Billing / Point of Sale', bill_sub:'Build an invoice, take payment, and print a VAT bill.',
-    bill_search:'Search product to add…', bill_cart:'Current Bill', bill_cart_empty:'Cart is empty. Search and add products above.',
+    bill_select_product_label:'Select a product from inventory', bill_select_product:'Choose a product…',
+    bill_add_to_bill:'Add to Bill', bill_select_product_first:'Please choose a product from the list first.',
+    bill_no_products_in_stock:'No products in stock — add stock in Inventory first.',
+    bill_cart:'Current Bill', bill_cart_empty:'Cart is empty. Choose a product above to add it.',
     bill_customer:'Customer', bill_customer_walkin:'Walk-in Customer', bill_new_customer:'+ New customer',
     bill_payment:'Payment Method', bill_subtotal:'Subtotal', bill_vat:'VAT', bill_total:'Total Payable',
-    bill_generate:'Generate VAT Bill', bill_qty:'Qty', bill_price:'Price', bill_line_total:'Total',
+    bill_generate:'Generate VAT Bill', bill_generate_vat:'Generate VAT Bill', bill_generate_pan:'Generate PAN Bill',
+    bill_qty:'Qty', bill_price:'Price', bill_line_total:'Total',
     pay_cash:'Cash', pay_qr:'QR / Mobile Payment', pay_card:'Card', pay_credit:'Credit (Due)',
     toast_sale_recorded:'Sale recorded and stock updated.', err_cart_empty:'Add at least one product first.',
     err_insufficient_stock:'Not enough stock available.',
 
     invoice_title:'VAT Invoice', invoice_title_pan:'Sales Invoice', invoice_no:'Invoice No', invoice_date:'Date', invoice_pan:'PAN',
     invoice_customer:'Customer', invoice_payment:'Payment', invoice_scan_pay:'Scan to Pay',
+    btn_copy_amount:'Copy Exact Amount', toast_amount_copied:'Amount copied — paste it into your payment app',
+    toast_amount_copy_fallback:'Copy this exact amount into your payment app:',
     invoice_demo_qr_label:'Demo QR — Not For Payment',
     invoice_scan_note:'This is a placeholder QR for preview only. It is not linked to a bank account. Please pay by cash or another method.',
     invoice_scan_note_static:"Scan the shop's payment QR, then enter the amount shown below.",
@@ -628,6 +686,14 @@ var I18N = {
     rep_title:'Sales Reports', rep_sub:'Understand performance across time, products and payment methods.',
     rep_range:'Range', range_7:'Last 7 days', range_30:'Last 30 days', range_90:'Last 90 days', range_all:'All time',
     rep_total_sales:'Total Sales', rep_total_vat:'Total VAT Collected', rep_bills:'Bills Issued', rep_avg_bill:'Average Bill',
+    rep_bills_click_hint:'Click to view, edit, or cancel bills',
+    bills_list_title:'Bills Issued', bills_list_sub:'View, edit, or cancel any bill from the selected date range.',
+    bill_status:'Status', bill_status_active:'Active', bill_status_cancelled:'Cancelled',
+    btn_view:'View', btn_cancel_bill:'Cancel Bill',
+    edit_bill_title:'Edit Bill', edit_bill_sub:'Adjust the customer, payment method, or items on this bill. Stock and totals are recalculated automatically.',
+    btn_save_bill:'Save Bill',
+    toast_bill_updated:'Bill updated and stock adjusted.', toast_bill_cancelled:'Bill cancelled and stock restored.',
+    confirm_cancel_bill:'Cancel this bill? Stock will be restored and it will no longer count toward sales totals.',
     rep_trend:'Sales Trend', rep_by_payment:'By Payment Method', rep_top_products:'Top Products', rep_no_data:'No sales in this range yet.',
 
     cust_title:'Customers', cust_sub:'Keep track of who buys from you and how often.',
@@ -718,16 +784,22 @@ var I18N = {
     inv_empty:'हालसम्म कुनै सामान छैन। बेच्न सुरु गर्न पहिलो सामान थप्नुहोस्।',
 
     bill_title:'बिलिङ / बिक्री केन्द्र', bill_sub:'बिल बनाउनुहोस्, भुक्तानी लिनुहोस्, र भ्याट बिल छाप्नुहोस्।',
-    bill_search:'थप्न सामान खोज्नुहोस्…', bill_cart:'हालको बिल', bill_cart_empty:'बिल खाली छ। माथि सामान खोजेर थप्नुहोस्।',
+    bill_select_product_label:'सामान सूचीबाट सामान छान्नुहोस्', bill_select_product:'सामान छान्नुहोस्…',
+    bill_add_to_bill:'बिलमा थप्नुहोस्', bill_select_product_first:'पहिले सूचीबाट सामान छान्नुहोस्।',
+    bill_no_products_in_stock:'स्टकमा कुनै सामान छैन — पहिले सामान सूचीमा स्टक थप्नुहोस्।',
+    bill_cart:'हालको बिल', bill_cart_empty:'बिल खाली छ। माथि सामान छानेर थप्नुहोस्।',
     bill_customer:'ग्राहक', bill_customer_walkin:'सामान्य ग्राहक', bill_new_customer:'+ नयाँ ग्राहक',
     bill_payment:'भुक्तानी विधि', bill_subtotal:'जम्मा', bill_vat:'भ्याट', bill_total:'तिर्नुपर्ने रकम',
-    bill_generate:'भ्याट बिल बनाउनुहोस्', bill_qty:'संख्या', bill_price:'मूल्य', bill_line_total:'जम्मा',
+    bill_generate:'भ्याट बिल बनाउनुहोस्', bill_generate_vat:'भ्याट बिल बनाउनुहोस्', bill_generate_pan:'प्यान बिल बनाउनुहोस्',
+    bill_qty:'संख्या', bill_price:'मूल्य', bill_line_total:'जम्मा',
     pay_cash:'नगद', pay_qr:'क्युआर / मोबाइल भुक्तानी', pay_card:'कार्ड', pay_credit:'उधारो',
     toast_sale_recorded:'बिक्री दर्ता भयो र स्टक अद्यावधिक भयो।', err_cart_empty:'पहिले कम्तिमा एउटा सामान थप्नुहोस्।',
     err_insufficient_stock:'पर्याप्त स्टक उपलब्ध छैन।',
 
     invoice_title:'भ्याट बिल', invoice_title_pan:'बिक्री बिल', invoice_no:'बिल नं.', invoice_date:'मिति', invoice_pan:'प्यान',
     invoice_customer:'ग्राहक', invoice_payment:'भुक्तानी', invoice_scan_pay:'भुक्तानीको लागि स्क्यान गर्नुहोस्',
+    btn_copy_amount:'ठ्याक्कै रकम कपी गर्नुहोस्', toast_amount_copied:'रकम कपी भयो — आफ्नो भुक्तानी एपमा पेस्ट गर्नुहोस्',
+    toast_amount_copy_fallback:'यो ठ्याक्कै रकम आफ्नो भुक्तानी एपमा राख्नुहोस्:',
     invoice_demo_qr_label:'नमूना क्युआर — भुक्तानीका लागि होइन',
     invoice_scan_note:'यो केवल प्रिभ्यूका लागि नमूना क्युआर हो। यो कुनै बैंक खातासँग जोडिएको छैन। कृपया नगद वा अर्को विधिबाट भुक्तानी गर्नुहोस्।',
     invoice_scan_note_static:'पसलको भुक्तानी क्युआर स्क्यान गरी तल देखाइएको रकम राख्नुहोस्।',
@@ -737,6 +809,14 @@ var I18N = {
     rep_title:'बिक्री प्रतिवेदन', rep_sub:'समय, सामान र भुक्तानी विधि अनुसार प्रदर्शन बुझ्नुहोस्।',
     rep_range:'अवधि', range_7:'गत ७ दिन', range_30:'गत ३० दिन', range_90:'गत ९० दिन', range_all:'सबै समय',
     rep_total_sales:'कुल बिक्री', rep_total_vat:'कुल संकलित भ्याट', rep_bills:'जारी बिलहरू', rep_avg_bill:'औसत बिल',
+    rep_bills_click_hint:'बिलहरू हेर्न, सम्पादन गर्न, वा रद्द गर्न क्लिक गर्नुहोस्',
+    bills_list_title:'जारी बिलहरू', bills_list_sub:'छानिएको मितिको दायराबाट कुनै पनि बिल हेर्नुहोस्, सम्पादन गर्नुहोस्, वा रद्द गर्नुहोस्।',
+    bill_status:'स्थिति', bill_status_active:'सक्रिय', bill_status_cancelled:'रद्द भयो',
+    btn_view:'हेर्नुहोस्', btn_cancel_bill:'बिल रद्द गर्नुहोस्',
+    edit_bill_title:'बिल सम्पादन गर्नुहोस्', edit_bill_sub:'यस बिलको ग्राहक, भुक्तानी विधि, वा सामान समायोजन गर्नुहोस्। स्टक र जम्मा रकम स्वतः पुनः गणना हुन्छ।',
+    btn_save_bill:'बिल सुरक्षित गर्नुहोस्',
+    toast_bill_updated:'बिल अद्यावधिक भयो र स्टक समायोजन भयो।', toast_bill_cancelled:'बिल रद्द भयो र स्टक फिर्ता भयो।',
+    confirm_cancel_bill:'यो बिल रद्द गर्ने हो? स्टक फिर्ता हुनेछ र यो बिक्री जम्मामा गनिने छैन।',
     rep_trend:'बिक्री प्रवृत्ति', rep_by_payment:'भुक्तानी विधि अनुसार', rep_top_products:'उत्कृष्ट सामानहरू', rep_no_data:'यस अवधिमा हालसम्म कुनै बिक्री छैन।',
 
     cust_title:'ग्राहकहरू', cust_sub:'तपाईंबाट कसले र कति पटक किन्छ भन्ने ट्र्याक राख्नुहोस्।',
@@ -870,6 +950,10 @@ var state = {
   editingProductId:null,
   showAddStockModal:null,
   showAddCustomerModal:false,
+  showBillsListModal:false,
+  showEditBillModal:null,
+  editBillDraft:null,
+  viewingReceiptFromBillsList:false,
   showReceiptModal:false,
   lastInvoice:null,
 };
@@ -905,15 +989,17 @@ function fbDeleteShop(shopId){
 
 /* ---------------- data helpers ---------------- */
 function sumBy(arr, key){ return arr.reduce(function(a,b){ return a + (Number(b[key])||0); }, 0); }
-function filteredSales(shop, days){
+function filteredSales(shop, days, includeCancelled){
   if(!shop) return [];
-  if(days==='all' || days===0) return shop.sales.slice();
-  var cutoff = Date.now() - Number(days)*24*60*60*1000;
-  return shop.sales.filter(function(s){ return s.date >= cutoff; });
+  var list = (days==='all' || days===0) ? shop.sales.slice() : (function(){
+    var cutoff = Date.now() - Number(days)*24*60*60*1000;
+    return shop.sales.filter(function(s){ return s.date >= cutoff; });
+  })();
+  return includeCancelled ? list : list.filter(function(s){ return !s.cancelled; });
 }
 function todaySales(shop){
   var start = new Date(); start.setHours(0,0,0,0);
-  return shop.sales.filter(function(s){ return s.date >= start.getTime(); });
+  return shop.sales.filter(function(s){ return s.date >= start.getTime() && !s.cancelled; });
 }
 function lowStockProducts(shop){
   return shop.products.filter(function(p){ return p.stock <= p.lowStockThreshold; });
@@ -1221,6 +1307,8 @@ function renderShopMain(){
   if(state.showAddProductModal) body += renderProductModal();
   if(state.showAddStockModal) body += renderAddStockModal();
   if(state.showAddCustomerModal) body += renderCustomerModal();
+  if(state.showBillsListModal) body += renderBillsListModal();
+  if(state.showEditBillModal) body += renderEditBillModal();
   if(state.showReceiptModal && state.lastInvoice) body += renderReceiptModal();
   return body;
 }
@@ -1236,8 +1324,8 @@ function renderDashboardView(){
   var recent = shop.sales.slice(-6).reverse();
 
   var recentRows = recent.length ? recent.map(function(s){
-    return '<tr><td style="font-family:var(--font-mono);">'+s.invoiceNo+'</td><td>'+fmtDateTime(s.date)+'</td><td>'+escapeHtml(s.customerName||t('bill_customer_walkin'))+'</td>'+
-      '<td><span class="badge badge-indigo">'+paymentLabel(s.payment)+'</span></td><td style="text-align:right;font-weight:700;">'+fmtMoney(s.total)+'</td></tr>';
+    return '<tr'+(s.cancelled ? ' style="opacity:0.55;"' : '')+'><td style="font-family:var(--font-mono);">'+s.invoiceNo+'</td><td>'+fmtDateTime(s.date)+'</td><td>'+escapeHtml(s.customerName||t('bill_customer_walkin'))+'</td>'+
+      '<td>'+(s.cancelled ? '<span class="badge badge-danger">'+t('bill_status_cancelled')+'</span>' : '<span class="badge badge-indigo">'+paymentLabel(s.payment)+'</span>')+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(s.total)+'</td></tr>';
   }).join('') : '';
 
   var lowRows = low.length ? low.map(function(p){
@@ -1379,27 +1467,30 @@ function renderBillingView(){
   var vat = subtotal * (shop.vatRate/100);
   var total = subtotal + vat;
 
-  var q = (state.productSearch||'').toLowerCase();
-  var results = q ? shop.products.filter(function(p){ return p.stock>0 && p.name.toLowerCase().indexOf(q)>=0; }).slice(0,6) : [];
+  var productOptions = '<option value="">'+t('bill_select_product')+'</option>' + shop.products
+    .filter(function(p){ return p.stock>0; })
+    .map(function(p){
+      return '<option value="'+p.id+'">'+escapeHtml(p.name)+' — '+fmtMoney(p.price)+' ('+p.stock+' '+escapeHtml(p.unit)+')</option>';
+    }).join('');
 
   var customerOptions = '<option value="">'+t('bill_customer_walkin')+'</option>' + shop.customers.map(function(c){
     return '<option value="'+c.id+'" '+(state.billingCustomerId===c.id?'selected':'')+'>'+escapeHtml(c.name)+' — '+escapeHtml(c.phone)+'</option>';
   }).join('');
 
   var payMethods = ['cash','qr','card','credit'];
+  var generateBtnLabel = shop.taxType==='pan' ? t('bill_generate_pan') : t('bill_generate_vat');
 
   return ''+
   '<div class="page-head"><div><h1>'+t('bill_title')+'</h1><div class="sub">'+t('bill_sub')+'</div></div></div>'+
   '<div class="grid grid-billing">'+
     '<div>'+
-      '<div class="card card-pad" style="margin-bottom:14px;position:relative;">'+
-        '<div class="search-box"><span>&#128269;</span><input id="billing-search-input" placeholder="'+t('bill_search')+'" value="'+escapeHtml(state.productSearch)+'" data-action="search-billing" autocomplete="off"></div>'+
-        (results.length ? '<div style="position:absolute;left:20px;right:20px;top:56px;background:#fff;border:1px solid var(--border);border-radius:9px;box-shadow:var(--shadow-md);z-index:5;overflow:hidden;">'+
-          results.map(function(p){
-            return '<button data-action="cart-add" data-id="'+p.id+'" style="display:flex;justify-content:space-between;width:100%;text-align:left;padding:10px 14px;border:none;background:#fff;border-bottom:1px solid var(--border);">'+
-              '<span>'+escapeHtml(p.name)+'</span><span style="font-weight:700;">'+fmtMoney(p.price)+'</span></button>';
-          }).join('')+
-        '</div>' : '')+
+      '<div class="card card-pad" style="margin-bottom:14px;">'+
+        '<label class="field-label">'+t('bill_select_product_label')+'</label>'+
+        '<div style="display:flex;gap:8px;">'+
+          '<select class="field" id="billing-product-select">'+productOptions+'</select>'+
+          '<button type="button" class="btn btn-indigo" style="white-space:nowrap;" data-action="add-selected-product">+ '+t('bill_add_to_bill')+'</button>'+
+        '</div>'+
+        (shop.products.filter(function(p){return p.stock>0;}).length===0 ? '<div class="field-hint">'+t('bill_no_products_in_stock')+'</div>' : '')+
       '</div>'+
       '<div class="card">'+
         '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;">'+t('bill_cart')+'</h3></div>'+
@@ -1421,7 +1512,7 @@ function renderBillingView(){
       '<div class="kv"><div class="k">'+t('bill_subtotal')+'</div><div class="v">'+fmtMoney(subtotal)+'</div></div>'+
       (shop.taxType==='pan' ? '' : '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>')+
       '<div class="kv" style="font-size:16px;"><div class="k" style="color:var(--ink);font-weight:700;">'+t('bill_total')+'</div><div class="v" style="color:var(--crimson-dark);">'+fmtMoney(total)+'</div></div>'+
-      '<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:14px;font-size:14px;" data-action="generate-bill" '+(cart.length===0?'disabled':'')+'>&#128196; '+t('bill_generate')+'</button>'+
+      '<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:14px;font-size:14px;" data-action="generate-bill" '+(cart.length===0?'disabled':'')+'>&#128196; '+generateBtnLabel+'</button>'+
     '</div>'+
   '</div>';
 }
@@ -1432,7 +1523,7 @@ function renderCustomersView(){
   var q = (state.customerSearch||'').toLowerCase();
   var list = shop.customers.filter(function(c){ return !q || c.name.toLowerCase().indexOf(q)>=0 || c.phone.indexOf(q)>=0; });
   var rows = list.map(function(c){
-    var purchases = shop.sales.filter(function(s){ return s.customerId===c.id; });
+    var purchases = shop.sales.filter(function(s){ return s.customerId===c.id && !s.cancelled; });
     var total = sumBy(purchases, 'total');
     return '<tr><td style="font-weight:700;">'+escapeHtml(c.name)+'</td><td>'+escapeHtml(c.phone)+'</td><td class="muted">'+escapeHtml(c.address||'—')+'</td>'+
       '<td style="font-weight:700;">'+fmtMoney(total)+'</td><td>'+purchases.length+'</td></tr>';
@@ -1495,7 +1586,7 @@ function renderReportsView(){
   '<div class="grid grid-4" style="margin-bottom:18px;">'+
     '<div class="stat-card accent-crimson"><div class="label">'+t('rep_total_sales')+'</div><div class="value">'+fmtMoney(total)+'</div></div>'+
     '<div class="stat-card accent-gold"><div class="label">'+t('rep_total_vat')+'</div><div class="value">'+fmtMoney(vatTotal)+'</div></div>'+
-    '<div class="stat-card accent-indigo"><div class="label">'+t('rep_bills')+'</div><div class="value">'+sales.length+'</div></div>'+
+    '<div class="stat-card accent-indigo" style="cursor:pointer;" data-action="open-bills-list" title="'+t('rep_bills_click_hint')+'"><div class="label">'+t('rep_bills')+' &#128065;</div><div class="value">'+sales.length+'</div><div class="foot">'+t('rep_bills_click_hint')+'</div></div>'+
     '<div class="stat-card accent-success"><div class="label">'+t('rep_avg_bill')+'</div><div class="value">'+fmtMoney(avg)+'</div></div>'+
   '</div>'+
   '<div class="grid grid-2" style="align-items:start;">'+
@@ -1516,7 +1607,110 @@ function renderReportsView(){
   '</div>';
 }
 
-/* ---------------- shop admin: settings ---------------- */
+/* ---------------- shop admin: bills list (view / edit / cancel) ---------------- */
+function renderBillsListModal(){
+  var shop = currentShop();
+  var sales = filteredSales(shop, state.repRange, true).slice().sort(function(a,b){ return b.date - a.date; });
+  var rows = sales.length ? sales.map(function(s){
+    return '<tr'+(s.cancelled?' style="opacity:0.55;"':'')+'>'+
+      '<td style="font-family:var(--font-mono);">'+s.invoiceNo+'</td>'+
+      '<td>'+fmtDateTime(s.date)+'</td>'+
+      '<td>'+escapeHtml(s.customerName||t('bill_customer_walkin'))+'</td>'+
+      '<td><span class="badge badge-indigo">'+paymentLabel(s.payment)+'</span></td>'+
+      '<td style="font-weight:700;">'+fmtMoney(s.total)+'</td>'+
+      '<td>'+(s.cancelled ? '<span class="badge badge-danger">'+t('bill_status_cancelled')+'</span>' : '<span class="badge badge-success">'+t('bill_status_active')+'</span>')+'</td>'+
+      '<td><div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        '<button class="btn btn-outline btn-sm" data-action="view-bill" data-id="'+s.id+'">'+t('btn_view')+'</button>'+
+        (s.cancelled ? '' :
+          '<button class="btn btn-outline btn-sm" data-action="open-edit-bill" data-id="'+s.id+'">'+t('btn_edit')+'</button>'+
+          '<button class="btn btn-outline btn-sm" data-action="cancel-bill" data-id="'+s.id+'" style="color:var(--danger);">'+t('btn_cancel_bill')+'</button>'
+        )+
+      '</div></td>'+
+    '</tr>';
+  }).join('') : '<tr><td colspan="7" class="empty-state">'+t('rep_no_data')+'</td></tr>';
+
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="bills-list">'+
+    '<div class="modal" style="max-width:900px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('bills_list_title')+'</h3><button class="modal-close" data-action="close-bills-list">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12.5px;margin-bottom:14px;">'+t('bills_list_sub')+'</div>'+
+        '<div class="table-wrap"><table><thead><tr>'+
+          '<th>'+t('invoice_no')+'</th><th>'+t('invoice_date')+'</th><th>'+t('bill_customer')+'</th>'+
+          '<th>'+t('bill_payment')+'</th><th>'+t('bill_total')+'</th><th>'+t('bill_status')+'</th><th>'+t('th_actions')+'</th>'+
+        '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-bills-list">'+t('invoice_close')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderEditBillModal(){
+  var shop = currentShop();
+  var draft = state.editBillDraft;
+  if(!draft) return '';
+  var lines = draft.items.map(function(item, idx){
+    var p = shop.products.find(function(x){ return x.id===item.productId; });
+    var unit = p ? p.unit : '';
+    return '<tr>'+
+      '<td>'+escapeHtml(item.name)+'</td>'+
+      '<td style="width:120px;"><div style="display:flex;align-items:center;gap:6px;">'+
+        '<button class="btn btn-outline btn-sm" data-action="edit-bill-dec" data-idx="'+idx+'" style="padding:3px 9px;">−</button>'+
+        '<span style="min-width:20px;text-align:center;font-weight:700;">'+item.qty+'</span>'+
+        '<button class="btn btn-outline btn-sm" data-action="edit-bill-inc" data-idx="'+idx+'" style="padding:3px 9px;">+</button>'+
+      '</div></td>'+
+      '<td>'+fmtMoney(item.price)+'</td>'+
+      '<td style="font-weight:700;">'+fmtMoney(item.price*item.qty)+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" data-action="edit-bill-remove-item" data-idx="'+idx+'" style="color:var(--danger);">&times;</button></td>'+
+    '</tr>';
+  }).join('');
+
+  var productOptions = '<option value="">'+t('bill_select_product')+'</option>' + shop.products
+    .filter(function(p){ return p.stock>0; })
+    .map(function(p){ return '<option value="'+p.id+'">'+escapeHtml(p.name)+' — '+fmtMoney(p.price)+' ('+p.stock+' '+escapeHtml(p.unit)+')</option>'; })
+    .join('');
+
+  var customerOptions = '<option value="">'+t('bill_customer_walkin')+'</option>' + shop.customers.map(function(c){
+    return '<option value="'+c.id+'" '+(draft.customerId===c.id?'selected':'')+'>'+escapeHtml(c.name)+' — '+escapeHtml(c.phone)+'</option>';
+  }).join('');
+
+  var payMethods = ['cash','qr','card','credit'];
+  var subtotal = draft.items.reduce(function(sum,it){ return sum + it.price*it.qty; }, 0);
+  var vat = subtotal*(shop.vatRate/100);
+  var total = subtotal+vat;
+
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="edit-bill">'+
+    '<div class="modal" style="max-width:640px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('edit_bill_title')+' — <span style="font-family:var(--font-mono);font-size:14px;">'+escapeHtml(draft.invoiceNo)+'</span></h3><button class="modal-close" data-action="close-edit-bill">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12px;margin-bottom:14px;">'+t('edit_bill_sub')+'</div>'+
+        '<div class="grid grid-2" style="margin-bottom:10px;">'+
+          '<div class="field-row"><label class="field-label">'+t('bill_customer')+'</label><select class="field" id="eb-customer" data-action="edit-bill-set-customer">'+customerOptions+'</select></div>'+
+          '<div class="field-row"><label class="field-label">'+t('bill_payment')+'</label><select class="field" id="eb-payment" data-action="edit-bill-set-payment">'+
+            payMethods.map(function(m){ return '<option value="'+m+'" '+(draft.payment===m?'selected':'')+'>'+paymentLabel(m)+'</option>'; }).join('')+
+          '</select></div>'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('bill_select_product_label')+'</label>'+
+          '<div style="display:flex;gap:8px;">'+
+            '<select class="field" id="eb-product-select">'+productOptions+'</select>'+
+            '<button type="button" class="btn btn-indigo btn-sm" style="white-space:nowrap;" data-action="edit-bill-add-item">+ '+t('bill_add_to_bill')+'</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="table-wrap"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('bill_price')+'</th><th>'+t('bill_line_total')+'</th><th></th></tr></thead><tbody>'+
+        (lines || '<tr><td colspan="5" class="empty-state">'+t('bill_cart_empty')+'</td></tr>')+
+        '</tbody></table></div>'+
+        '<hr class="hair">'+
+        '<div class="kv"><div class="k">'+t('bill_subtotal')+'</div><div class="v">'+fmtMoney(subtotal)+'</div></div>'+
+        (shop.taxType==='pan' ? '' : '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>')+
+        '<div class="kv" style="font-size:15px;"><div class="k" style="font-weight:700;">'+t('bill_total')+'</div><div class="v" style="color:var(--crimson-dark);">'+fmtMoney(total)+'</div></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-edit-bill">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="submit-edit-bill" '+(draft.items.length===0?'disabled':'')+'>'+t('btn_save_bill')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
 function renderSettingsView(){
   var shop = currentShop();
   return ''+
@@ -1578,7 +1772,7 @@ function renderReceiptModal(){
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="receipt">'+
     '<div class="modal" style="max-width:560px;" data-stop>'+
-      '<div class="modal-head"><h3>'+(shop.taxType==='pan' ? t('invoice_title_pan') : t('invoice_title'))+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
+      '<div class="modal-head"><h3>'+(shop.taxType==='pan' ? t('invoice_title_pan') : t('invoice_title'))+(inv.cancelled ? ' <span class="badge badge-danger" style="vertical-align:middle;">'+t('bill_status_cancelled')+'</span>' : '')+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
       '<div class="modal-body" style="background:var(--surface-2);">'+
         '<div class="invoice-sheet" id="printable-invoice">'+
           '<div class="invoice-head">'+
@@ -1602,6 +1796,7 @@ function renderReceiptModal(){
               (shop.customQr ?
                 '<img src="'+shop.customQr+'" width="150" height="150">'+
                 '<div style="font-weight:700;">'+t('invoice_scan_pay')+(shop.qrProvider ? ' ('+t('qr_provider_'+shop.qrProvider)+')' : '')+' — '+fmtMoney(inv.total)+'</div>'+
+                '<button type="button" class="btn btn-outline btn-sm" data-action="copy-invoice-amount" data-amount="'+inv.total.toFixed(2)+'" style="margin-top:2px;">&#128203; '+t('btn_copy_amount')+'</button>'+
                 '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'
                 :
                 '<div id="qrcode-target"></div>'+
@@ -1659,7 +1854,9 @@ function afterRender(){
       var target = document.getElementById('qrcode-target');
       if(target && window.QRCode){
         target.innerHTML='';
-        var payload = 'DEMO QR - NOT A REAL PAYMENT LINK. Shop: '+(shop.businessName||'')+'. Invoice '+state.lastInvoice.invoiceNo+', Amount NPR '+state.lastInvoice.total.toFixed(2)+'. Please pay by cash or another method.';
+        var payload = 'PASAL-MANAGER-INVOICE|SHOP:'+(shop.businessName||'')+'|INVOICE:'+state.lastInvoice.invoiceNo+
+          '|AMOUNT:'+state.lastInvoice.total.toFixed(2)+'|CURRENCY:NPR|DATE:'+new Date(state.lastInvoice.date).toISOString()+
+          '|NOTE:Demo QR for record-keeping only - not a live payment link. Pay by cash, card, or your own banking app.';
         try{ new QRCode(target, {text: payload, width:150, height:150, colorDark:'#16305C', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M}); }catch(e){}
       }
     }
@@ -1726,7 +1923,9 @@ function closeModalByName(name){
   else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; }
   else if(name==='stock') state.showAddStockModal = null;
   else if(name==='customer') state.showAddCustomerModal = false;
-  else if(name==='receipt') state.showReceiptModal = false;
+  else if(name==='bills-list') state.showBillsListModal = false;
+  else if(name==='edit-bill'){ state.showEditBillModal = null; state.editBillDraft = null; }
+  else if(name==='receipt'){ state.showReceiptModal = false; state.viewingReceiptFromBillsList = false; }
   render();
 }
 
@@ -1978,21 +2177,18 @@ function handleAction(action, el){
       render();
       break;
 
-    case 'search-billing':
-      break; // handled by input listener
+    case 'add-selected-product':
+      var selEl = document.getElementById('billing-product-select');
+      var selId = selEl ? selEl.value : '';
+      if(!selId){ toast(t('bill_select_product_first'), 'error'); return; }
+      addProductToCart(shop, selId);
+      if(selEl) selEl.value = '';
+      render();
+      break;
 
     /* ---- billing / POS ---- */
     case 'cart-add':
-      var addId = el.getAttribute('data-id');
-      var addProd = shop.products.find(function(p){ return p.id===addId; });
-      if(!addProd) return;
-      var existingItem = state.cart.find(function(c){ return c.productId===addId; });
-      if(existingItem){
-        if(existingItem.qty < addProd.stock) existingItem.qty++;
-      } else {
-        state.cart.push({productId:addId, qty:1});
-      }
-      state.productSearch = '';
+      addProductToCart(shop, el.getAttribute('data-id'));
       render();
       break;
 
@@ -2037,6 +2233,19 @@ function handleAction(action, el){
       window.print();
       break;
 
+    case 'copy-invoice-amount':
+      var amt = el.getAttribute('data-amount');
+      var copyPromise = (navigator.clipboard && navigator.clipboard.writeText)
+        ? navigator.clipboard.writeText(amt)
+        : Promise.reject(new Error('no clipboard API'));
+      copyPromise.then(function(){
+        toast(t('toast_amount_copied') + ': ' + amt, 'success');
+      }).catch(function(){
+        // Fallback for browsers/contexts without Clipboard API access.
+        window.prompt(t('toast_amount_copy_fallback'), amt);
+      });
+      break;
+
     /* ---- customers ---- */
     case 'open-add-customer':
       state.showAddCustomerModal = true;
@@ -2067,6 +2276,151 @@ function handleAction(action, el){
     /* ---- reports ---- */
     case 'set-range':
       state.repRange = el.getAttribute('data-range');
+      render();
+      break;
+
+    /* ---- bills list (view / edit / cancel) ---- */
+    case 'open-bills-list':
+      state.showBillsListModal = true;
+      render();
+      break;
+
+    case 'close-bills-list':
+      closeModalByName('bills-list');
+      break;
+
+    case 'view-bill':
+      var viewId = el.getAttribute('data-id');
+      var viewSale = shop.sales.find(function(s){ return s.id===viewId; });
+      if(!viewSale) return;
+      state.lastInvoice = viewSale;
+      state.showReceiptModal = true;
+      state.viewingReceiptFromBillsList = true;
+      render();
+      break;
+
+    case 'open-edit-bill':
+      var openEditId = el.getAttribute('data-id');
+      var saleToEdit = shop.sales.find(function(s){ return s.id===openEditId; });
+      if(!saleToEdit || saleToEdit.cancelled) return;
+      state.showEditBillModal = saleToEdit.id;
+      state.editBillDraft = {
+        saleId: saleToEdit.id,
+        invoiceNo: saleToEdit.invoiceNo,
+        customerId: saleToEdit.customerId || '',
+        payment: saleToEdit.payment,
+        items: saleToEdit.items.map(function(it){
+          return { productId: it.productId, name: it.name, price: it.price, qty: it.qty, originalQty: it.qty };
+        })
+      };
+      render();
+      break;
+
+    case 'close-edit-bill':
+      closeModalByName('edit-bill');
+      break;
+
+    case 'edit-bill-inc':
+      var incIdx = parseInt(el.getAttribute('data-idx'));
+      var incDraftItem = state.editBillDraft.items[incIdx];
+      var incDraftProd = shop.products.find(function(p){ return p.id===incDraftItem.productId; });
+      var incMax = (incDraftProd ? incDraftProd.stock : 0) + (incDraftItem.originalQty||0);
+      if(incDraftItem.qty < incMax) incDraftItem.qty++;
+      render();
+      break;
+
+    case 'edit-bill-dec':
+      var decIdx = parseInt(el.getAttribute('data-idx'));
+      var decDraftItem = state.editBillDraft.items[decIdx];
+      if(decDraftItem.qty > 1) decDraftItem.qty--;
+      render();
+      break;
+
+    case 'edit-bill-remove-item':
+      var rmIdx = parseInt(el.getAttribute('data-idx'));
+      state.editBillDraft.items.splice(rmIdx, 1);
+      render();
+      break;
+
+    case 'edit-bill-add-item':
+      var ebSelEl = document.getElementById('eb-product-select');
+      var ebProdId = ebSelEl ? ebSelEl.value : '';
+      if(!ebProdId){ toast(t('bill_select_product_first'), 'error'); return; }
+      var ebProd = shop.products.find(function(p){ return p.id===ebProdId; });
+      if(!ebProd) return;
+      var existingDraftItem = state.editBillDraft.items.find(function(it){ return it.productId===ebProdId; });
+      if(existingDraftItem){
+        var maxQty = ebProd.stock + (existingDraftItem.originalQty||0);
+        if(existingDraftItem.qty < maxQty) existingDraftItem.qty++;
+      } else if(ebProd.stock > 0){
+        state.editBillDraft.items.push({ productId: ebProd.id, name: ebProd.name, price: ebProd.price, qty: 1, originalQty: 0 });
+      } else {
+        toast(t('err_insufficient_stock'), 'error');
+        return;
+      }
+      if(ebSelEl) ebSelEl.value = '';
+      render();
+      break;
+
+    case 'submit-edit-bill':
+      var draft = state.editBillDraft;
+      if(!draft || draft.items.length===0) return;
+      var editedSale = shop.sales.find(function(s){ return s.id===draft.saleId; });
+      if(!editedSale) return;
+      // Undo the stock impact of the ORIGINAL items, then apply the new items.
+      editedSale.items.forEach(function(oldIt){
+        var p = shop.products.find(function(x){ return x.id===oldIt.productId; });
+        if(p) p.stock += oldIt.qty;
+      });
+      var stockOk = draft.items.every(function(it){
+        var p = shop.products.find(function(x){ return x.id===it.productId; });
+        return p && it.qty <= p.stock;
+      });
+      if(!stockOk){
+        // Revert the undo above since we're aborting the edit.
+        editedSale.items.forEach(function(oldIt){
+          var p = shop.products.find(function(x){ return x.id===oldIt.productId; });
+          if(p) p.stock -= oldIt.qty;
+        });
+        toast(t('err_insufficient_stock'), 'error');
+        return;
+      }
+      draft.items.forEach(function(it){
+        var p = shop.products.find(function(x){ return x.id===it.productId; });
+        if(p) p.stock -= it.qty;
+      });
+      var newSubtotal = draft.items.reduce(function(sum,it){ return sum + it.price*it.qty; }, 0);
+      var newVat = newSubtotal * (shop.vatRate/100);
+      var editCustomer = shop.customers.find(function(c){ return c.id===draft.customerId; });
+      editedSale.items = draft.items.map(function(it){ return {productId:it.productId, name:it.name, qty:it.qty, price:it.price, total:it.price*it.qty}; });
+      editedSale.subtotal = newSubtotal;
+      editedSale.vat = newVat;
+      editedSale.total = newSubtotal + newVat;
+      editedSale.payment = draft.payment;
+      editedSale.customerId = editCustomer ? editCustomer.id : null;
+      editedSale.customerName = editCustomer ? editCustomer.name : null;
+      editedSale.edited = true;
+      editedSale.editedAt = Date.now();
+      state.showEditBillModal = null;
+      state.editBillDraft = null;
+      fbSaveShop(shop);
+      toast(t('toast_bill_updated'), 'success');
+      render();
+      break;
+
+    case 'cancel-bill':
+      var cancelId = el.getAttribute('data-id');
+      var saleToCancel = shop.sales.find(function(s){ return s.id===cancelId; });
+      if(!saleToCancel || saleToCancel.cancelled) return;
+      if(!window.confirm(t('confirm_cancel_bill'))) return;
+      saleToCancel.items.forEach(function(it){
+        var p = shop.products.find(function(x){ return x.id===it.productId; });
+        if(p) p.stock += it.qty;
+      });
+      saleToCancel.cancelled = true;
+      saleToCancel.cancelledAt = Date.now();
+      fbSaveShop(shop);
+      toast(t('toast_bill_cancelled'), 'success');
       render();
       break;
 
@@ -2108,6 +2462,17 @@ function handleAction(action, el){
 
     default:
       break;
+  }
+}
+
+function addProductToCart(shop, productId){
+  var prod = shop.products.find(function(p){ return p.id===productId; });
+  if(!prod || prod.stock<=0) return;
+  var existingItem = state.cart.find(function(c){ return c.productId===productId; });
+  if(existingItem){
+    if(existingItem.qty < prod.stock) existingItem.qty++;
+  } else {
+    state.cart.push({productId:productId, qty:1});
   }
 }
 
@@ -2204,9 +2569,6 @@ function bindEvents(){
     if(el.id==='product-search-input'){
       state.productSearch = el.value;
       reRenderKeepFocus();
-    } else if(el.id==='billing-search-input'){
-      state.productSearch = el.value;
-      reRenderKeepFocus();
     } else if(el.getAttribute && el.getAttribute('data-action')==='search-customers'){
       state.customerSearch = el.value;
       reRenderKeepFocus();
@@ -2217,6 +2579,8 @@ function bindEvents(){
     var el = e.target;
     if(el.id==='bill-customer'){ state.billingCustomerId = el.value; }
     if(el.id==='qr-upload'){ handleQrFile(el); }
+    if(el.id==='eb-customer' && state.editBillDraft){ state.editBillDraft.customerId = el.value; }
+    if(el.id==='eb-payment' && state.editBillDraft){ state.editBillDraft.payment = el.value; }
   });
 }
 
