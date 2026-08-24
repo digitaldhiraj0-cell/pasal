@@ -756,6 +756,7 @@ var I18N = {
     total_amount_hint:'If left blank, this is calculated automatically as cost price × quantity.',
     bill_attachment:'Attach Bill (PDF or Image)', bill_attachment_hint:'Optional. Max 700KB — a photo or scan of the supplier\'s bill/receipt.',
     bill_view:'View Bill', err_file_too_large:'That file is too large — please use a file under 700KB.',
+    bill_attachment_current:'Current file:', bill_attachment_replace_hint:'choose a new file above to replace it.',
     suppliers_title:'Suppliers', suppliers_sub:'Manage suppliers and track purchases and investment per supplier.',
     suppliers_tab_manage:'Manage Suppliers', suppliers_tab_report:'Purchase Report',
     btn_add_supplier:'+ Add Supplier', suppliers_empty:'No suppliers yet. Add one from the Inventory → Add Product form, or here directly.',
@@ -919,6 +920,7 @@ var I18N = {
     total_amount_hint:'खाली छाडेमा, यो लागत मूल्य × परिमाणबाट स्वतः गणना हुन्छ।',
     bill_attachment:'बिल संलग्न गर्नुहोस् (PDF वा फोटो)', bill_attachment_hint:'ऐच्छिक। अधिकतम 700KB — आपूर्तिकर्ताको बिल/रसिदको फोटो वा स्क्यान।',
     bill_view:'बिल हेर्नुहोस्', err_file_too_large:'यो फाइल धेरै ठूलो छ — कृपया 700KB भन्दा सानो फाइल प्रयोग गर्नुहोस्।',
+    bill_attachment_current:'हालको फाइल:', bill_attachment_replace_hint:'बदल्न माथि नयाँ फाइल छान्नुहोस्।',
     suppliers_title:'आपूर्तिकर्ताहरू', suppliers_sub:'आपूर्तिकर्ता व्यवस्थापन गर्नुहोस् र प्रत्येक आपूर्तिकर्ताको खरिद र लगानी ट्र्याक गर्नुहोस्।',
     suppliers_tab_manage:'आपूर्तिकर्ता व्यवस्थापन', suppliers_tab_report:'खरिद प्रतिवेदन',
     btn_add_supplier:'+ आपूर्तिकर्ता थप्नुहोस्', suppliers_empty:'हालसम्म कुनै आपूर्तिकर्ता छैन। सामान थप्ने फारमबाट वा यहाँ सिधै थप्नुहोस्।',
@@ -1224,6 +1226,14 @@ function daysUntil(dateStr2){
 function supplierName(shop, supplierId){
   var s = (shop.suppliers||[]).find(function(x){ return x.id===supplierId; });
   return s ? s.companyName : null;
+}
+// The most recent purchase-log entry recorded for a specific product, if any.
+// Used so editing a product can show/update its existing purchase record
+// instead of always creating a brand-new one.
+function latestPurchaseForProduct(shop, productId){
+  var entries = (shop.supplierPurchases||[]).filter(function(p){ return p.productId===productId; });
+  if(entries.length===0) return null;
+  return entries.slice().sort(function(a,b){ return b.date - a.date; })[0];
 }
 // Per-supplier totals for the Supplier Report: total invested, total units,
 // and the list of individual purchase-log entries for that supplier.
@@ -1720,6 +1730,18 @@ function renderProductModal(){
     return '<div class="field-row"><label class="field-label">'+t(key)+'</label><input class="field" id="'+id+'" value="'+escapeHtml(val||'')+'" '+(disabled?'disabled style="background:var(--surface-2);"':'')+'></div>';
   };
   var sv = function(k){ return selectedSupplier ? selectedSupplier[k] : ''; };
+  // When editing, prefill Purchase Date/Total Amount from this product's most
+  // recent purchase-log entry (if one exists), so corrections update that
+  // record instead of silently creating a duplicate.
+  var latestPurchase = null;
+  if(editing){
+    var productPurchases = (shop.supplierPurchases||[]).filter(function(e){ return e.productId===editing.id; });
+    if(productPurchases.length){
+      latestPurchase = productPurchases.sort(function(a,b){ return b.date - a.date; })[0];
+    }
+  }
+  var purchaseDateValue = latestPurchase ? dateStr(latestPurchase.date) : dateStr(Date.now());
+  var totalAmountValue = latestPurchase ? latestPurchase.total : '';
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="product">'+
     '<div class="modal" style="max-width:560px;" data-stop>'+
@@ -1740,19 +1762,19 @@ function renderProductModal(){
           '</div>'+
           supField('pm-sup-location','supplier_location', mode==='existing'?sv('location'):'', mode==='existing')+
           (mode==='existing' ? '<div class="field-hint">'+t('supplier_existing_hint')+'</div>' : '')+
-          (editing ? '' : ''+
-            '<div class="grid grid-2">'+
-              '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="pm-purchase-date" type="date" value="'+dateStr(Date.now())+'"></div>'+
-              '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="pm-total-amount" type="number" placeholder="0.00">'+
-                '<div class="field-hint">'+t('total_amount_hint')+'</div>'+
-              '</div>'+
+          '<div class="grid grid-2">'+
+            '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="pm-purchase-date" type="date" value="'+purchaseDateValue+'"></div>'+
+            '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="pm-total-amount" type="number" placeholder="0.00" value="'+escapeHtml(totalAmountValue===''?'':String(totalAmountValue))+'">'+
+              '<div class="field-hint">'+t('total_amount_hint')+'</div>'+
             '</div>'+
-            '<div class="field-row">'+
-              '<label class="field-label">'+t('bill_attachment')+'</label>'+
-              '<input class="field" id="pm-bill-file" type="file" accept="application/pdf,image/*">'+
-              '<div class="field-hint">'+t('bill_attachment_hint')+'</div>'+
-            '</div>'+
-          '')+
+          '</div>'+
+          '<div class="field-row">'+
+            '<label class="field-label">'+t('bill_attachment')+'</label>'+
+            '<input class="field" id="pm-bill-file" type="file" accept="application/pdf,image/*">'+
+            (latestPurchase && latestPurchase.billAttachment ?
+              '<div class="field-hint">'+t('bill_attachment_current')+' <a href="'+latestPurchase.billAttachment+'" download="'+escapeHtml(latestPurchase.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">'+escapeHtml(latestPurchase.billFileName||t('bill_view'))+'</a> — '+t('bill_attachment_replace_hint')+'</div>'
+              : '<div class="field-hint">'+t('bill_attachment_hint')+'</div>')+
+          '</div>'+
         '')+
         '<hr class="hair">'+
         '<div class="field-row"><label class="field-label">'+t('product_name')+'</label><input class="field" id="pm-name" value="'+escapeHtml(p.name)+'"></div>'+
@@ -3147,6 +3169,56 @@ async function performSaveProduct(shop, el){
       existing.price=price; existing.cost=cost; existing.lowStockThreshold=lowstock;
       existing.manufactureDate=mfgDate; existing.expiryDate=expDate;
       existing.supplierId=resolvedSupplierId;
+
+      if(resolvedSupplierId){
+        var editPurchaseDateEl = document.getElementById('pm-purchase-date');
+        var editTotalAmountEl = document.getElementById('pm-total-amount');
+        var editBillFileEl = document.getElementById('pm-bill-file');
+        var editPurchaseDate = editPurchaseDateEl && editPurchaseDateEl.value ? new Date(editPurchaseDateEl.value).getTime() : Date.now();
+        var editTotalAmountEntered = editTotalAmountEl ? parseFloat(editTotalAmountEl.value) : NaN;
+
+        var newEditBillAttachment = null, newEditBillFileName = null;
+        if(editBillFileEl && editBillFileEl.files && editBillFileEl.files[0]){
+          var editBillFile = editBillFileEl.files[0];
+          if(editBillFile.size > 700*1024){
+            toast(t('err_file_too_large'), 'error');
+          } else {
+            try{
+              newEditBillAttachment = await readFileAsDataURL(editBillFile);
+              newEditBillFileName = editBillFile.name;
+            }catch(e){
+              console.error('Reading bill attachment failed:', e);
+            }
+          }
+        }
+
+        var linkedPurchase = latestPurchaseForProduct(shop, pid);
+        if(linkedPurchase){
+          // Update the existing purchase record in place rather than creating
+          // a duplicate — this is what makes editing feel like "editing".
+          linkedPurchase.supplierId = resolvedSupplierId;
+          linkedPurchase.date = editPurchaseDate;
+          linkedPurchase.costPrice = cost;
+          if(!isNaN(editTotalAmountEntered) && editTotalAmountEntered > 0){
+            linkedPurchase.total = editTotalAmountEntered;
+          }
+          if(newEditBillAttachment){
+            linkedPurchase.billAttachment = newEditBillAttachment;
+            linkedPurchase.billFileName = newEditBillFileName;
+          }
+        } else if(!isNaN(editTotalAmountEntered) && editTotalAmountEntered > 0 || newEditBillAttachment){
+          // No purchase was ever logged for this product (e.g. it was created
+          // without a supplier, or with zero stock) — create one now using
+          // the product's current stock as a best-effort quantity snapshot.
+          if(!shop.supplierPurchases) shop.supplierPurchases = [];
+          shop.supplierPurchases.push({
+            id: uid('pur'), supplierId:resolvedSupplierId, productId:pid, productName:name,
+            qty:existing.stock, costPrice:cost,
+            total: !isNaN(editTotalAmountEntered) && editTotalAmountEntered > 0 ? editTotalAmountEntered : cost*existing.stock,
+            date: editPurchaseDate, billAttachment:newEditBillAttachment, billFileName:newEditBillFileName
+          });
+        }
+      }
     }
     toast(t('toast_product_updated'), 'success');
   } else {
