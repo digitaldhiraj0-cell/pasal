@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -693,7 +692,7 @@ var I18N = {
     cp_email_sent:'Confirmation email sent to', cp_email_failed:'Password updated, but the confirmation email failed to send.',
     nav_shops:'Shops', nav_create_shop:'Register New Shop',
     nav_dashboard:'Dashboard', nav_inventory:'Inventory', nav_billing:'Billing / POS',
-    nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings',
+    nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings', nav_suppliers:'Suppliers',
     super_section:'Platform', shop_section:'Shop Console',
 
     shops_title:'Registered Shops', shops_sub:'Manage every shop admin account from one place.',
@@ -701,6 +700,11 @@ var I18N = {
     btn_new_shop:'+ New Shop',
     shop_card_products:'products', shop_card_sales:'sales this month', shop_card_login:'Admin login',
     btn_manage:'Manage', btn_deactivate:'Deactivate', btn_activate:'Activate',
+    btn_delete_shop:'Delete', btn_delete_permanently:'Delete Permanently',
+    delete_shop_title:'Delete Shop Permanently', delete_shop_warning:'This cannot be undone. Deleting this shop permanently removes it and everything below from the system — there is no recovery.',
+    delete_shop_products:'products', delete_shop_customers:'customers', delete_shop_sales:'sales records', delete_shop_suppliers:'suppliers',
+    delete_shop_confirm_label:'Type the shop name to confirm:',
+    toast_shop_deleted:'Shop permanently deleted.',
 
     create_shop_title:'Register a New Shop', create_shop_sub:'Step 1: identify the business by PAN. Step 2: set up admin login.',
     edit_shop_title:'Edit Shop Details', edit_shop_sub:'Update business information, address, and VAT/PAN registration for this shop.',
@@ -742,6 +746,28 @@ var I18N = {
     product_name:'Product Name', product_category:'Category', product_unit:'Unit',
     product_price:'Selling Price (Rs.)', product_cost:'Cost Price (Rs.)', product_stock:'Opening Stock',
     product_lowstock:'Low Stock Threshold', btn_save_product:'Save Product',
+    product_mfg_date:'Manufacture Date', product_exp_date:'Expiry Date',
+    supplier_none:'— No Supplier / Not Tracked —', supplier_add_new:'+ Add New Supplier',
+    supplier_details_section:'Supplier Details', supplier_select_label:'Select Supplier',
+    supplier_company_name:'Company Name', supplier_owner_name:'Owner Name', supplier_tax_number:'VAT/PAN Number',
+    supplier_existing_hint:'To edit this supplier\'s details, go to Suppliers → Manage Suppliers.',
+    supplier_location:'Supplier Location',
+    purchase_date:'Purchase Date', total_amount:'Total Amount',
+    total_amount_hint:'If left blank, this is calculated automatically as cost price × quantity.',
+    bill_attachment:'Attach Bill (PDF or Image)', bill_attachment_hint:'Optional. Max 700KB — a photo or scan of the supplier\'s bill/receipt.',
+    bill_view:'View Bill', err_file_too_large:'That file is too large — please use a file under 700KB.',
+    suppliers_title:'Suppliers', suppliers_sub:'Manage suppliers and track purchases and investment per supplier.',
+    suppliers_tab_manage:'Manage Suppliers', suppliers_tab_report:'Purchase Report',
+    btn_add_supplier:'+ Add Supplier', suppliers_empty:'No suppliers yet. Add one from the Inventory → Add Product form, or here directly.',
+    suppliers_products_col:'Products',
+    add_supplier_title:'Add Supplier', edit_supplier_title:'Edit Supplier', btn_save_supplier:'Save Supplier',
+    toast_supplier_added:'Supplier added.', toast_supplier_updated:'Supplier updated.',
+    confirm_remove_supplier:'Remove this supplier?',
+    confirm_remove_supplier_linked:'This supplier is linked to {n} product(s). Removing it will unlink those products (their data stays, just without a supplier). Continue?',
+    sup_rep_total_investment:'Total Investment', sup_rep_total_suppliers:'Suppliers', sup_rep_total_purchases:'Purchase Records',
+    sup_rep_units:'units', sup_rep_products:'products', sup_rep_unit_cost:'Unit Cost', sup_rep_no_purchases:'No purchases recorded for this supplier yet.',
+    expiry_alert_title:'Expiring Soon', expiry_alert_sub:'Products expiring within 30 days',
+    expiry_alert_none:'No products are nearing expiry.', expiry_expired:'Expired', expiry_days_left:'days left',
     add_stock_title:'Add Stock', add_stock_qty:'Quantity to Add', add_stock_note:'Note (optional)',
     btn_confirm_addstock:'Add to Stock', toast_product_added:'Product added to inventory.',
     toast_stock_added:'Stock updated.', toast_product_updated:'Product updated.',
@@ -829,7 +855,7 @@ var I18N = {
     cp_email_sent:'पुष्टिकरण इमेल यहाँ पठाइयो:', cp_email_failed:'पासवर्ड अद्यावधिक भयो, तर पुष्टिकरण इमेल पठाउन सकिएन।',
     nav_shops:'पसलहरू', nav_create_shop:'नयाँ पसल दर्ता',
     nav_dashboard:'ड्यासबोर्ड', nav_inventory:'सामान सूची', nav_billing:'बिलिङ / बिक्री',
-    nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ',
+    nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ', nav_suppliers:'आपूर्तिकर्ताहरू', nav_suppliers:'आपूर्तिकर्ताहरू',
     super_section:'प्लेटफर्म', shop_section:'पसल कन्सोल',
 
     shops_title:'दर्ता भएका पसलहरू', shops_sub:'सबै पसल एडमिन खाता एकै ठाउँबाट व्यवस्थापन गर्नुहोस्।',
@@ -837,6 +863,11 @@ var I18N = {
     btn_new_shop:'+ नयाँ पसल',
     shop_card_products:'सामानहरू', shop_card_sales:'यस महिनाको बिक्री', shop_card_login:'एडमिन लगइन',
     btn_manage:'व्यवस्थापन', btn_deactivate:'निष्क्रिय गर्नुहोस्', btn_activate:'सक्रिय गर्नुहोस्',
+    btn_delete_shop:'मेटाउनुहोस्', btn_delete_permanently:'स्थायी रूपमा मेटाउनुहोस्',
+    delete_shop_title:'पसल स्थायी रूपमा मेटाउनुहोस्', delete_shop_warning:'यो फिर्ता गर्न सकिँदैन। यो पसल मेटाउँदा तल उल्लेखित सबै कुरा प्रणालीबाट स्थायी रूपमा हट्नेछ — पुनःप्राप्ति सम्भव छैन।',
+    delete_shop_products:'सामानहरू', delete_shop_customers:'ग्राहकहरू', delete_shop_sales:'बिक्री रेकर्डहरू', delete_shop_suppliers:'आपूर्तिकर्ताहरू',
+    delete_shop_confirm_label:'पुष्टि गर्न पसलको नाम टाइप गर्नुहोस्:',
+    toast_shop_deleted:'पसल स्थायी रूपमा मेटाइयो।',
 
     create_shop_title:'नयाँ पसल दर्ता गर्नुहोस्', create_shop_sub:'चरण १: प्यानबाट व्यवसाय पहिचान गर्नुहोस्। चरण २: एडमिन लगइन सेट गर्नुहोस्।',
     edit_shop_title:'पसलको विवरण सम्पादन गर्नुहोस्', edit_shop_sub:'यस पसलको व्यवसाय जानकारी, ठेगाना, र भ्याट/प्यान दर्ता अद्यावधिक गर्नुहोस्।',
@@ -878,6 +909,28 @@ var I18N = {
     product_name:'सामानको नाम', product_category:'प्रकार', product_unit:'एकाइ',
     product_price:'बिक्री मूल्य (रु.)', product_cost:'लागत मूल्य (रु.)', product_stock:'सुरुको स्टक',
     product_lowstock:'कम स्टक सीमा', btn_save_product:'सामान सुरक्षित गर्नुहोस्',
+    product_mfg_date:'उत्पादन मिति', product_exp_date:'म्याद सकिने मिति',
+    supplier_none:'— आपूर्तिकर्ता छैन —', supplier_add_new:'+ नयाँ आपूर्तिकर्ता थप्नुहोस्',
+    supplier_details_section:'आपूर्तिकर्ताको विवरण', supplier_select_label:'आपूर्तिकर्ता छान्नुहोस्',
+    supplier_company_name:'कम्पनीको नाम', supplier_owner_name:'मालिकको नाम', supplier_tax_number:'भ्याट/प्यान नम्बर',
+    supplier_existing_hint:'यस आपूर्तिकर्ताको विवरण सम्पादन गर्न, आपूर्तिकर्ताहरू → व्यवस्थापन मा जानुहोस्।',
+    supplier_location:'आपूर्तिकर्ताको ठेगाना',
+    purchase_date:'खरिद मिति', total_amount:'कुल रकम',
+    total_amount_hint:'खाली छाडेमा, यो लागत मूल्य × परिमाणबाट स्वतः गणना हुन्छ।',
+    bill_attachment:'बिल संलग्न गर्नुहोस् (PDF वा फोटो)', bill_attachment_hint:'ऐच्छिक। अधिकतम 700KB — आपूर्तिकर्ताको बिल/रसिदको फोटो वा स्क्यान।',
+    bill_view:'बिल हेर्नुहोस्', err_file_too_large:'यो फाइल धेरै ठूलो छ — कृपया 700KB भन्दा सानो फाइल प्रयोग गर्नुहोस्।',
+    suppliers_title:'आपूर्तिकर्ताहरू', suppliers_sub:'आपूर्तिकर्ता व्यवस्थापन गर्नुहोस् र प्रत्येक आपूर्तिकर्ताको खरिद र लगानी ट्र्याक गर्नुहोस्।',
+    suppliers_tab_manage:'आपूर्तिकर्ता व्यवस्थापन', suppliers_tab_report:'खरिद प्रतिवेदन',
+    btn_add_supplier:'+ आपूर्तिकर्ता थप्नुहोस्', suppliers_empty:'हालसम्म कुनै आपूर्तिकर्ता छैन। सामान थप्ने फारमबाट वा यहाँ सिधै थप्नुहोस्।',
+    suppliers_products_col:'सामानहरू',
+    add_supplier_title:'आपूर्तिकर्ता थप्नुहोस्', edit_supplier_title:'आपूर्तिकर्ता सम्पादन गर्नुहोस्', btn_save_supplier:'आपूर्तिकर्ता सुरक्षित गर्नुहोस्',
+    toast_supplier_added:'आपूर्तिकर्ता थपियो।', toast_supplier_updated:'आपूर्तिकर्ता अद्यावधिक भयो।',
+    confirm_remove_supplier:'यो आपूर्तिकर्ता हटाउने हो?',
+    confirm_remove_supplier_linked:'यो आपूर्तिकर्ता {n} सामानसँग जोडिएको छ। हटाउँदा ती सामानहरूबाट आपूर्तिकर्ता हटिनेछ (सामानको डाटा जोगिनेछ)। जारी राख्ने?',
+    sup_rep_total_investment:'कुल लगानी', sup_rep_total_suppliers:'आपूर्तिकर्ताहरू', sup_rep_total_purchases:'खरिद रेकर्डहरू',
+    sup_rep_units:'एकाइ', sup_rep_products:'सामान', sup_rep_unit_cost:'प्रति एकाइ लागत', sup_rep_no_purchases:'यस आपूर्तिकर्ताको हालसम्म कुनै खरिद दर्ता छैन।',
+    expiry_alert_title:'चाँडै म्याद सकिने', expiry_alert_sub:'३० दिनभित्र म्याद सकिने सामानहरू',
+    expiry_alert_none:'कुनै सामानको म्याद नजिक छैन।', expiry_expired:'म्याद सकियो', expiry_days_left:'दिन बाँकी',
     add_stock_title:'स्टक थप्नुहोस्', add_stock_qty:'थप्ने परिमाण', add_stock_note:'टिप्पणी (ऐच्छिक)',
     btn_confirm_addstock:'स्टकमा थप्नुहोस्', toast_product_added:'सामान सूचीमा थपियो।',
     toast_stock_added:'स्टक अद्यावधिक भयो।', toast_product_updated:'सामान अद्यावधिक भयो।',
@@ -960,7 +1013,9 @@ var SUPER_CREDS = { username:'superadmin', password:'super123' };
 function makeDemoShop(){
   var now = Date.now();
   var day = 24*60*60*1000;
-  return {
+  var sup1 = 'sup_' + Math.random().toString(36).slice(2,9);
+  var sup2 = 'sup_' + Math.random().toString(36).slice(2,9);
+  var shop = {
     id:'s1',
     businessName:'Everest Mart Pvt. Ltd.',
     ownerName:'Rajesh Sharma',
@@ -980,20 +1035,40 @@ function makeDemoShop(){
     customQr:null,
     active:true,
     invoiceSeq:1004,
+    suppliers:[
+      {id:sup1, companyName:'Annapurna Distributors Pvt. Ltd.', ownerName:'Krishna Bahadur Thapa', email:'sales@annapurnadist.com.np', taxNumber:'301112223', location:'Balaju, Kathmandu'},
+      {id:sup2, companyName:'Himalayan FMCG Suppliers', ownerName:'Sunita Adhikari', email:'orders@himalayanfmcg.com', taxNumber:'302223334', location:'Kalanki, Kathmandu'},
+    ],
     products:[
-      {id:uid('p'), name:'Basmati Rice 5kg', category:'Groceries', unit:'bag', price:850, cost:720, stock:34, lowStockThreshold:10},
-      {id:uid('p'), name:'Mustard Oil 1L', category:'Groceries', unit:'bottle', price:320, cost:270, stock:6, lowStockThreshold:8},
-      {id:uid('p'), name:'Wai Wai Noodles (pack of 12)', category:'Snacks', unit:'pack', price:480, cost:400, stock:22, lowStockThreshold:6},
-      {id:uid('p'), name:'CG Instant Tea 100g', category:'Beverages', unit:'box', price:180, cost:145, stock:3, lowStockThreshold:5},
-      {id:uid('p'), name:'Dettol Soap (3-pack)', category:'Personal Care', unit:'pack', price:210, cost:170, stock:18, lowStockThreshold:6},
-      {id:uid('p'), name:'Real Gold Detergent 1kg', category:'Household', unit:'pack', price:260, cost:210, stock:0, lowStockThreshold:5},
+      {id:uid('p'), name:'Basmati Rice 5kg', category:'Groceries', unit:'bag', price:850, cost:720, stock:34, lowStockThreshold:10, supplierId:sup1, manufactureDate: dateStr(now-90*day), expiryDate: dateStr(now+300*day)},
+      {id:uid('p'), name:'Mustard Oil 1L', category:'Groceries', unit:'bottle', price:320, cost:270, stock:6, lowStockThreshold:8, supplierId:sup1, manufactureDate: dateStr(now-60*day), expiryDate: dateStr(now+20*day)},
+      {id:uid('p'), name:'Wai Wai Noodles (pack of 12)', category:'Snacks', unit:'pack', price:480, cost:400, stock:22, lowStockThreshold:6, supplierId:sup2, manufactureDate: dateStr(now-30*day), expiryDate: dateStr(now+10*day)},
+      {id:uid('p'), name:'CG Instant Tea 100g', category:'Beverages', unit:'box', price:180, cost:145, stock:3, lowStockThreshold:5, supplierId:sup2, manufactureDate: dateStr(now-45*day), expiryDate: dateStr(now+400*day)},
+      {id:uid('p'), name:'Dettol Soap (3-pack)', category:'Personal Care', unit:'pack', price:210, cost:170, stock:18, lowStockThreshold:6, supplierId:sup1, manufactureDate:null, expiryDate:null},
+      {id:uid('p'), name:'Real Gold Detergent 1kg', category:'Household', unit:'pack', price:260, cost:210, stock:0, lowStockThreshold:5, supplierId:sup2, manufactureDate:null, expiryDate:null},
     ],
     customers:[
       {id:uid('c'), name:'Anita Koirala', phone:'98410-22456', address:'Jyatha, Kathmandu'},
       {id:uid('c'), name:'Prakash Rana', phone:'98023-11987', address:'Baneshwor, Kathmandu'},
     ],
+    supplierPurchases:[],
     sales:[]
   };
+  // Seed the supplier purchase log with each starting product's opening stock,
+  // so the Supplier Report has realistic investment totals out of the box.
+  shop.products.forEach(function(p){
+    if(p.supplierId && p.stock>0){
+      shop.supplierPurchases.push({
+        id: uid('pur'), supplierId:p.supplierId, productId:p.id, productName:p.name,
+        qty:p.stock, costPrice:p.cost, total:p.cost*p.stock, date: now - 30*day
+      });
+    }
+  });
+  return shop;
+}
+function dateStr(ts){
+  var d = new Date(ts);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 
 function seedDemoSales(shop){
@@ -1048,8 +1123,15 @@ var state = {
   createShop:blankCreateShop(),
   showEditShopModal:null,
   revealEditShopPassword:false,
+  showDeleteShopModal:null,
+  deleteShopConfirmInput:'',
   showAddProductModal:false,
   editingProductId:null,
+  productModalSupplierMode:'none',
+  productModalSelectedSupplierId:'',
+  supplierSubView:'manage',
+  showAddSupplierModal:false,
+  editingSupplierId:null,
   showAddStockModal:null,
   showAddCustomerModal:false,
   showBillsListModal:false,
@@ -1109,6 +1191,61 @@ function todaySales(shop){
 function lowStockProducts(shop){
   return shop.products.filter(function(p){ return p.stock <= p.lowStockThreshold; });
 }
+
+// Backfills fields introduced after some shops were already saved to
+// Firestore, so older records (created before Suppliers/Expiry existed)
+// don't crash the UI — they just show up empty until filled in.
+function normalizeShopFields(shop){
+  if(!shop.suppliers) shop.suppliers = [];
+  if(!shop.supplierPurchases) shop.supplierPurchases = [];
+  (shop.products||[]).forEach(function(p){
+    if(p.supplierId===undefined) p.supplierId = null;
+    if(p.manufactureDate===undefined) p.manufactureDate = null;
+    if(p.expiryDate===undefined) p.expiryDate = null;
+  });
+  return shop;
+}
+
+// Products expiring within `withinDays` days (defaults to 30), including
+// already-expired ones. Sorted soonest-to-expire first.
+function expiringProducts(shop, withinDays){
+  var days = withinDays===undefined ? 30 : withinDays;
+  var cutoff = Date.now() + days*24*60*60*1000;
+  return (shop.products||[]).filter(function(p){
+    if(!p.expiryDate) return false;
+    var expiryTs = new Date(p.expiryDate+'T23:59:59').getTime();
+    return expiryTs <= cutoff;
+  }).sort(function(a,b){ return new Date(a.expiryDate) - new Date(b.expiryDate); });
+}
+function daysUntil(dateStr2){
+  var ms = new Date(dateStr2+'T23:59:59').getTime() - Date.now();
+  return Math.ceil(ms / (24*60*60*1000));
+}
+function supplierName(shop, supplierId){
+  var s = (shop.suppliers||[]).find(function(x){ return x.id===supplierId; });
+  return s ? s.companyName : null;
+}
+// Per-supplier totals for the Supplier Report: total invested, total units,
+// and the list of individual purchase-log entries for that supplier.
+function supplierReportData(shop){
+  var suppliers = shop.suppliers || [];
+  var purchases = shop.supplierPurchases || [];
+  return suppliers.map(function(s){
+    var entries = purchases.filter(function(p){ return p.supplierId===s.id; });
+    var totalInvestment = sumBy(entries, 'total');
+    var totalUnits = sumBy(entries, 'qty');
+    var productIds = {};
+    entries.forEach(function(e){ productIds[e.productId] = true; });
+    return {
+      supplier: s,
+      entries: entries.slice().sort(function(a,b){ return b.date - a.date; }),
+      totalInvestment: totalInvestment,
+      totalUnits: totalUnits,
+      productCount: Object.keys(productIds).length
+    };
+  }).sort(function(a,b){ return b.totalInvestment - a.totalInvestment; });
+}
+
 function paymentLabel(method){
   return t('pay_'+method) || method;
 }
@@ -1220,6 +1357,7 @@ function renderSuperMain(){
   var body = renderShopsList();
   if(state.showCreateShopModal) body += renderCreateShopModal();
   if(state.showEditShopModal) body += renderEditShopModal();
+  if(state.showDeleteShopModal) body += renderDeleteShopModal();
   return body;
 }
 
@@ -1251,10 +1389,11 @@ function renderShopsList(){
         '<div><b>'+fmtMoney(monthTotal)+'</b> <span class="muted">'+t('shop_card_sales')+'</span></div>'+
       '</div>'+
       '<div class="muted" style="font-size:11.5px;">'+t('shop_card_login')+': <span style="font-family:var(--font-mono);color:var(--ink);">'+escapeHtml(shop.adminUsername)+'</span></div>'+
-      '<div style="display:flex;gap:8px;margin-top:4px;">'+
+      '<div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">'+
         '<button class="btn btn-outline btn-sm" data-action="login-as-shop" data-id="'+shop.id+'" style="flex:1;justify-content:center;">'+t('btn_manage')+'</button>'+
         '<button class="btn btn-outline btn-sm" data-action="open-edit-shop" data-id="'+shop.id+'">'+t('btn_edit')+'</button>'+
         '<button class="btn btn-sm '+(shop.active!==false?'btn-outline':'btn-gold')+'" data-action="toggle-shop-active" data-id="'+shop.id+'">'+(shop.active!==false?t('btn_deactivate'):t('btn_activate'))+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="open-delete-shop" data-id="'+shop.id+'" style="color:var(--danger);border-color:var(--danger-tint);">'+t('btn_delete_shop')+'</button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -1404,10 +1543,40 @@ function renderEditShopModal(){
   '</div>';
 }
 
+function renderDeleteShopModal(){
+  var shop = state.shops.find(function(s){ return s.id===state.showDeleteShopModal; });
+  if(!shop) return '';
+  var matches = state.deleteShopConfirmInput.trim() === shop.businessName;
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="delete-shop">'+
+    '<div class="modal" style="max-width:460px;" data-stop>'+
+      '<div class="modal-head"><h3 style="color:var(--danger);">'+t('delete_shop_title')+'</h3><button class="modal-close" data-action="close-delete-shop">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="login-error" style="margin-bottom:14px;">'+t('delete_shop_warning')+'</div>'+
+        '<ul style="margin:0 0 16px;padding-left:20px;font-size:12.5px;color:var(--ink-soft);line-height:1.9;">'+
+          '<li>'+shop.products.length+' '+t('delete_shop_products')+'</li>'+
+          '<li>'+shop.customers.length+' '+t('delete_shop_customers')+'</li>'+
+          '<li>'+shop.sales.length+' '+t('delete_shop_sales')+'</li>'+
+          '<li>'+(shop.suppliers||[]).length+' '+t('delete_shop_suppliers')+'</li>'+
+        '</ul>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('delete_shop_confirm_label')+' <b>'+escapeHtml(shop.businessName)+'</b></label>'+
+          '<input class="field" id="delete-shop-confirm-input" value="'+escapeHtml(state.deleteShopConfirmInput)+'" autocomplete="off">'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot">'+
+        '<button class="btn btn-outline" data-action="close-delete-shop">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-danger" data-action="confirm-delete-shop" data-id="'+shop.id+'" '+(matches?'':'disabled')+'>'+t('btn_delete_permanently')+'</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
 /* ---------------- shop admin: sidebar ---------------- */
 function renderShopSidebar(){
   var shop = currentShop();
   var lowCount = lowStockProducts(shop).length;
+  var expiringCount = expiringProducts(shop, 30).length;
   function link(view, icon, key, badge){
     return '<button class="side-link '+(state.shopView===view?'active':'')+'" data-action="shop-nav" data-view="'+view+'"><span class="ic">'+icon+'</span>'+t(key)+
       (badge ? '<span class="badge badge-warning" style="margin-left:auto;">'+badge+'</span>' : '')+'</button>';
@@ -1417,6 +1586,7 @@ function renderShopSidebar(){
     '<div class="side-label">'+t('shop_section')+'</div>'+
     link('dashboard','&#128202;','nav_dashboard')+
     link('inventory','&#128230;','nav_inventory', lowCount>0?lowCount:0)+
+    link('suppliers','&#128666;','nav_suppliers', expiringCount>0?expiringCount:0)+
     link('billing','&#128179;','nav_billing')+
     link('reports','&#128200;','nav_reports')+
     link('customers','&#128101;','nav_customers')+
@@ -1428,6 +1598,7 @@ function renderShopMain(){
   var body = '';
   switch(state.shopView){
     case 'inventory': body = renderInventoryView(); break;
+    case 'suppliers': body = renderSuppliersView(); break;
     case 'billing': body = renderBillingView(); break;
     case 'reports': body = renderReportsView(); break;
     case 'customers': body = renderCustomersView(); break;
@@ -1439,6 +1610,7 @@ function renderShopMain(){
   if(state.showAddCustomerModal) body += renderCustomerModal();
   if(state.showBillsListModal) body += renderBillsListModal();
   if(state.showEditBillModal) body += renderEditBillModal();
+  if(state.showAddSupplierModal) body += renderSupplierModal();
   if(state.showReceiptModal && state.lastInvoice) body += renderReceiptModal();
   return body;
 }
@@ -1451,6 +1623,7 @@ function renderDashboardView(){
   var mSales = filteredSales(shop, 30);
   var mTotal = sumBy(mSales, 'total');
   var low = lowStockProducts(shop);
+  var expiring = expiringProducts(shop, 30);
   var recent = shop.sales.slice(-6).reverse();
 
   var recentRows = recent.length ? recent.map(function(s){
@@ -1464,6 +1637,13 @@ function renderDashboardView(){
       '<td><button class="btn btn-outline btn-sm" data-action="open-add-stock" data-id="'+p.id+'">'+t('btn_restock')+'</button></td></tr>';
   }).join('') : '';
 
+  var expiringRows = expiring.length ? expiring.map(function(p){
+    var d = daysUntil(p.expiryDate);
+    var badge = d < 0 ? '<span class="badge badge-danger">'+t('expiry_expired')+'</span>' : '<span class="badge badge-warning">'+d+' '+t('expiry_days_left')+'</span>';
+    return '<tr><td>'+escapeHtml(p.name)+'</td><td>'+fmtDate(p.expiryDate)+'</td><td>'+badge+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" data-action="open-edit-product" data-id="'+p.id+'">'+t('btn_edit')+'</button></td></tr>';
+  }).join('') : '';
+
   return ''+
   '<div class="page-head"><div><h1>'+t('dash_welcome')+', '+escapeHtml(shop.ownerName.split(' ')[0])+'</h1><div class="sub">'+t('dash_today')+' · '+fmtDate(Date.now())+'</div></div></div>'+
   '<div class="grid grid-4" style="margin-bottom:20px;">'+
@@ -1472,7 +1652,7 @@ function renderDashboardView(){
     '<div class="stat-card accent-warning"><div class="label">'+t('stat_low_stock')+'</div><div class="value">'+low.length+'</div><div class="foot">'+t('stat_products')+': '+shop.products.length+'</div></div>'+
     '<div class="stat-card accent-success"><div class="label">'+t('stat_customers')+'</div><div class="value">'+shop.customers.length+'</div><div class="foot">'+t('shop_card_login')+': '+escapeHtml(shop.adminUsername)+'</div></div>'+
   '</div>'+
-  '<div class="grid grid-2" style="align-items:start;">'+
+  '<div class="grid grid-2" style="align-items:start;margin-bottom:16px;">'+
     '<div class="card">'+
       '<div class="card-pad" style="padding-bottom:0;"><div class="flex-between"><h3 style="margin:0;font-size:15px;">'+t('recent_sales')+'</h3>'+
       '<button class="btn btn-outline btn-sm" data-action="shop-nav" data-view="reports">'+t('view_all')+'</button></div></div>'+
@@ -1484,6 +1664,11 @@ function renderDashboardView(){
       (low.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_stock')+'</th><th></th></tr></thead><tbody>'+lowRows+'</tbody></table></div>'
         : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('low_stock_none')+'</div>')+
     '</div>'+
+  '</div>'+
+  '<div class="card">'+
+    '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;color:var(--danger);">&#9200; '+t('expiry_alert_title')+'</h3><div class="muted" style="font-size:12px;margin-top:2px;">'+t('expiry_alert_sub')+'</div></div>'+
+    (expiring.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('product_exp_date')+'</th><th>'+t('bill_status')+'</th><th></th></tr></thead><tbody>'+expiringRows+'</tbody></table></div>'
+      : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('expiry_alert_none')+'</div>')+
   '</div>';
 }
 
@@ -1523,12 +1708,53 @@ function renderInventoryView(){
 function renderProductModal(){
   var shop = currentShop();
   var editing = state.editingProductId ? shop.products.find(function(p){return p.id===state.editingProductId;}) : null;
-  var p = editing || {name:'',category:'',unit:'pcs',price:'',cost:'',stock:0,lowStockThreshold:5};
+  var p = editing || {name:'',category:'',unit:'pcs',price:'',cost:'',stock:0,lowStockThreshold:5,manufactureDate:'',expiryDate:''};
+  var mode = state.productModalSupplierMode || 'none';
+  var selectedSupplier = mode==='existing' ? (shop.suppliers||[]).find(function(s){return s.id===state.productModalSelectedSupplierId;}) : null;
+  var supplierOptions = '<option value="none" '+(mode==='none'?'selected':'')+'>'+t('supplier_none')+'</option>'+
+    '<option value="new" '+(mode==='new'?'selected':'')+'>'+t('supplier_add_new')+'</option>'+
+    (shop.suppliers||[]).map(function(s){
+      return '<option value="'+s.id+'" '+(mode==='existing'&&state.productModalSelectedSupplierId===s.id?'selected':'')+'>'+escapeHtml(s.companyName)+'</option>';
+    }).join('');
+  var supField = function(id, key, val, disabled){
+    return '<div class="field-row"><label class="field-label">'+t(key)+'</label><input class="field" id="'+id+'" value="'+escapeHtml(val||'')+'" '+(disabled?'disabled style="background:var(--surface-2);"':'')+'></div>';
+  };
+  var sv = function(k){ return selectedSupplier ? selectedSupplier[k] : ''; };
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="product">'+
-    '<div class="modal" style="max-width:520px;" data-stop>'+
+    '<div class="modal" style="max-width:560px;" data-stop>'+
       '<div class="modal-head"><h3>'+(editing?t('edit_product_title'):t('add_product_title'))+'</h3><button class="modal-close" data-action="close-product-modal">&times;</button></div>'+
       '<div class="modal-body">'+
+        '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('supplier_details_section')+'</div>'+
+        '<div class="field-row"><label class="field-label">'+t('supplier_select_label')+'</label>'+
+          '<select class="field" id="pm-supplier-select">'+supplierOptions+'</select>'+
+        '</div>'+
+        (mode==='none' ? '' : ''+
+          '<div class="grid grid-2">'+
+            supField('pm-sup-company','supplier_company_name', mode==='existing'?sv('companyName'):'', mode==='existing')+
+            supField('pm-sup-owner','supplier_owner_name', mode==='existing'?sv('ownerName'):'', mode==='existing')+
+          '</div>'+
+          '<div class="grid grid-2">'+
+            supField('pm-sup-email','field_email', mode==='existing'?sv('email'):'', mode==='existing')+
+            supField('pm-sup-tax','supplier_tax_number', mode==='existing'?sv('taxNumber'):'', mode==='existing')+
+          '</div>'+
+          supField('pm-sup-location','supplier_location', mode==='existing'?sv('location'):'', mode==='existing')+
+          (mode==='existing' ? '<div class="field-hint">'+t('supplier_existing_hint')+'</div>' : '')+
+          (editing ? '' : ''+
+            '<div class="grid grid-2">'+
+              '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="pm-purchase-date" type="date" value="'+dateStr(Date.now())+'"></div>'+
+              '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="pm-total-amount" type="number" placeholder="0.00">'+
+                '<div class="field-hint">'+t('total_amount_hint')+'</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="field-row">'+
+              '<label class="field-label">'+t('bill_attachment')+'</label>'+
+              '<input class="field" id="pm-bill-file" type="file" accept="application/pdf,image/*">'+
+              '<div class="field-hint">'+t('bill_attachment_hint')+'</div>'+
+            '</div>'+
+          '')+
+        '')+
+        '<hr class="hair">'+
         '<div class="field-row"><label class="field-label">'+t('product_name')+'</label><input class="field" id="pm-name" value="'+escapeHtml(p.name)+'"></div>'+
         '<div class="grid grid-2">'+
           '<div class="field-row"><label class="field-label">'+t('product_category')+'</label><input class="field" id="pm-category" value="'+escapeHtml(p.category)+'"></div>'+
@@ -1541,6 +1767,10 @@ function renderProductModal(){
         '<div class="grid grid-2">'+
           '<div class="field-row"><label class="field-label">'+t('product_stock')+(editing?' ('+t('field_optional')+')':'')+'</label><input class="field" id="pm-stock" type="number" value="'+(editing?0:p.stock)+'" '+(editing?'disabled':'')+'></div>'+
           '<div class="field-row"><label class="field-label">'+t('product_lowstock')+'</label><input class="field" id="pm-lowstock" type="number" value="'+p.lowStockThreshold+'"></div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('product_mfg_date')+'</label><input class="field" id="pm-mfgdate" type="date" value="'+escapeHtml(p.manufactureDate||'')+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_exp_date')+'</label><input class="field" id="pm-expdate" type="date" value="'+escapeHtml(p.expiryDate||'')+'"></div>'+
         '</div>'+
       '</div>'+
       '<div class="modal-foot"><button class="btn btn-outline" data-action="close-product-modal">'+t('btn_cancel')+'</button>'+
@@ -1683,6 +1913,104 @@ function renderCustomerModal(){
 }
 
 /* ---------------- shop admin: reports ---------------- */
+
+/* ---------------- shop admin: suppliers (manage + purchase report) ---------------- */
+function renderSuppliersView(){
+  var shop = currentShop();
+  var body = ''+
+  '<div class="page-head">'+
+    '<div><h1>'+t('suppliers_title')+'</h1><div class="sub">'+t('suppliers_sub')+'</div></div>'+
+    (state.supplierSubView==='manage' ? '<button class="btn btn-primary" data-action="open-add-supplier">'+t('btn_add_supplier')+'</button>' : '')+
+  '</div>'+
+  '<div class="role-tabs" style="max-width:340px;margin-bottom:18px;">'+
+    '<button data-action="supplier-subview" data-view="manage" class="'+(state.supplierSubView==='manage'?'active':'')+'">'+t('suppliers_tab_manage')+'</button>'+
+    '<button data-action="supplier-subview" data-view="report" class="'+(state.supplierSubView==='report'?'active':'')+'">'+t('suppliers_tab_report')+'</button>'+
+  '</div>';
+
+  if(state.supplierSubView==='report'){
+    var report = supplierReportData(shop);
+    var grandTotal = sumBy(report.map(function(r){return {total:r.totalInvestment};}), 'total');
+    body += '<div class="grid grid-3" style="margin-bottom:18px;">'+
+      '<div class="stat-card accent-crimson"><div class="label">'+t('sup_rep_total_investment')+'</div><div class="value">'+fmtMoney(grandTotal)+'</div></div>'+
+      '<div class="stat-card accent-indigo"><div class="label">'+t('sup_rep_total_suppliers')+'</div><div class="value">'+(shop.suppliers||[]).length+'</div></div>'+
+      '<div class="stat-card accent-gold"><div class="label">'+t('sup_rep_total_purchases')+'</div><div class="value">'+(shop.supplierPurchases||[]).length+'</div></div>'+
+    '</div>';
+    if(report.length===0){
+      body += '<div class="card empty-state"><div class="ic">&#128666;</div>'+t('suppliers_empty')+'</div>';
+    } else {
+      body += report.map(function(r){
+        var rows = r.entries.map(function(e){
+          return '<tr><td>'+fmtDate(e.date)+'</td><td>'+escapeHtml(e.productName)+'</td><td>'+e.qty+'</td><td>'+fmtMoney(e.costPrice)+'</td><td style="font-weight:700;">'+fmtMoney(e.total)+'</td>'+
+            '<td>'+(e.billAttachment ? '<a href="'+e.billAttachment+'" download="'+escapeHtml(e.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">&#128206; '+t('bill_view')+'</a>' : '—')+'</td></tr>';
+        }).join('');
+        return '<div class="card" style="margin-bottom:16px;">'+
+          '<div class="card-pad" style="padding-bottom:12px;">'+
+            '<div class="flex-between">'+
+              '<div><div style="font-weight:700;font-size:15px;">'+escapeHtml(r.supplier.companyName)+'</div>'+
+              '<div class="muted" style="font-size:12px;">'+escapeHtml(r.supplier.ownerName||'')+' · '+escapeHtml(r.supplier.location||'')+'</div></div>'+
+              '<div style="text-align:right;"><div style="font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--crimson-dark);">'+fmtMoney(r.totalInvestment)+'</div>'+
+              '<div class="muted" style="font-size:11px;">'+r.totalUnits+' '+t('sup_rep_units')+' · '+r.productCount+' '+t('sup_rep_products')+'</div></div>'+
+            '</div>'+
+          '</div>'+
+          (r.entries.length ? '<div class="table-wrap" style="border:none;"><table><thead><tr><th>'+t('invoice_date')+'</th><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('sup_rep_unit_cost')+'</th><th>'+t('bill_line_total')+'</th><th>'+t('bill_attachment')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+            : '<div class="empty-state" style="padding:16px;">'+t('sup_rep_no_purchases')+'</div>')+
+        '</div>';
+      }).join('');
+    }
+    return body;
+  }
+
+  // Manage Suppliers tab
+  var suppliers = shop.suppliers || [];
+  if(suppliers.length===0){
+    body += '<div class="card empty-state"><div class="ic">&#128666;</div>'+t('suppliers_empty')+'</div>';
+  } else {
+    var rows = suppliers.map(function(s){
+      var productCount = shop.products.filter(function(p){ return p.supplierId===s.id; }).length;
+      return '<tr>'+
+        '<td><div style="font-weight:700;">'+escapeHtml(s.companyName)+'</div><div class="muted" style="font-size:11px;">'+escapeHtml(s.ownerName||'')+'</div></td>'+
+        '<td>'+escapeHtml(s.email||'—')+'</td>'+
+        '<td style="font-family:var(--font-mono);">'+escapeHtml(s.taxNumber||'—')+'</td>'+
+        '<td>'+escapeHtml(s.location||'—')+'</td>'+
+        '<td>'+productCount+'</td>'+
+        '<td><div style="display:flex;gap:6px;">'+
+          '<button class="btn btn-outline btn-sm" data-action="open-edit-supplier" data-id="'+s.id+'">'+t('btn_edit')+'</button>'+
+          '<button class="btn btn-outline btn-sm" data-action="remove-supplier" data-id="'+s.id+'" style="color:var(--danger);">&times;</button>'+
+        '</div></td>'+
+      '</tr>';
+    }).join('');
+    body += '<div class="table-wrap"><table><thead><tr>'+
+      '<th>'+t('supplier_company_name')+'</th><th>'+t('field_email')+'</th><th>'+t('supplier_tax_number')+'</th><th>'+t('shop_location')+'</th><th>'+t('suppliers_products_col')+'</th><th>'+t('th_actions')+'</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  }
+  return body;
+}
+
+function renderSupplierModal(){
+  var shop = currentShop();
+  var editing = state.editingSupplierId ? (shop.suppliers||[]).find(function(s){return s.id===state.editingSupplierId;}) : null;
+  var s = editing || {companyName:'',ownerName:'',email:'',taxNumber:'',location:''};
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="supplier">'+
+    '<div class="modal" style="max-width:480px;" data-stop>'+
+      '<div class="modal-head"><h3>'+(editing?t('edit_supplier_title'):t('add_supplier_title'))+'</h3><button class="modal-close" data-action="close-supplier-modal">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('supplier_company_name')+'</label><input class="field" id="sm-company" value="'+escapeHtml(s.companyName)+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('supplier_owner_name')+'</label><input class="field" id="sm-owner" value="'+escapeHtml(s.ownerName)+'"></div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('field_email')+'</label><input class="field" id="sm-email" type="email" value="'+escapeHtml(s.email)+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('supplier_tax_number')+'</label><input class="field" id="sm-tax" value="'+escapeHtml(s.taxNumber)+'"></div>'+
+        '</div>'+
+        '<div class="field-row"><label class="field-label">'+t('supplier_location')+'</label><input class="field" id="sm-location" value="'+escapeHtml(s.location)+'"></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-supplier-modal">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="save-supplier" data-id="'+(editing?editing.id:'')+'">'+t('btn_save_supplier')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
 function renderReportsView(){
   var shop = currentShop();
   var sales = filteredSales(shop, state.repRange);
@@ -2072,9 +2400,11 @@ function attemptLogin(username, password){
 function closeModalByName(name){
   if(name==='create-shop') state.showCreateShopModal = false;
   else if(name==='edit-shop'){ state.showEditShopModal = null; state.revealEditShopPassword = false; }
-  else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; }
+  else if(name==='delete-shop'){ state.showDeleteShopModal = null; state.deleteShopConfirmInput = ''; }
+  else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; state.productModalSupplierMode = 'none'; state.productModalSelectedSupplierId = ''; }
   else if(name==='stock') state.showAddStockModal = null;
   else if(name==='customer') state.showAddCustomerModal = false;
+  else if(name==='supplier'){ state.showAddSupplierModal = false; state.editingSupplierId = null; }
   else if(name==='bills-list') state.showBillsListModal = false;
   else if(name==='edit-bill'){ state.showEditBillModal = null; state.editBillDraft = null; }
   else if(name==='change-password'){ state.showChangePasswordModal = false; state.changePasswordError = ''; }
@@ -2231,7 +2561,7 @@ function handleAction(action, el){
         address:addr, category:cat||'General', location:loc, email:email, phone:phone,
         taxType:taxType, adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
         merchantId: uname.toUpperCase()+'.MOBILE@BANK', qrProvider:'other', customQr:null, active:true,
-        invoiceSeq:1000, products:[], customers:[], sales:[]
+        invoiceSeq:1000, products:[], customers:[], suppliers:[], supplierPurchases:[], sales:[]
       };
       state.shops.push(newShop);
       state.showCreateShopModal = false;
@@ -2304,6 +2634,29 @@ function handleAction(action, el){
       render();
       break;
 
+    case 'open-delete-shop':
+      state.showDeleteShopModal = el.getAttribute('data-id');
+      state.deleteShopConfirmInput = '';
+      render();
+      break;
+
+    case 'close-delete-shop':
+      closeModalByName('delete-shop');
+      break;
+
+    case 'confirm-delete-shop':
+      var delId = el.getAttribute('data-id');
+      var shopToDelete = state.shops.find(function(s){ return s.id===delId; });
+      if(!shopToDelete) return;
+      if(state.deleteShopConfirmInput.trim() !== shopToDelete.businessName) return;
+      state.shops = state.shops.filter(function(s){ return s.id!==delId; });
+      state.showDeleteShopModal = null;
+      state.deleteShopConfirmInput = '';
+      fbDeleteShop(delId);
+      toast(t('toast_shop_deleted'), 'success');
+      render();
+      break;
+
     /* ---- shop admin nav ---- */
     case 'shop-nav':
       state.shopView = el.getAttribute('data-view');
@@ -2316,12 +2669,23 @@ function handleAction(action, el){
     case 'open-add-product':
       state.editingProductId = null;
       state.showAddProductModal = true;
+      state.productModalSupplierMode = 'none';
+      state.productModalSelectedSupplierId = '';
       render();
       break;
 
     case 'open-edit-product':
       state.editingProductId = el.getAttribute('data-id');
       state.showAddProductModal = true;
+      var editingProd = shop.products.find(function(p){ return p.id===state.editingProductId; });
+      var existingSupplier = editingProd && editingProd.supplierId ? (shop.suppliers||[]).find(function(s){ return s.id===editingProd.supplierId; }) : null;
+      if(existingSupplier){
+        state.productModalSupplierMode = 'existing';
+        state.productModalSelectedSupplierId = existingSupplier.id;
+      } else {
+        state.productModalSupplierMode = 'none';
+        state.productModalSelectedSupplierId = '';
+      }
       render();
       break;
 
@@ -2330,33 +2694,7 @@ function handleAction(action, el){
       break;
 
     case 'save-product':
-      var pid = el.getAttribute('data-id');
-      var name = document.getElementById('pm-name').value.trim();
-      var category = document.getElementById('pm-category').value.trim();
-      var unit = document.getElementById('pm-unit').value.trim() || 'pcs';
-      var price = parseFloat(document.getElementById('pm-price').value);
-      var cost = parseFloat(document.getElementById('pm-cost').value) || 0;
-      var lowstock = parseInt(document.getElementById('pm-lowstock').value) || 5;
-      if(!name || isNaN(price)){
-        toast(t('err_required'), 'error');
-        return;
-      }
-      if(pid){
-        var existing = shop.products.find(function(p){ return p.id===pid; });
-        if(existing){
-          existing.name=name; existing.category=category; existing.unit=unit;
-          existing.price=price; existing.cost=cost; existing.lowStockThreshold=lowstock;
-        }
-        toast(t('toast_product_updated'), 'success');
-      } else {
-        var stock = parseInt(document.getElementById('pm-stock').value) || 0;
-        shop.products.push({ id: uid('p'), name:name, category:category||'General', unit:unit, price:price, cost:cost, stock:stock, lowStockThreshold:lowstock });
-        toast(t('toast_product_added'), 'success');
-      }
-      state.showAddProductModal = false;
-      state.editingProductId = null;
-      fbSaveShop(shop);
-      render();
+      performSaveProduct(shop, el);
       break;
 
     case 'remove-product':
@@ -2383,6 +2721,10 @@ function handleAction(action, el){
       var prod = shop.products.find(function(p){ return p.id===asId; });
       if(prod && qty>0){
         prod.stock += qty;
+        if(prod.supplierId){
+          if(!shop.supplierPurchases) shop.supplierPurchases = [];
+          shop.supplierPurchases.push({ id: uid('pur'), supplierId:prod.supplierId, productId:prod.id, productName:prod.name, qty:qty, costPrice:prod.cost, total:prod.cost*qty, date: Date.now() });
+        }
         fbSaveShop(shop);
         toast(t('toast_stock_added'), 'success');
       }
@@ -2484,6 +2826,69 @@ function handleAction(action, el){
       fbSaveShop(shop);
       toast(t('toast_customer_added'), 'success');
       render();
+      break;
+
+    /* ---- suppliers ---- */
+    case 'supplier-subview':
+      state.supplierSubView = el.getAttribute('data-view');
+      render();
+      break;
+
+    case 'open-add-supplier':
+      state.editingSupplierId = null;
+      state.showAddSupplierModal = true;
+      render();
+      break;
+
+    case 'open-edit-supplier':
+      state.editingSupplierId = el.getAttribute('data-id');
+      state.showAddSupplierModal = true;
+      render();
+      break;
+
+    case 'close-supplier-modal':
+      closeModalByName('supplier');
+      break;
+
+    case 'save-supplier':
+      var supId = el.getAttribute('data-id');
+      var supCompanyName = document.getElementById('sm-company').value.trim();
+      var supOwnerName = document.getElementById('sm-owner').value.trim();
+      var supEmail = document.getElementById('sm-email').value.trim();
+      var supTax = document.getElementById('sm-tax').value.trim();
+      var supLocation = document.getElementById('sm-location').value.trim();
+      if(!supCompanyName){
+        toast(t('err_required'), 'error');
+        return;
+      }
+      if(!shop.suppliers) shop.suppliers = [];
+      if(supId){
+        var existingSup = shop.suppliers.find(function(s){ return s.id===supId; });
+        if(existingSup){
+          existingSup.companyName=supCompanyName; existingSup.ownerName=supOwnerName;
+          existingSup.email=supEmail; existingSup.taxNumber=supTax; existingSup.location=supLocation;
+        }
+        toast(t('toast_supplier_updated'), 'success');
+      } else {
+        shop.suppliers.push({ id: uid('sup'), companyName:supCompanyName, ownerName:supOwnerName, email:supEmail, taxNumber:supTax, location:supLocation });
+        toast(t('toast_supplier_added'), 'success');
+      }
+      state.showAddSupplierModal = false;
+      state.editingSupplierId = null;
+      fbSaveShop(shop);
+      render();
+      break;
+
+    case 'remove-supplier':
+      var rmSupId = el.getAttribute('data-id');
+      var linkedProducts = shop.products.filter(function(p){ return p.supplierId===rmSupId; }).length;
+      var confirmMsg = linkedProducts>0 ? t('confirm_remove_supplier_linked').replace('{n}', linkedProducts) : t('confirm_remove_supplier');
+      if(window.confirm(confirmMsg)){
+        shop.suppliers = shop.suppliers.filter(function(s){ return s.id!==rmSupId; });
+        shop.products.forEach(function(p){ if(p.supplierId===rmSupId) p.supplierId = null; });
+        fbSaveShop(shop);
+        render();
+      }
       break;
 
     /* ---- reports ---- */
@@ -2689,6 +3094,110 @@ function addProductToCart(shop, productId){
   }
 }
 
+function readFileAsDataURL(file){
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(){ resolve(reader.result); };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function performSaveProduct(shop, el){
+  var pid = el.getAttribute('data-id');
+  var name = document.getElementById('pm-name').value.trim();
+  var category = document.getElementById('pm-category').value.trim();
+  var unit = document.getElementById('pm-unit').value.trim() || 'pcs';
+  var price = parseFloat(document.getElementById('pm-price').value);
+  var cost = parseFloat(document.getElementById('pm-cost').value) || 0;
+  var lowstock = parseInt(document.getElementById('pm-lowstock').value) || 5;
+  var mfgDate = document.getElementById('pm-mfgdate').value || null;
+  var expDate = document.getElementById('pm-expdate').value || null;
+  if(!name || isNaN(price)){
+    toast(t('err_required'), 'error');
+    return;
+  }
+
+  // Resolve the supplier: an existing one selected from the dropdown,
+  // a brand-new one entered inline (created here), or none at all.
+  var resolvedSupplierId = null;
+  if(state.productModalSupplierMode==='existing'){
+    resolvedSupplierId = state.productModalSelectedSupplierId || null;
+  } else if(state.productModalSupplierMode==='new'){
+    var supCompany = document.getElementById('pm-sup-company').value.trim();
+    if(supCompany){
+      var newSupplier = {
+        id: uid('sup'),
+        companyName: supCompany,
+        ownerName: document.getElementById('pm-sup-owner').value.trim(),
+        email: document.getElementById('pm-sup-email').value.trim(),
+        taxNumber: document.getElementById('pm-sup-tax').value.trim(),
+        location: document.getElementById('pm-sup-location').value.trim()
+      };
+      if(!shop.suppliers) shop.suppliers = [];
+      shop.suppliers.push(newSupplier);
+      resolvedSupplierId = newSupplier.id;
+    }
+  }
+
+  if(pid){
+    var existing = shop.products.find(function(p){ return p.id===pid; });
+    if(existing){
+      existing.name=name; existing.category=category; existing.unit=unit;
+      existing.price=price; existing.cost=cost; existing.lowStockThreshold=lowstock;
+      existing.manufactureDate=mfgDate; existing.expiryDate=expDate;
+      existing.supplierId=resolvedSupplierId;
+    }
+    toast(t('toast_product_updated'), 'success');
+  } else {
+    var stock = parseInt(document.getElementById('pm-stock').value) || 0;
+    var newProductId = uid('p');
+    shop.products.push({ id: newProductId, name:name, category:category||'General', unit:unit, price:price, cost:cost, stock:stock, lowStockThreshold:lowstock, manufactureDate:mfgDate, expiryDate:expDate, supplierId:resolvedSupplierId });
+
+    if(resolvedSupplierId && stock>0){
+      var purchaseDateEl = document.getElementById('pm-purchase-date');
+      var totalAmountEl = document.getElementById('pm-total-amount');
+      var billFileEl = document.getElementById('pm-bill-file');
+      var purchaseDate = purchaseDateEl && purchaseDateEl.value ? new Date(purchaseDateEl.value).getTime() : Date.now();
+      var totalAmountEntered = totalAmountEl ? parseFloat(totalAmountEl.value) : NaN;
+      // The explicitly entered Total Amount becomes this purchase's investment
+      // figure (and therefore the supplier's Total Investment in the Purchase
+      // Report). If left blank, fall back to cost price × quantity as before.
+      var purchaseTotal = !isNaN(totalAmountEntered) && totalAmountEntered > 0 ? totalAmountEntered : cost*stock;
+
+      var billAttachment = null, billFileName = null;
+      if(billFileEl && billFileEl.files && billFileEl.files[0]){
+        var billFile = billFileEl.files[0];
+        if(billFile.size > 700*1024){
+          toast(t('err_file_too_large'), 'error');
+        } else {
+          try{
+            billAttachment = await readFileAsDataURL(billFile);
+            billFileName = billFile.name;
+          }catch(e){
+            console.error('Reading bill attachment failed:', e);
+          }
+        }
+      }
+
+      if(!shop.supplierPurchases) shop.supplierPurchases = [];
+      shop.supplierPurchases.push({
+        id: uid('pur'), supplierId:resolvedSupplierId, productId:newProductId, productName:name,
+        qty:stock, costPrice:cost, total:purchaseTotal, date: purchaseDate,
+        billAttachment:billAttachment, billFileName:billFileName
+      });
+    }
+    toast(t('toast_product_added'), 'success');
+  }
+
+  state.showAddProductModal = false;
+  state.editingProductId = null;
+  state.productModalSupplierMode = 'none';
+  state.productModalSelectedSupplierId = '';
+  fbSaveShop(shop);
+  render();
+}
+
 function actionGenerateBill(){
   var shop = currentShop();
   if(state.cart.length===0){ toast(t('err_cart_empty'), 'error'); return; }
@@ -2790,6 +3299,9 @@ function bindEvents(){
     } else if(el.getAttribute && el.getAttribute('data-action')==='search-customers'){
       state.customerSearch = el.value;
       reRenderKeepFocus();
+    } else if(el.id==='delete-shop-confirm-input'){
+      state.deleteShopConfirmInput = el.value;
+      reRenderKeepFocus();
     }
   });
 
@@ -2799,6 +3311,13 @@ function bindEvents(){
     if(el.id==='qr-upload'){ handleQrFile(el); }
     if(el.id==='eb-customer' && state.editBillDraft){ state.editBillDraft.customerId = el.value; }
     if(el.id==='eb-payment' && state.editBillDraft){ state.editBillDraft.payment = el.value; }
+    if(el.id==='pm-supplier-select'){
+      var val = el.value;
+      if(val==='none'){ state.productModalSupplierMode = 'none'; state.productModalSelectedSupplierId = ''; }
+      else if(val==='new'){ state.productModalSupplierMode = 'new'; state.productModalSelectedSupplierId = ''; }
+      else { state.productModalSupplierMode = 'existing'; state.productModalSelectedSupplierId = val; }
+      render();
+    }
   });
 }
 
@@ -2826,6 +3345,7 @@ async function initFirebaseThenRender(){
     try{
       var remoteShops = await window.__fb.loadShops();
       if(remoteShops && remoteShops.length){
+        remoteShops.forEach(normalizeShopFields);
         state.shops = remoteShops;
       } else {
         // First run: seed Firestore with the built-in demo shop.
