@@ -320,14 +320,24 @@
   .tag-pill{display:inline-flex;padding:3px 10px;border-radius:999px;background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--ink-soft);}
 
   @media print{
-    @page{
+    /* Named pages: the thermal invoice prints at 80mm width, while the
+       full Sales/Purchases Reports printout below uses normal A4 sizing —
+       without this, one @page rule would force both onto the same size. */
+    @page invoice-page{
       size: 80mm auto;
       margin: 2mm;
     }
+    @page report-page{
+      size: A4;
+      margin: 14mm;
+    }
+    @page{ margin: 10mm; }
     html, body{ background:#fff !important; }
     body *{visibility:hidden;}
     #printable-invoice, #printable-invoice *{visibility:visible;}
+    #printable-report, #printable-report *{visibility:visible;}
     #printable-invoice{
+      page: invoice-page;
       position:absolute;top:0;left:0;
       width:76mm;
       max-width:76mm;
@@ -375,6 +385,52 @@
     #printable-invoice hr.hair{ border:none; border-top:1px dashed #000; margin:2mm 0; }
     /* Never print action buttons even if a stray one ends up inside the sheet. */
     #printable-invoice button{ display:none !important; }
+
+    /* Full-page Sales/Purchases report — normal A4 layout with a
+       letterhead (shop name, address, PAN) at the top. */
+    #printable-report{
+      page: report-page;
+      position:absolute;top:0;left:0;right:0;
+      width:100%;
+      margin:0;
+      color:#000;
+      font-size:12px;
+    }
+    #printable-report .report-letterhead{
+      text-align:center;
+      border-bottom:2px solid #000;
+      padding-bottom:10px;
+      margin-bottom:16px;
+    }
+    #printable-report .report-letterhead .shopname{
+      font-size:22px;
+      font-weight:800;
+      color:#000 !important;
+    }
+    #printable-report .report-letterhead .meta{
+      font-size:11.5px;
+      color:#000 !important;
+      margin-top:3px;
+    }
+    #printable-report .report-title{
+      font-size:15px;
+      font-weight:700;
+      margin-bottom:2px;
+      color:#000 !important;
+    }
+    #printable-report .report-range{
+      font-size:11px;
+      color:#000 !important;
+      margin-bottom:14px;
+    }
+    #printable-report table{ width:100%; font-size:11px; border-collapse:collapse; }
+    #printable-report th, #printable-report td{
+      padding:5px 6px; border-bottom:1px solid #999; text-align:left; color:#000 !important;
+    }
+    #printable-report thead th{ border-bottom:2px solid #000; background:#fff !important; font-weight:700; }
+    #printable-report .report-total-row td{ font-weight:800; border-top:2px solid #000; border-bottom:none; }
+    #printable-report .report-footer{ margin-top:16px; font-size:10px; color:#000 !important; text-align:right; }
+    #printable-report button{ display:none !important; }
   }
   .np-text{font-family:'Noto Sans Devanagari','Inter',sans-serif;}
   .muted{color:var(--ink-soft);}
@@ -696,6 +752,11 @@ var I18N = {
     nav_shops:'Shops', nav_create_shop:'Register New Shop',
     nav_dashboard:'Dashboard', nav_inventory:'Inventory', nav_billing:'Billing / POS',
     nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings', nav_suppliers:'Suppliers',
+    nav_detailed_reports:'Reports',
+    detailed_reports_sub:'Generate detailed printable reports of sales and purchases.',
+    detailed_rep_print:'Print / Download', detailed_rep_tab_sales:'Sales', detailed_rep_tab_purchases:'Purchases',
+    detailed_rep_supplier_col:'Supplier', detailed_rep_ref_col:'Reference No',
+    detailed_rep_record_count:'Records', detailed_rep_generated_on:'Generated on',
     super_section:'Platform', shop_section:'Shop Console',
 
     shops_title:'Registered Shops', shops_sub:'Manage every shop admin account from one place.',
@@ -859,7 +920,12 @@ var I18N = {
     cp_email_sent:'पुष्टिकरण इमेल यहाँ पठाइयो:', cp_email_failed:'पासवर्ड अद्यावधिक भयो, तर पुष्टिकरण इमेल पठाउन सकिएन।',
     nav_shops:'पसलहरू', nav_create_shop:'नयाँ पसल दर्ता',
     nav_dashboard:'ड्यासबोर्ड', nav_inventory:'सामान सूची', nav_billing:'बिलिङ / बिक्री',
-    nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ', nav_suppliers:'आपूर्तिकर्ताहरू', nav_suppliers:'आपूर्तिकर्ताहरू',
+    nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ', nav_suppliers:'आपूर्तिकर्ताहरू',
+    nav_detailed_reports:'प्रतिवेदनहरू',
+    detailed_reports_sub:'बिक्री र खरिदको विस्तृत छाप्न मिल्ने प्रतिवेदन बनाउनुहोस्।',
+    detailed_rep_print:'प्रिन्ट / डाउनलोड', detailed_rep_tab_sales:'बिक्री', detailed_rep_tab_purchases:'खरिद',
+    detailed_rep_supplier_col:'आपूर्तिकर्ता', detailed_rep_ref_col:'सन्दर्भ नं.',
+    detailed_rep_record_count:'रेकर्डहरू', detailed_rep_generated_on:'यसमा उत्पन्न भयो',
     super_section:'प्लेटफर्म', shop_section:'पसल कन्सोल',
 
     shops_title:'दर्ता भएका पसलहरू', shops_sub:'सबै पसल एडमिन खाता एकै ठाउँबाट व्यवस्थापन गर्नुहोस्।',
@@ -1039,7 +1105,7 @@ function makeDemoShop(){
     qrProvider:'other',
     customQr:null,
     active:true,
-    invoiceSeq:1004,
+    invoiceSeq:1,
     suppliers:[
       {id:sup1, companyName:'Annapurna Distributors Pvt. Ltd.', ownerName:'Krishna Bahadur Thapa', email:'sales@annapurnadist.com.np', taxNumber:'301112223', location:'Balaju, Kathmandu'},
       {id:sup2, companyName:'Himalayan FMCG Suppliers', ownerName:'Sunita Adhikari', email:'orders@himalayanfmcg.com', taxNumber:'302223334', location:'Kalanki, Kathmandu'},
@@ -1061,11 +1127,13 @@ function makeDemoShop(){
   };
   // Seed the supplier purchase log with each starting product's opening stock,
   // so the Supplier Report has realistic investment totals out of the box.
-  shop.products.forEach(function(p){
+  var demoPurchasePayments = ['cash','qr','card','credit'];
+  shop.products.forEach(function(p, idx){
     if(p.supplierId && p.stock>0){
       shop.supplierPurchases.push({
         id: uid('pur'), supplierId:p.supplierId, productId:p.id, productName:p.name,
-        qty:p.stock, costPrice:p.cost, total:p.cost*p.stock, date: now - 30*day
+        qty:p.stock, costPrice:p.cost, total:p.cost*p.stock, date: now - 30*day,
+        paymentMethod: demoPurchasePayments[idx % demoPurchasePayments.length]
       });
     }
   });
@@ -1101,9 +1169,10 @@ function seedDemoSales(shop){
     });
     var vat = subtotal*(shop.vatRate/100);
     var total = subtotal+vat;
+    var seededInvoiceNo = nextInvoiceNo(shop);
     shop.invoiceSeq++;
     shop.sales.push({
-      id: uid('inv'), invoiceNo: nextInvoiceNo(shop), date: now - s.daysAgo*day - idx*1000,
+      id: uid('inv'), invoiceNo: seededInvoiceNo, date: now - s.daysAgo*day - idx*1000,
       items:items, subtotal:subtotal, vat:vat, total:total, payment:s.payment,
       customerId: s.customer?s.customer.id:null, customerName: s.customer?s.customer.name:null
     });
@@ -1135,6 +1204,8 @@ var state = {
   productModalSupplierMode:'none',
   productModalSelectedSupplierId:'',
   supplierSubView:'manage',
+  detailedReportType:'sales',
+  detailedReportRange:'30',
   showAddSupplierModal:false,
   editingSupplierId:null,
   showAddStockModal:null,
@@ -1208,6 +1279,9 @@ function normalizeShopFields(shop){
     if(p.manufactureDate===undefined) p.manufactureDate = null;
     if(p.expiryDate===undefined) p.expiryDate = null;
   });
+  shop.supplierPurchases.forEach(function(pur){
+    if(!pur.paymentMethod) pur.paymentMethod = 'cash';
+  });
   return shop;
 }
 
@@ -1264,7 +1338,8 @@ function paymentLabel(method){
 }
 function nextInvoiceNo(shop){
   var code = (shop.businessName||'SHOP').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,4);
-  return 'INV-'+code+'-'+String(shop.invoiceSeq);
+  var seqStr = String(shop.invoiceSeq).padStart(4,'0');
+  return 'INV-'+code+'-'+seqStr;
 }
 function topProductsFrom(sales){
   var map = {};
@@ -1604,6 +1679,7 @@ function renderShopSidebar(){
     link('reports','&#128200;','nav_reports')+
     link('customers','&#128101;','nav_customers')+
     link('settings','&#9881;','nav_settings')+
+    link('detailedReports','&#128203;','nav_detailed_reports')+
   '</div>';
 }
 
@@ -1616,6 +1692,7 @@ function renderShopMain(){
     case 'reports': body = renderReportsView(); break;
     case 'customers': body = renderCustomersView(); break;
     case 'settings': body = renderSettingsView(); break;
+    case 'detailedReports': body = renderDetailedReportsView(); break;
     default: body = renderDashboardView();
   }
   if(state.showAddProductModal) body += renderProductModal();
@@ -1672,16 +1749,18 @@ function renderDashboardView(){
       (recent.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>Bill</th><th>Time</th><th>'+t('bill_customer')+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">Amount</th></tr></thead><tbody>'+recentRows+'</tbody></table></div>'
         : '<div class="empty-state">'+t('no_recent_sales')+'</div>')+
     '</div>'+
-    '<div class="card">'+
-      '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;color:var(--warning);">&#9888; '+t('low_stock_alert')+'</h3></div>'+
-      (low.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_stock')+'</th><th></th></tr></thead><tbody>'+lowRows+'</tbody></table></div>'
-        : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('low_stock_none')+'</div>')+
+    '<div style="display:flex;flex-direction:column;gap:16px;">'+
+      '<div class="card">'+
+        '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;color:var(--warning);">&#9888; '+t('low_stock_alert')+'</h3></div>'+
+        (low.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_stock')+'</th><th></th></tr></thead><tbody>'+lowRows+'</tbody></table></div>'
+          : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('low_stock_none')+'</div>')+
+      '</div>'+
+      '<div class="card">'+
+        '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;color:var(--danger);">&#9200; '+t('expiry_alert_title')+'</h3><div class="muted" style="font-size:12px;margin-top:2px;">'+t('expiry_alert_sub')+'</div></div>'+
+        (expiring.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('product_exp_date')+'</th><th>'+t('bill_status')+'</th><th></th></tr></thead><tbody>'+expiringRows+'</tbody></table></div>'
+          : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('expiry_alert_none')+'</div>')+
+      '</div>'+
     '</div>'+
-  '</div>'+
-  '<div class="card">'+
-    '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;color:var(--danger);">&#9200; '+t('expiry_alert_title')+'</h3><div class="muted" style="font-size:12px;margin-top:2px;">'+t('expiry_alert_sub')+'</div></div>'+
-    (expiring.length ? '<div class="table-wrap" style="border:none;margin-top:12px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('product_exp_date')+'</th><th>'+t('bill_status')+'</th><th></th></tr></thead><tbody>'+expiringRows+'</tbody></table></div>'
-      : '<div class="empty-state" style="color:var(--success);">&#10003; '+t('expiry_alert_none')+'</div>')+
   '</div>';
 }
 
@@ -1770,6 +1849,14 @@ function renderProductModal(){
             '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="pm-total-amount" type="number" placeholder="0.00" value="'+escapeHtml(totalAmountValue===''?'':String(totalAmountValue))+'">'+
               '<div class="field-hint">'+t('total_amount_hint')+'</div>'+
             '</div>'+
+          '</div>'+
+          '<div class="field-row" style="max-width:220px;">'+
+            '<label class="field-label">'+t('bill_payment')+'</label>'+
+            '<select class="field" id="pm-purchase-payment">'+
+              ['cash','qr','card','credit'].map(function(m){
+                return '<option value="'+m+'" '+((latestPurchase?latestPurchase.paymentMethod:'cash')===m?'selected':'')+'>'+paymentLabel(m)+'</option>';
+              }).join('')+
+            '</select>'+
           '</div>'+
           '<div class="field-row">'+
             '<label class="field-label">'+t('bill_attachment')+'</label>'+
@@ -2216,6 +2303,87 @@ function renderChangePasswordModal(){
   '</div>';
 }
 
+/* ---------------- shop admin: Reports (detailed sales & purchases, printable) ---------------- */
+function renderDetailedReportsView(){
+  var shop = currentShop();
+  var type = state.detailedReportType;
+  var range = state.detailedReportRange;
+  var ranges = [['7','range_7'],['30','range_30'],['90','range_90'],['all','range_all']];
+  var rangeBtns = ranges.map(function(r){
+    return '<button class="btn btn-sm '+(range===r[0]?'btn-indigo':'btn-outline')+'" data-action="set-detailed-range" data-range="'+r[0]+'">'+t(r[1])+'</button>';
+  }).join('');
+
+  var salesRows='', purchaseRows='', total=0, count=0;
+  if(type==='sales'){
+    var sales = filteredSales(shop, range).slice().sort(function(a,b){ return b.date - a.date; });
+    count = sales.length;
+    total = sumBy(sales, 'total');
+    salesRows = sales.length ? sales.map(function(s){
+      return '<tr><td style="font-family:var(--font-mono);">'+s.invoiceNo+'</td><td>'+fmtDate(s.date)+'</td><td>'+escapeHtml(s.customerName||t('bill_customer_walkin'))+'</td><td>'+paymentLabel(s.payment)+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(s.total)+'</td></tr>';
+    }).join('') : '';
+  } else {
+    var purchases = (shop.supplierPurchases||[]).filter(function(p){
+      if(range==='all') return true;
+      return p.date >= Date.now() - Number(range)*24*60*60*1000;
+    }).slice().sort(function(a,b){ return b.date - a.date; });
+    count = purchases.length;
+    total = sumBy(purchases, 'total');
+    purchaseRows = purchases.length ? purchases.map(function(p){
+      var supName = supplierName(shop, p.supplierId) || '—';
+      var ref = 'PUR-' + p.id.slice(-6).toUpperCase();
+      return '<tr><td style="font-family:var(--font-mono);">'+ref+'</td><td>'+fmtDate(p.date)+'</td><td>'+escapeHtml(supName)+'</td><td>'+paymentLabel(p.paymentMethod||'cash')+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(p.total)+'</td></tr>';
+    }).join('') : '';
+  }
+
+  var rows = type==='sales' ? salesRows : purchaseRows;
+  var emptyMsg = type==='sales' ? t('rep_no_data') : t('sup_rep_no_purchases');
+  var nameColLabel = type==='sales' ? t('bill_customer') : t('detailed_rep_supplier_col');
+  var refColLabel = type==='sales' ? t('invoice_no') : t('detailed_rep_ref_col');
+
+  return ''+
+  '<div class="page-head">'+
+    '<div><h1>'+t('nav_detailed_reports')+'</h1><div class="sub">'+t('detailed_reports_sub')+'</div></div>'+
+    '<button class="btn btn-primary" data-action="print-detailed-report">&#128424; '+t('detailed_rep_print')+'</button>'+
+  '</div>'+
+  '<div class="flex-between" style="margin-bottom:16px;flex-wrap:wrap;gap:10px;">'+
+    '<div class="role-tabs" style="max-width:280px;">'+
+      '<button data-action="set-detailed-report-type" data-type="sales" class="'+(type==='sales'?'active':'')+'">'+t('detailed_rep_tab_sales')+'</button>'+
+      '<button data-action="set-detailed-report-type" data-type="purchases" class="'+(type==='purchases'?'active':'')+'">'+t('detailed_rep_tab_purchases')+'</button>'+
+    '</div>'+
+    '<div style="display:flex;gap:6px;">'+rangeBtns+'</div>'+
+  '</div>'+
+  '<div class="grid grid-3" style="margin-bottom:18px;">'+
+    '<div class="stat-card accent-crimson"><div class="label">'+(type==='sales'?t('rep_total_sales'):t('sup_rep_total_investment'))+'</div><div class="value">'+fmtMoney(total)+'</div></div>'+
+    '<div class="stat-card accent-indigo"><div class="label">'+t('detailed_rep_record_count')+'</div><div class="value">'+count+'</div></div>'+
+    '<div class="stat-card accent-gold"><div class="label">'+t('rep_range')+'</div><div class="value" style="font-size:16px;">'+t((ranges.find(function(r){return r[0]===range;})||['','range_30'])[1])+'</div></div>'+
+  '</div>'+
+  (rows ? '<div class="table-wrap"><table><thead><tr><th>'+refColLabel+'</th><th>'+t('invoice_date')+'</th><th>'+nameColLabel+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">'+t('bill_line_total')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    : '<div class="card empty-state">'+emptyMsg+'</div>')+
+  renderPrintableReport(shop, type, range, count, total, rows, refColLabel, nameColLabel);
+}
+
+// Hidden container used only when printing — becomes visible via the
+// #printable-report print rules, with a letterhead (shop name, address,
+// PAN) at the top as required for anything downloaded/printed from here.
+function renderPrintableReport(shop, type, range, count, total, rows, refColLabel, nameColLabel){
+  var rangeLabelMap = {'7':t('range_7'),'30':t('range_30'),'90':t('range_90'),'all':t('range_all')};
+  return ''+
+  '<div id="printable-report" style="display:none;">'+
+    '<div class="report-letterhead">'+
+      '<div class="shopname">'+escapeHtml(shop.businessName)+'</div>'+
+      '<div class="meta">'+escapeHtml(shop.address||shop.location||'')+'</div>'+
+      '<div class="meta">'+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
+    '</div>'+
+    '<div class="report-title">'+(type==='sales'?t('detailed_rep_tab_sales'):t('detailed_rep_tab_purchases'))+' '+t('nav_detailed_reports')+'</div>'+
+    '<div class="report-range">'+t('rep_range')+': '+(rangeLabelMap[range]||range)+' &nbsp;·&nbsp; '+t('detailed_rep_record_count')+': '+count+'</div>'+
+    '<table><thead><tr><th>'+refColLabel+'</th><th>'+t('invoice_date')+'</th><th>'+nameColLabel+'</th><th>'+t('bill_payment')+'</th><th>'+t('bill_line_total')+'</th></tr></thead>'+
+    '<tbody>'+(rows || '')+
+    '<tr class="report-total-row"><td colspan="4">'+t('bill_total')+'</td><td>'+fmtMoney(total)+'</td></tr>'+
+    '</tbody></table>'+
+    '<div class="report-footer">'+t('detailed_rep_generated_on')+' '+fmtDateTime(Date.now())+'</div>'+
+  '</div>';
+}
+
 function renderSettingsView(){
   var shop = currentShop();
   return ''+
@@ -2586,7 +2754,7 @@ function handleAction(action, el){
         address:addr, category:cat||'General', location:loc, email:email, phone:phone,
         taxType:taxType, adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
         merchantId: uname.toUpperCase()+'.MOBILE@BANK', qrProvider:'other', customQr:null, active:true,
-        invoiceSeq:1000, products:[], customers:[], suppliers:[], supplierPurchases:[], sales:[]
+        invoiceSeq:1, products:[], customers:[], suppliers:[], supplierPurchases:[], sales:[]
       };
       state.shops.push(newShop);
       state.showCreateShopModal = false;
@@ -2748,7 +2916,7 @@ function handleAction(action, el){
         prod.stock += qty;
         if(prod.supplierId){
           if(!shop.supplierPurchases) shop.supplierPurchases = [];
-          shop.supplierPurchases.push({ id: uid('pur'), supplierId:prod.supplierId, productId:prod.id, productName:prod.name, qty:qty, costPrice:prod.cost, total:prod.cost*qty, date: Date.now() });
+          shop.supplierPurchases.push({ id: uid('pur'), supplierId:prod.supplierId, productId:prod.id, productName:prod.name, qty:qty, costPrice:prod.cost, total:prod.cost*qty, date: Date.now(), paymentMethod:'cash' });
         }
         fbSaveShop(shop);
         toast(t('toast_stock_added'), 'success');
@@ -2920,6 +3088,21 @@ function handleAction(action, el){
     case 'set-range':
       state.repRange = el.getAttribute('data-range');
       render();
+      break;
+
+    /* ---- detailed reports (sales & purchases, printable) ---- */
+    case 'set-detailed-report-type':
+      state.detailedReportType = el.getAttribute('data-type');
+      render();
+      break;
+
+    case 'set-detailed-range':
+      state.detailedReportRange = el.getAttribute('data-range');
+      render();
+      break;
+
+    case 'print-detailed-report':
+      window.print();
       break;
 
     /* ---- bills list (view / edit / cancel) ---- */
@@ -3177,8 +3360,10 @@ async function performSaveProduct(shop, el){
         var editPurchaseDateEl = document.getElementById('pm-purchase-date');
         var editTotalAmountEl = document.getElementById('pm-total-amount');
         var editBillFileEl = document.getElementById('pm-bill-file');
+        var editPurchasePaymentEl = document.getElementById('pm-purchase-payment');
         var editPurchaseDate = editPurchaseDateEl && editPurchaseDateEl.value ? new Date(editPurchaseDateEl.value).getTime() : Date.now();
         var editTotalAmountEntered = editTotalAmountEl ? parseFloat(editTotalAmountEl.value) : NaN;
+        var editPurchasePayment = editPurchasePaymentEl ? editPurchasePaymentEl.value : 'cash';
 
         var newEditBillAttachment = null, newEditBillFileName = null;
         if(editBillFileEl && editBillFileEl.files && editBillFileEl.files[0]){
@@ -3202,6 +3387,7 @@ async function performSaveProduct(shop, el){
           linkedPurchase.supplierId = resolvedSupplierId;
           linkedPurchase.date = editPurchaseDate;
           linkedPurchase.costPrice = cost;
+          linkedPurchase.paymentMethod = editPurchasePayment;
           if(!isNaN(editTotalAmountEntered) && editTotalAmountEntered > 0){
             linkedPurchase.total = editTotalAmountEntered;
           }
@@ -3218,7 +3404,7 @@ async function performSaveProduct(shop, el){
             id: uid('pur'), supplierId:resolvedSupplierId, productId:pid, productName:name,
             qty:existing.stock, costPrice:cost,
             total: !isNaN(editTotalAmountEntered) && editTotalAmountEntered > 0 ? editTotalAmountEntered : cost*existing.stock,
-            date: editPurchaseDate, billAttachment:newEditBillAttachment, billFileName:newEditBillFileName
+            date: editPurchaseDate, paymentMethod:editPurchasePayment, billAttachment:newEditBillAttachment, billFileName:newEditBillFileName
           });
         }
       }
@@ -3233,8 +3419,10 @@ async function performSaveProduct(shop, el){
       var purchaseDateEl = document.getElementById('pm-purchase-date');
       var totalAmountEl = document.getElementById('pm-total-amount');
       var billFileEl = document.getElementById('pm-bill-file');
+      var purchasePaymentEl = document.getElementById('pm-purchase-payment');
       var purchaseDate = purchaseDateEl && purchaseDateEl.value ? new Date(purchaseDateEl.value).getTime() : Date.now();
       var totalAmountEntered = totalAmountEl ? parseFloat(totalAmountEl.value) : NaN;
+      var purchasePayment = purchasePaymentEl ? purchasePaymentEl.value : 'cash';
       // The explicitly entered Total Amount becomes this purchase's investment
       // figure (and therefore the supplier's Total Investment in the Purchase
       // Report). If left blank, fall back to cost price × quantity as before.
@@ -3258,7 +3446,7 @@ async function performSaveProduct(shop, el){
       if(!shop.supplierPurchases) shop.supplierPurchases = [];
       shop.supplierPurchases.push({
         id: uid('pur'), supplierId:resolvedSupplierId, productId:newProductId, productName:name,
-        qty:stock, costPrice:cost, total:purchaseTotal, date: purchaseDate,
+        qty:stock, costPrice:cost, total:purchaseTotal, date: purchaseDate, paymentMethod:purchasePayment,
         billAttachment:billAttachment, billFileName:billFileName
       });
     }
