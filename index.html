@@ -419,10 +419,13 @@
   var lastFailedSave = null; // {shop} — lets the badge offer a manual retry
 
   function setFbBadge(text, bg, opts){
+    // Visual badge intentionally hidden from the UI — status is still
+    // logged to the console for diagnostics, and click-to-retry still
+    // works if the person re-enables it (see fbStatusBadge in the HTML).
+    console.log('[Firebase status] ' + text);
     var el = document.getElementById('fbStatusBadge');
     if(!el) return;
     el.textContent = text;
-    el.style.display = 'block';
     el.style.cursor = (opts && opts.clickable) ? 'pointer' : 'default';
     if(bg) el.style.background = bg;
   }
