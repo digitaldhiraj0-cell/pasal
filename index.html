@@ -775,6 +775,10 @@ var I18N = {
     delete_shop_products:'products', delete_shop_customers:'customers', delete_shop_sales:'sales records', delete_shop_suppliers:'suppliers',
     delete_shop_confirm_label:'Type the shop name to confirm:',
     toast_shop_deleted:'Shop permanently deleted.',
+    btn_reset_shop:'Reset', btn_reset_permanently:'Reset Shop Data',
+    reset_shop_title:'Reset Shop Data', reset_shop_warning:'This cannot be undone. All products, customers, sales, and suppliers for this shop will be permanently cleared, and invoice numbering restarts from 0001.',
+    reset_shop_keeps_note:'The shop registration, admin login, and settings (VAT/PAN, payment QR, etc.) are kept — only the operational data above is cleared.',
+    toast_shop_reset:'Shop data has been reset.',
 
     create_shop_title:'Register a New Shop', create_shop_sub:'Step 1: identify the business by PAN. Step 2: set up admin login.',
     edit_shop_title:'Edit Shop Details', edit_shop_sub:'Update business information, address, and VAT/PAN registration for this shop.',
@@ -947,6 +951,10 @@ var I18N = {
     delete_shop_products:'सामानहरू', delete_shop_customers:'ग्राहकहरू', delete_shop_sales:'बिक्री रेकर्डहरू', delete_shop_suppliers:'आपूर्तिकर्ताहरू',
     delete_shop_confirm_label:'पुष्टि गर्न पसलको नाम टाइप गर्नुहोस्:',
     toast_shop_deleted:'पसल स्थायी रूपमा मेटाइयो।',
+    btn_reset_shop:'रिसेट गर्नुहोस्', btn_reset_permanently:'पसलको डाटा रिसेट गर्नुहोस्',
+    reset_shop_title:'पसलको डाटा रिसेट गर्नुहोस्', reset_shop_warning:'यो फिर्ता गर्न सकिँदैन। यस पसलका सबै सामान, ग्राहक, बिक्री, र आपूर्तिकर्ता स्थायी रूपमा हटिनेछ, र बिल नम्बर ०००१ बाट फेरि सुरु हुनेछ।',
+    reset_shop_keeps_note:'पसल दर्ता, एडमिन लगइन, र सेटिङ (भ्याट/प्यान, भुक्तानी क्युआर, आदि) जोगिनेछ — माथिको डाटा मात्र हटाइनेछ।',
+    toast_shop_reset:'पसलको डाटा रिसेट भयो।',
 
     create_shop_title:'नयाँ पसल दर्ता गर्नुहोस्', create_shop_sub:'चरण १: प्यानबाट व्यवसाय पहिचान गर्नुहोस्। चरण २: एडमिन लगइन सेट गर्नुहोस्।',
     edit_shop_title:'पसलको विवरण सम्पादन गर्नुहोस्', edit_shop_sub:'यस पसलको व्यवसाय जानकारी, ठेगाना, र भ्याट/प्यान दर्ता अद्यावधिक गर्नुहोस्।',
@@ -1208,6 +1216,8 @@ var state = {
   revealEditShopPassword:false,
   showDeleteShopModal:null,
   deleteShopConfirmInput:'',
+  showResetShopModal:null,
+  resetShopConfirmInput:'',
   showAddProductModal:false,
   editingProductId:null,
   productModalSupplierMode:'none',
@@ -1456,6 +1466,7 @@ function renderSuperMain(){
   if(state.showCreateShopModal) body += renderCreateShopModal();
   if(state.showEditShopModal) body += renderEditShopModal();
   if(state.showDeleteShopModal) body += renderDeleteShopModal();
+  if(state.showResetShopModal) body += renderResetShopModal();
   return body;
 }
 
@@ -1491,6 +1502,7 @@ function renderShopsList(){
         '<button class="btn btn-outline btn-sm" data-action="login-as-shop" data-id="'+shop.id+'" style="flex:1;justify-content:center;">'+t('btn_manage')+'</button>'+
         '<button class="btn btn-outline btn-sm" data-action="open-edit-shop" data-id="'+shop.id+'">'+t('btn_edit')+'</button>'+
         '<button class="btn btn-sm '+(shop.active!==false?'btn-outline':'btn-gold')+'" data-action="toggle-shop-active" data-id="'+shop.id+'">'+(shop.active!==false?t('btn_deactivate'):t('btn_activate'))+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="open-reset-shop" data-id="'+shop.id+'" style="color:var(--warning);border-color:var(--gold-tint);">'+t('btn_reset_shop')+'</button>'+
         '<button class="btn btn-outline btn-sm" data-action="open-delete-shop" data-id="'+shop.id+'" style="color:var(--danger);border-color:var(--danger-tint);">'+t('btn_delete_shop')+'</button>'+
       '</div>'+
     '</div>';
@@ -1665,6 +1677,36 @@ function renderDeleteShopModal(){
       '<div class="modal-foot">'+
         '<button class="btn btn-outline" data-action="close-delete-shop">'+t('btn_cancel')+'</button>'+
         '<button class="btn btn-danger" data-action="confirm-delete-shop" data-id="'+shop.id+'" '+(matches?'':'disabled')+'>'+t('btn_delete_permanently')+'</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderResetShopModal(){
+  var shop = state.shops.find(function(s){ return s.id===state.showResetShopModal; });
+  if(!shop) return '';
+  var matches = state.resetShopConfirmInput.trim() === shop.businessName;
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="reset-shop">'+
+    '<div class="modal" style="max-width:460px;" data-stop>'+
+      '<div class="modal-head"><h3 style="color:var(--warning);">'+t('reset_shop_title')+'</h3><button class="modal-close" data-action="close-reset-shop">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="login-error" style="margin-bottom:14px;background:var(--warning-tint);color:#7a5613;">'+t('reset_shop_warning')+'</div>'+
+        '<ul style="margin:0 0 12px;padding-left:20px;font-size:12.5px;color:var(--ink-soft);line-height:1.9;">'+
+          '<li>'+shop.products.length+' '+t('delete_shop_products')+'</li>'+
+          '<li>'+shop.customers.length+' '+t('delete_shop_customers')+'</li>'+
+          '<li>'+shop.sales.length+' '+t('delete_shop_sales')+'</li>'+
+          '<li>'+(shop.suppliers||[]).length+' '+t('delete_shop_suppliers')+'</li>'+
+        '</ul>'+
+        '<div class="field-hint" style="margin-bottom:14px;">'+t('reset_shop_keeps_note')+'</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('delete_shop_confirm_label')+' <b>'+escapeHtml(shop.businessName)+'</b></label>'+
+          '<input class="field" id="reset-shop-confirm-input" value="'+escapeHtml(state.resetShopConfirmInput)+'" autocomplete="off">'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot">'+
+        '<button class="btn btn-outline" data-action="close-reset-shop">'+t('btn_cancel')+'</button>'+
+        '<button class="btn" style="background:var(--warning);color:#fff;" data-action="confirm-reset-shop" data-id="'+shop.id+'" '+(matches?'':'disabled')+'>'+t('btn_reset_permanently')+'</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -2711,6 +2753,7 @@ function closeModalByName(name){
   if(name==='create-shop') state.showCreateShopModal = false;
   else if(name==='edit-shop'){ state.showEditShopModal = null; state.revealEditShopPassword = false; }
   else if(name==='delete-shop'){ state.showDeleteShopModal = null; state.deleteShopConfirmInput = ''; }
+  else if(name==='reset-shop'){ state.showResetShopModal = null; state.resetShopConfirmInput = ''; }
   else if(name==='product'){ state.showAddProductModal = false; state.editingProductId = null; state.productModalSupplierMode = 'none'; state.productModalSelectedSupplierId = ''; }
   else if(name==='stock') state.showAddStockModal = null;
   else if(name==='customer') state.showAddCustomerModal = false;
@@ -2964,6 +3007,37 @@ function handleAction(action, el){
       state.deleteShopConfirmInput = '';
       fbDeleteShop(delId);
       toast(t('toast_shop_deleted'), 'success');
+      render();
+      break;
+
+    case 'open-reset-shop':
+      state.showResetShopModal = el.getAttribute('data-id');
+      state.resetShopConfirmInput = '';
+      render();
+      break;
+
+    case 'close-reset-shop':
+      closeModalByName('reset-shop');
+      break;
+
+    case 'confirm-reset-shop':
+      var resetId = el.getAttribute('data-id');
+      var shopToReset = state.shops.find(function(s){ return s.id===resetId; });
+      if(!shopToReset) return;
+      if(state.resetShopConfirmInput.trim() !== shopToReset.businessName) return;
+      // Wipes all operational data but keeps the shop registered — business
+      // info, admin login, and payment/QR settings are left untouched so
+      // the shop admin can keep using the same account right away.
+      shopToReset.products = [];
+      shopToReset.customers = [];
+      shopToReset.sales = [];
+      shopToReset.suppliers = [];
+      shopToReset.supplierPurchases = [];
+      shopToReset.invoiceSeq = 1;
+      state.showResetShopModal = null;
+      state.resetShopConfirmInput = '';
+      fbSaveShop(shopToReset);
+      toast(t('toast_shop_reset'), 'success');
       render();
       break;
 
@@ -3703,6 +3777,9 @@ function bindEvents(){
       reRenderKeepFocus();
     } else if(el.id==='delete-shop-confirm-input'){
       state.deleteShopConfirmInput = el.value;
+      reRenderKeepFocus();
+    } else if(el.id==='reset-shop-confirm-input'){
+      state.resetShopConfirmInput = el.value;
       reRenderKeepFocus();
     }
   });
