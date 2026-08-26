@@ -9,6 +9,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --bg: #FAF6EE;
@@ -757,6 +760,9 @@ var I18N = {
     detailed_rep_print:'Print / Download', detailed_rep_tab_sales:'Sales', detailed_rep_tab_purchases:'Purchases',
     detailed_rep_supplier_col:'Supplier', detailed_rep_ref_col:'Reference No',
     detailed_rep_record_count:'Records', detailed_rep_generated_on:'Generated on',
+    detailed_rep_download:'Download', detailed_rep_download_pdf:'Download as PDF', detailed_rep_download_excel:'Download as Excel',
+    detailed_rep_summary_title:'Sales Summary',
+    report_downloaded:'Report downloaded.', report_export_lib_missing:'Export library failed to load — check your internet connection and try again.',
     super_section:'Platform', shop_section:'Shop Console',
 
     shops_title:'Registered Shops', shops_sub:'Manage every shop admin account from one place.',
@@ -926,6 +932,9 @@ var I18N = {
     detailed_rep_print:'प्रिन्ट / डाउनलोड', detailed_rep_tab_sales:'बिक्री', detailed_rep_tab_purchases:'खरिद',
     detailed_rep_supplier_col:'आपूर्तिकर्ता', detailed_rep_ref_col:'सन्दर्भ नं.',
     detailed_rep_record_count:'रेकर्डहरू', detailed_rep_generated_on:'यसमा उत्पन्न भयो',
+    detailed_rep_download:'डाउनलोड', detailed_rep_download_pdf:'PDF को रूपमा डाउनलोड गर्नुहोस्', detailed_rep_download_excel:'Excel को रूपमा डाउनलोड गर्नुहोस्',
+    detailed_rep_summary_title:'बिक्री सारांश',
+    report_downloaded:'प्रतिवेदन डाउनलोड भयो।', report_export_lib_missing:'एक्सपोर्ट लाइब्रेरी लोड हुन सकेन — आफ्नो इन्टरनेट जडान जाँच गरेर फेरि प्रयास गर्नुहोस्।',
     super_section:'प्लेटफर्म', shop_section:'पसल कन्सोल',
 
     shops_title:'दर्ता भएका पसलहरू', shops_sub:'सबै पसल एडमिन खाता एकै ठाउँबाट व्यवस्थापन गर्नुहोस्।',
@@ -1206,6 +1215,7 @@ var state = {
   supplierSubView:'manage',
   detailedReportType:'sales',
   detailedReportRange:'30',
+  showReportDownloadMenu:false,
   showAddSupplierModal:false,
   editingSupplierId:null,
   showAddStockModal:null,
@@ -2304,6 +2314,113 @@ function renderChangePasswordModal(){
 }
 
 /* ---------------- shop admin: Reports (detailed sales & purchases, printable) ---------------- */
+// Shared data builder used by the on-screen table, the printable
+// letterhead, and both PDF/Excel exports — one source of truth so all
+// four outputs always show identical figures.
+function getDetailedReportData(shop, type, range){
+  var refColLabel = type==='sales' ? t('invoice_no') : t('detailed_rep_ref_col');
+  var nameColLabel = type==='sales' ? t('bill_customer') : t('detailed_rep_supplier_col');
+  var tableRows = [], total = 0, count = 0;
+
+  if(type==='sales'){
+    var sales = filteredSales(shop, range).slice().sort(function(a,b){ return b.date - a.date; });
+    count = sales.length;
+    total = sumBy(sales, 'total');
+    tableRows = sales.map(function(s){
+      return [s.invoiceNo, fmtDate(s.date), s.customerName||t('bill_customer_walkin'), paymentLabel(s.payment), s.total];
+    });
+  } else {
+    var purchases = (shop.supplierPurchases||[]).filter(function(p){
+      if(range==='all') return true;
+      return p.date >= Date.now() - Number(range)*24*60*60*1000;
+    }).slice().sort(function(a,b){ return b.date - a.date; });
+    count = purchases.length;
+    total = sumBy(purchases, 'total');
+    tableRows = purchases.map(function(p){
+      var supName = supplierName(shop, p.supplierId) || '—';
+      var ref = 'PUR-' + p.id.slice(-6).toUpperCase();
+      return [ref, fmtDate(p.date), supName, paymentLabel(p.paymentMethod||'cash'), p.total];
+    });
+  }
+
+  return { refColLabel:refColLabel, nameColLabel:nameColLabel, tableRows:tableRows, total:total, count:count };
+}
+
+var RANGE_LABEL_MAP = {'7':'range_7','30':'range_30','90':'range_90','all':'range_all'};
+function safeFileSlug(name){
+  return (name||'shop').replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_+|_+$/g,'') || 'shop';
+}
+
+function downloadReportAsPdf(shop, type, range){
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    toast(t('report_export_lib_missing'), 'error');
+    return;
+  }
+  var data = getDetailedReportData(shop, type, range);
+  var doc = new window.jspdf.jsPDF();
+  var pageWidth = doc.internal.pageSize.getWidth();
+  var y = 18;
+
+  doc.setFontSize(16); doc.setFont(undefined, 'bold');
+  doc.text(shop.businessName || '', pageWidth/2, y, {align:'center'});
+  y += 6;
+  doc.setFontSize(10); doc.setFont(undefined, 'normal');
+  doc.text(shop.address || shop.location || '', pageWidth/2, y, {align:'center'});
+  y += 5;
+  doc.text((t('invoice_pan')+': '+(shop.pan||'')), pageWidth/2, y, {align:'center'});
+  y += 9;
+
+  doc.setFontSize(13); doc.setFont(undefined, 'bold');
+  var titleText = (type==='sales' ? t('detailed_rep_tab_sales') : t('detailed_rep_tab_purchases')) + ' ' + t('nav_detailed_reports');
+  doc.text(titleText, pageWidth/2, y, {align:'center'});
+  y += 6;
+  doc.setFontSize(9); doc.setFont(undefined, 'normal');
+  doc.text(t('rep_range')+': '+t(RANGE_LABEL_MAP[range]||'range_30')+'   |   '+t('detailed_rep_record_count')+': '+data.count, pageWidth/2, y, {align:'center'});
+  y += 6;
+
+  var head = [[data.refColLabel, t('invoice_date'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]];
+  var body = data.tableRows.map(function(r){ return [r[0], r[1], r[2], r[3], fmtMoney(r[4])]; });
+
+  doc.autoTable({
+    startY: y,
+    head: head,
+    body: body,
+    foot: [['', '', '', t('bill_total'), fmtMoney(data.total)]],
+    styles: { fontSize:8.5 },
+    headStyles: { fillColor:[22,48,92] },
+    footStyles: { fillColor:[245,235,215], textColor:[20,20,20], fontStyle:'bold' }
+  });
+
+  doc.save(safeFileSlug(shop.businessName)+'_'+type+'_report.pdf');
+  toast(t('report_downloaded'), 'success');
+}
+
+function downloadReportAsExcel(shop, type, range){
+  if(!window.XLSX){
+    toast(t('report_export_lib_missing'), 'error');
+    return;
+  }
+  var data = getDetailedReportData(shop, type, range);
+  var aoa = [];
+  aoa.push([shop.businessName || '']);
+  aoa.push([shop.address || shop.location || '']);
+  aoa.push([t('invoice_pan')+': '+(shop.pan||'')]);
+  aoa.push([]);
+  aoa.push([(type==='sales' ? t('detailed_rep_tab_sales') : t('detailed_rep_tab_purchases')) + ' ' + t('nav_detailed_reports')]);
+  aoa.push([t('rep_range')+': '+t(RANGE_LABEL_MAP[range]||'range_30'), t('detailed_rep_record_count')+': '+data.count]);
+  aoa.push([]);
+  aoa.push([data.refColLabel, t('invoice_date'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]);
+  data.tableRows.forEach(function(r){ aoa.push([r[0], r[1], r[2], r[3], r[4]]); });
+  aoa.push(['', '', '', t('bill_total'), data.total]);
+
+  var ws = window.XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:18},{wch:12},{wch:24},{wch:14},{wch:14}];
+  var wb = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb, ws, type==='sales' ? 'Sales' : 'Purchases');
+  window.XLSX.writeFile(wb, safeFileSlug(shop.businessName)+'_'+type+'_report.xlsx');
+  toast(t('report_downloaded'), 'success');
+}
+
 function renderDetailedReportsView(){
   var shop = currentShop();
   var type = state.detailedReportType;
@@ -2313,38 +2430,38 @@ function renderDetailedReportsView(){
     return '<button class="btn btn-sm '+(range===r[0]?'btn-indigo':'btn-outline')+'" data-action="set-detailed-range" data-range="'+r[0]+'">'+t(r[1])+'</button>';
   }).join('');
 
-  var salesRows='', purchaseRows='', total=0, count=0;
-  if(type==='sales'){
-    var sales = filteredSales(shop, range).slice().sort(function(a,b){ return b.date - a.date; });
-    count = sales.length;
-    total = sumBy(sales, 'total');
-    salesRows = sales.length ? sales.map(function(s){
-      return '<tr><td style="font-family:var(--font-mono);">'+s.invoiceNo+'</td><td>'+fmtDate(s.date)+'</td><td>'+escapeHtml(s.customerName||t('bill_customer_walkin'))+'</td><td>'+paymentLabel(s.payment)+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(s.total)+'</td></tr>';
-    }).join('') : '';
-  } else {
-    var purchases = (shop.supplierPurchases||[]).filter(function(p){
-      if(range==='all') return true;
-      return p.date >= Date.now() - Number(range)*24*60*60*1000;
-    }).slice().sort(function(a,b){ return b.date - a.date; });
-    count = purchases.length;
-    total = sumBy(purchases, 'total');
-    purchaseRows = purchases.length ? purchases.map(function(p){
-      var supName = supplierName(shop, p.supplierId) || '—';
-      var ref = 'PUR-' + p.id.slice(-6).toUpperCase();
-      return '<tr><td style="font-family:var(--font-mono);">'+ref+'</td><td>'+fmtDate(p.date)+'</td><td>'+escapeHtml(supName)+'</td><td>'+paymentLabel(p.paymentMethod||'cash')+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(p.total)+'</td></tr>';
-    }).join('') : '';
-  }
-
-  var rows = type==='sales' ? salesRows : purchaseRows;
+  var data = getDetailedReportData(shop, type, range);
   var emptyMsg = type==='sales' ? t('rep_no_data') : t('sup_rep_no_purchases');
-  var nameColLabel = type==='sales' ? t('bill_customer') : t('detailed_rep_supplier_col');
-  var refColLabel = type==='sales' ? t('invoice_no') : t('detailed_rep_ref_col');
+  var rows = data.tableRows.map(function(r){
+    return '<tr><td style="font-family:var(--font-mono);">'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(r[4])+'</td></tr>';
+  }).join('');
+
+  // Sales Summary — always sales-based totals across the four standard
+  // periods, shown regardless of which tab/range is currently selected.
+  var summaryPeriods = [['7','range_7'],['30','range_30'],['90','range_90'],['all','range_all']];
+  var summaryCards = summaryPeriods.map(function(p){
+    var periodTotal = sumBy(filteredSales(shop, p[0]), 'total');
+    return '<div class="stat-card accent-crimson"><div class="label">'+t(p[1])+'</div><div class="value" style="font-size:19px;">'+fmtMoney(periodTotal)+'</div></div>';
+  }).join('');
 
   return ''+
   '<div class="page-head">'+
     '<div><h1>'+t('nav_detailed_reports')+'</h1><div class="sub">'+t('detailed_reports_sub')+'</div></div>'+
-    '<button class="btn btn-primary" data-action="print-detailed-report">&#128424; '+t('detailed_rep_print')+'</button>'+
+    '<div style="display:flex;gap:8px;">'+
+      '<button class="btn btn-outline" data-action="print-detailed-report">&#128424; '+t('detailed_rep_print')+'</button>'+
+      '<div class="report-download-wrap" style="position:relative;">'+
+        '<button class="btn btn-primary" data-action="toggle-download-menu">&#11015; '+t('detailed_rep_download')+'</button>'+
+        (state.showReportDownloadMenu ? ''+
+          '<div class="user-menu-dropdown" style="right:0;left:auto;">'+
+            '<button data-action="download-report-pdf" class="user-menu-item"><span class="ic">&#128196;</span>'+t('detailed_rep_download_pdf')+'</button>'+
+            '<button data-action="download-report-excel" class="user-menu-item"><span class="ic">&#128202;</span>'+t('detailed_rep_download_excel')+'</button>'+
+          '</div>'
+        : '')+
+      '</div>'+
+    '</div>'+
   '</div>'+
+  '<div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--ink-soft);">'+t('detailed_rep_summary_title')+'</div>'+
+  '<div class="grid grid-4" style="margin-bottom:20px;">'+summaryCards+'</div>'+
   '<div class="flex-between" style="margin-bottom:16px;flex-wrap:wrap;gap:10px;">'+
     '<div class="role-tabs" style="max-width:280px;">'+
       '<button data-action="set-detailed-report-type" data-type="sales" class="'+(type==='sales'?'active':'')+'">'+t('detailed_rep_tab_sales')+'</button>'+
@@ -2353,13 +2470,13 @@ function renderDetailedReportsView(){
     '<div style="display:flex;gap:6px;">'+rangeBtns+'</div>'+
   '</div>'+
   '<div class="grid grid-3" style="margin-bottom:18px;">'+
-    '<div class="stat-card accent-crimson"><div class="label">'+(type==='sales'?t('rep_total_sales'):t('sup_rep_total_investment'))+'</div><div class="value">'+fmtMoney(total)+'</div></div>'+
-    '<div class="stat-card accent-indigo"><div class="label">'+t('detailed_rep_record_count')+'</div><div class="value">'+count+'</div></div>'+
+    '<div class="stat-card accent-crimson"><div class="label">'+(type==='sales'?t('rep_total_sales'):t('sup_rep_total_investment'))+'</div><div class="value">'+fmtMoney(data.total)+'</div></div>'+
+    '<div class="stat-card accent-indigo"><div class="label">'+t('detailed_rep_record_count')+'</div><div class="value">'+data.count+'</div></div>'+
     '<div class="stat-card accent-gold"><div class="label">'+t('rep_range')+'</div><div class="value" style="font-size:16px;">'+t((ranges.find(function(r){return r[0]===range;})||['','range_30'])[1])+'</div></div>'+
   '</div>'+
-  (rows ? '<div class="table-wrap"><table><thead><tr><th>'+refColLabel+'</th><th>'+t('invoice_date')+'</th><th>'+nameColLabel+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">'+t('bill_line_total')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+  (rows ? '<div class="table-wrap"><table><thead><tr><th>'+data.refColLabel+'</th><th>'+t('invoice_date')+'</th><th>'+data.nameColLabel+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">'+t('bill_line_total')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
     : '<div class="card empty-state">'+emptyMsg+'</div>')+
-  renderPrintableReport(shop, type, range, count, total, rows, refColLabel, nameColLabel);
+  renderPrintableReport(shop, type, range, data.count, data.total, rows, data.refColLabel, data.nameColLabel);
 }
 
 // Hidden container used only when printing — becomes visible via the
@@ -3105,6 +3222,23 @@ function handleAction(action, el){
       window.print();
       break;
 
+    case 'toggle-download-menu':
+      state.showReportDownloadMenu = !state.showReportDownloadMenu;
+      render();
+      break;
+
+    case 'download-report-pdf':
+      state.showReportDownloadMenu = false;
+      render();
+      downloadReportAsPdf(shop, state.detailedReportType, state.detailedReportRange);
+      break;
+
+    case 'download-report-excel':
+      state.showReportDownloadMenu = false;
+      render();
+      downloadReportAsExcel(shop, state.detailedReportType, state.detailedReportRange);
+      break;
+
     /* ---- bills list (view / edit / cancel) ---- */
     case 'open-bills-list':
       state.showBillsListModal = true;
@@ -3535,6 +3669,11 @@ function bindEvents(){
     }
     if(state.showUserMenu && !e.target.closest('.user-menu-wrap')){
       state.showUserMenu = false;
+      render();
+      return;
+    }
+    if(state.showReportDownloadMenu && !e.target.closest('.report-download-wrap')){
+      state.showReportDownloadMenu = false;
       render();
       return;
     }
