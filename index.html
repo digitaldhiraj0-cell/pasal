@@ -867,6 +867,7 @@ var I18N = {
     btn_copy_amount:'Copy Exact Amount', toast_amount_copied:'Amount copied — paste it into your payment app',
     toast_amount_copy_fallback:'Copy this exact amount into your payment app:',
     invoice_demo_qr_label:'Demo QR — Not For Payment',
+    qr_txn_id:'Transaction ID', qr_merchant_id:'Merchant ID',
     invoice_scan_note:'This is a placeholder QR for preview only. It is not linked to a bank account. Please pay by cash or another method.',
     invoice_scan_note_static:"Scan the shop's payment QR, then enter the amount shown below.",
     invoice_thanks:'Thank you for your business!', invoice_print:'Print / Save PDF', invoice_close:'Close',
@@ -897,7 +898,7 @@ var I18N = {
     set_qr_current:'Currently using', set_qr_auto:'Auto-generated dynamic QR (amount embedded)', set_qr_custom:'Your uploaded QR',
     set_vat:'VAT Rate', set_merchant_id:'Payment / Merchant ID', set_merchant_hint:'Used inside the auto-generated QR payload.',
     set_qr_provider:'Payment Provider', set_qr_provider_hint:'For labeling your invoices correctly only — selecting a provider here does not connect to Fonepay, eSewa, or any bank. It has no effect unless you upload the real QR that provider issued you below.',
-    qr_provider_fonepay:'Fonepay', qr_provider_esewa:'eSewa', qr_provider_bank:'Bank Account Transfer', qr_provider_other:'Other',
+    qr_provider_fonepay:'Fonepay', qr_provider_esewa:'eSewa', qr_provider_phonepe:'PhonePe (India)', qr_provider_bank:'Bank Account Transfer', qr_provider_other:'Other',
     set_qr_custom_note:'This is the official QR your bank or payment provider issued after merchant registration — it is already linked to your real account. This app just displays it and prints it on invoices.',
     set_qr_demo_warning:'This is a placeholder QR generated for preview only. It is NOT linked to any real bank account and cannot receive real payments. To accept genuine Fonepay, eSewa, or bank QR payments, register as a merchant through your bank or the payment provider, then upload the QR image they issue you.',
     toast_qr_updated:'Payment QR settings updated.', btn_save_settings:'Save Settings', toast_settings_saved:'Settings saved.',
@@ -1043,6 +1044,7 @@ var I18N = {
     btn_copy_amount:'ठ्याक्कै रकम कपी गर्नुहोस्', toast_amount_copied:'रकम कपी भयो — आफ्नो भुक्तानी एपमा पेस्ट गर्नुहोस्',
     toast_amount_copy_fallback:'यो ठ्याक्कै रकम आफ्नो भुक्तानी एपमा राख्नुहोस्:',
     invoice_demo_qr_label:'नमूना क्युआर — भुक्तानीका लागि होइन',
+    qr_txn_id:'कारोबार आईडी', qr_merchant_id:'मर्चेन्ट आईडी',
     invoice_scan_note:'यो केवल प्रिभ्यूका लागि नमूना क्युआर हो। यो कुनै बैंक खातासँग जोडिएको छैन। कृपया नगद वा अर्को विधिबाट भुक्तानी गर्नुहोस्।',
     invoice_scan_note_static:'पसलको भुक्तानी क्युआर स्क्यान गरी तल देखाइएको रकम राख्नुहोस्।',
     invoice_thanks:'तपाईंको व्यवसायको लागि धन्यवाद!', invoice_print:'प्रिन्ट / PDF सुरक्षित गर्नुहोस्', invoice_close:'बन्द गर्नुहोस्',
@@ -1073,7 +1075,7 @@ var I18N = {
     set_qr_current:'हाल प्रयोगमा', set_qr_auto:'स्वतः-उत्पन्न गतिशील क्युआर (रकम सहित)', set_qr_custom:'तपाईंले अपलोड गर्नुभएको क्युआर',
     set_vat:'भ्याट दर', set_merchant_id:'भुक्तानी / मर्चेन्ट आईडी', set_merchant_hint:'स्वतः-उत्पन्न क्युआर भित्र प्रयोग हुन्छ।',
     set_qr_provider:'भुक्तानी प्रदायक', set_qr_provider_hint:'यो केवल तपाईंको बिलमा सही लेबल देखाउनका लागि हो — यहाँ प्रदायक छानेर मात्र Fonepay, eSewa, वा कुनै बैंकसँग जोडिँदैन। तपाईंले तल त्यो प्रदायकले दिएको वास्तविक क्युआर अपलोड नगरेसम्म यसको कुनै प्रभाव पर्दैन।',
-    qr_provider_fonepay:'Fonepay', qr_provider_esewa:'eSewa', qr_provider_bank:'बैंक खाता ट्रान्सफर', qr_provider_other:'अन्य',
+    qr_provider_fonepay:'Fonepay', qr_provider_esewa:'eSewa', qr_provider_phonepe:'PhonePe (भारत)', qr_provider_bank:'बैंक खाता ट्रान्सफर', qr_provider_other:'अन्य',
     set_qr_custom_note:'यो तपाईंको बैंक वा भुक्तानी प्रदायकले मर्चेन्ट दर्ता पछि दिएको आधिकारिक क्युआर हो — यो पहिल्यै तपाईंको वास्तविक खातासँग जोडिएको छ। यो एपले केवल यसलाई देखाउँछ र बिलमा छाप्छ।',
     set_qr_demo_warning:'यो प्रिभ्यूका लागि मात्र उत्पन्न गरिएको नमूना क्युआर हो। यो कुनै वास्तविक बैंक खातासँग जोडिएको छैन र वास्तविक भुक्तानी लिन सक्दैन। वास्तविक Fonepay, eSewa, वा बैंक क्युआर भुक्तानी लिन, आफ्नो बैंक वा भुक्तानी प्रदायकमार्फत मर्चेन्ट दर्ता गर्नुहोस्, त्यसपछि तिनीहरूले दिएको क्युआर तस्बिर अपलोड गर्नुहोस्।',
     toast_qr_updated:'भुक्तानी क्युआर सेटिङ अद्यावधिक भयो।', btn_save_settings:'सेटिङ सुरक्षित गर्नुहोस्', toast_settings_saved:'सेटिङ सुरक्षित भयो।',
@@ -2564,7 +2566,7 @@ function renderSettingsView(){
         '<div class="field-row"><label class="field-label">'+t('set_merchant_id')+'</label><input class="field" id="st-merchant" value="'+escapeHtml(shop.merchantId)+'"><div class="field-hint">'+t('set_merchant_hint')+'</div></div>'+
       '</div>'+
       '<div class="field-row"><label class="field-label">'+t('set_qr_provider')+'</label><select class="field" id="st-qrprovider">'+
-        ['fonepay','esewa','bank','other'].map(function(p){
+        ['fonepay','esewa','phonepe','bank','other'].map(function(p){
           return '<option value="'+p+'" '+((shop.qrProvider||'other')===p?'selected':'')+'>'+t('qr_provider_'+p)+'</option>';
         }).join('')+
       '</select><div class="field-hint">'+t('set_qr_provider_hint')+'</div></div>'+
@@ -2633,6 +2635,8 @@ function renderReceiptModal(){
                 :
                 '<div id="qrcode-target"></div>'+
                 '<div style="font-weight:700;color:var(--warning);">&#9888; '+t('invoice_demo_qr_label')+'</div>'+
+                '<div class="muted" style="font-size:10.5px;text-align:center;font-family:var(--font-mono);">'+t('qr_txn_id')+': '+inv.id+'</div>'+
+                '<div class="muted" style="font-size:10.5px;text-align:center;font-family:var(--font-mono);">'+t('qr_merchant_id')+': '+escapeHtml(shop.merchantId||shop.id)+'</div>'+
                 '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note')+'</div>'
               )+
             '</div>'+
@@ -2686,8 +2690,14 @@ function afterRender(){
       var target = document.getElementById('qrcode-target');
       if(target && window.QRCode){
         target.innerHTML='';
-        var payload = 'PASAL-MANAGER-INVOICE|SHOP:'+(shop.businessName||'')+'|INVOICE:'+state.lastInvoice.invoiceNo+
-          '|AMOUNT:'+state.lastInvoice.total.toFixed(2)+'|CURRENCY:NPR|DATE:'+new Date(state.lastInvoice.date).toISOString()+
+        var payload = 'PASAL-MANAGER-INVOICE'+
+          '|MERCHANT_ID:'+(shop.merchantId||shop.id||'')+
+          '|TXN_ID:'+state.lastInvoice.id+
+          '|AMOUNT:'+state.lastInvoice.total.toFixed(2)+
+          '|CURRENCY:NPR'+
+          '|INVOICE:'+state.lastInvoice.invoiceNo+
+          '|SHOP:'+(shop.businessName||'')+
+          '|DATE:'+new Date(state.lastInvoice.date).toISOString()+
           '|NOTE:Demo QR for record-keeping only - not a live payment link. Pay by cash, card, or your own banking app.';
         try{ new QRCode(target, {text: payload, width:150, height:150, colorDark:'#16305C', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M}); }catch(e){}
       }
