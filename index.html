@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -880,7 +881,9 @@ var I18N = {
     rep_bills_click_hint:'Click to view, edit, or cancel bills',
     bills_list_title:'Bills Issued', bills_list_sub:'View, edit, or cancel any bill from the selected date range.',
     bill_status:'Status', bill_status_active:'Active', bill_status_cancelled:'Cancelled',
-    btn_view:'View', btn_cancel_bill:'Cancel Bill',
+    btn_view:'View', btn_cancel_bill:'Cancel Bill', btn_delete_bill:'Delete Bill',
+    confirm_delete_bill:'Permanently delete this bill? This cannot be undone. If it was not already cancelled, its stock will be restored first.',
+    toast_bill_deleted:'Bill permanently deleted.',
     edit_bill_title:'Edit Bill', edit_bill_sub:'Adjust the customer, payment method, or items on this bill. Stock and totals are recalculated automatically.',
     btn_save_bill:'Save Bill',
     toast_bill_updated:'Bill updated and stock adjusted.', toast_bill_cancelled:'Bill cancelled and stock restored.',
@@ -907,7 +910,7 @@ var I18N = {
     set_bill_branding_section:'Bill Logo & Signature',
     set_bill_branding_desc:'Upload your shop logo (shown top-right on every invoice) and a digital signature (shown at the bottom) to make bills look official.',
     set_logo_label:'Shop Logo', set_logo_upload:'Upload Logo', set_logo_replace:'Replace Logo', set_logo_remove:'Remove Logo',
-    set_logo_hint:'Shown in the top-right corner of every printed/PDF bill. Square images work best. Max 700KB.',
+    set_logo_hint:'Shown in the top-left corner of every printed/PDF bill. Square images work best. Max 700KB.',
     set_signature_label:'Digital Signature', set_signature_upload:'Upload Signature', set_signature_replace:'Replace Signature', set_signature_remove:'Remove Signature',
     set_signature_hint:'Shown at the bottom of every bill, above the thank-you line. A photo of a signature on white paper works well. Max 700KB.',
     toast_logo_updated:'Shop logo updated.', toast_signature_updated:'Digital signature updated.',
@@ -1069,7 +1072,9 @@ var I18N = {
     rep_bills_click_hint:'बिलहरू हेर्न, सम्पादन गर्न, वा रद्द गर्न क्लिक गर्नुहोस्',
     bills_list_title:'जारी बिलहरू', bills_list_sub:'छानिएको मितिको दायराबाट कुनै पनि बिल हेर्नुहोस्, सम्पादन गर्नुहोस्, वा रद्द गर्नुहोस्।',
     bill_status:'स्थिति', bill_status_active:'सक्रिय', bill_status_cancelled:'रद्द भयो',
-    btn_view:'हेर्नुहोस्', btn_cancel_bill:'बिल रद्द गर्नुहोस्',
+    btn_view:'हेर्नुहोस्', btn_cancel_bill:'बिल रद्द गर्नुहोस्', btn_delete_bill:'बिल मेटाउनुहोस्',
+    confirm_delete_bill:'यो बिल स्थायी रूपमा मेटाउने हो? यो फिर्ता गर्न सकिँदैन। यदि यो पहिले नै रद्द भएको थिएन भने, स्टक पहिले फिर्ता हुनेछ।',
+    toast_bill_deleted:'बिल स्थायी रूपमा मेटाइयो।',
     edit_bill_title:'बिल सम्पादन गर्नुहोस्', edit_bill_sub:'यस बिलको ग्राहक, भुक्तानी विधि, वा सामान समायोजन गर्नुहोस्। स्टक र जम्मा रकम स्वतः पुनः गणना हुन्छ।',
     btn_save_bill:'बिल सुरक्षित गर्नुहोस्',
     toast_bill_updated:'बिल अद्यावधिक भयो र स्टक समायोजन भयो।', toast_bill_cancelled:'बिल रद्द भयो र स्टक फिर्ता भयो।',
@@ -1096,7 +1101,7 @@ var I18N = {
     set_bill_branding_section:'बिल लोगो र हस्ताक्षर',
     set_bill_branding_desc:'बिललाई आधिकारिक देखाउन आफ्नो पसलको लोगो (हरेक बिलको माथि-दायाँ देखिने) र डिजिटल हस्ताक्षर (तल देखिने) अपलोड गर्नुहोस्।',
     set_logo_label:'पसलको लोगो', set_logo_upload:'लोगो अपलोड गर्नुहोस्', set_logo_replace:'लोगो बदल्नुहोस्', set_logo_remove:'लोगो हटाउनुहोस्',
-    set_logo_hint:'हरेक छापिएको/PDF बिलको माथि-दायाँ कुनामा देखिन्छ। वर्गाकार तस्बिर उत्तम हुन्छ। अधिकतम 700KB।',
+    set_logo_hint:'हरेक छापिएको/PDF बिलको माथि-बायाँ कुनामा देखिन्छ। वर्गाकार तस्बिर उत्तम हुन्छ। अधिकतम 700KB।',
     set_signature_label:'डिजिटल हस्ताक्षर', set_signature_upload:'हस्ताक्षर अपलोड गर्नुहोस्', set_signature_replace:'हस्ताक्षर बदल्नुहोस्', set_signature_remove:'हस्ताक्षर हटाउनुहोस्',
     set_signature_hint:'हरेक बिलको फेदमा, धन्यवाद लाइनभन्दा माथि देखिन्छ। सेतो कागजमा गरिएको हस्ताक्षरको फोटो राम्रो हुन्छ। अधिकतम 700KB।',
     toast_logo_updated:'पसलको लोगो अद्यावधिक भयो।', toast_signature_updated:'डिजिटल हस्ताक्षर अद्यावधिक भयो।',
@@ -2279,6 +2284,7 @@ function renderBillsListModal(){
           '<button class="btn btn-outline btn-sm" data-action="open-edit-bill" data-id="'+s.id+'">'+t('btn_edit')+'</button>'+
           '<button class="btn btn-outline btn-sm" data-action="cancel-bill" data-id="'+s.id+'" style="color:var(--danger);">'+t('btn_cancel_bill')+'</button>'
         )+
+        '<button class="btn btn-outline btn-sm" data-action="delete-bill" data-id="'+s.id+'" style="color:var(--danger);">'+t('btn_delete_bill')+'</button>'+
       '</div></td>'+
     '</tr>';
   }).join('') : '<tr><td colspan="7" class="empty-state">'+t('rep_no_data')+'</td></tr>';
@@ -2687,13 +2693,14 @@ function renderReceiptModal(){
       '<div class="modal-head"><h3>'+(shop.taxType==='pan' ? t('invoice_title_pan') : t('invoice_title'))+(inv.cancelled ? ' <span class="badge badge-danger" style="vertical-align:middle;">'+t('bill_status_cancelled')+'</span>' : '')+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
       '<div class="modal-body" style="background:var(--surface-2);">'+
         '<div class="invoice-sheet print-format-'+(shop.billPrintFormat||'80mm')+'" id="printable-invoice">'+
-          '<div class="invoice-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">'+
+          '<div class="invoice-head" style="display:flex;align-items:flex-start;justify-content:flex-start;gap:10px;">'+
+            (shop.logoImage ? '<img src="'+shop.logoImage+'" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;flex-shrink:0;">' : '')+
             '<div style="min-width:0;">'+
               '<div class="shopname">'+escapeHtml(shop.businessName)+'</div>'+
               '<div class="meta">'+escapeHtml(shop.location)+'</div>'+
+              (shop.phone ? '<div class="meta">'+t('field_phone')+': '+escapeHtml(shop.phone)+'</div>' : '')+
               '<div class="meta">'+(shop.taxType==='pan' ? t('invoice_pan_reg') : t('invoice_vat_reg'))+' · '+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
             '</div>'+
-            (shop.logoImage ? '<img src="'+shop.logoImage+'" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;flex-shrink:0;">' : '')+
           '</div>'+
           '<div class="invoice-body">'+
             '<div class="invoice-row"><span>'+t('invoice_no')+'</span><b style="font-family:var(--font-mono);">'+inv.invoiceNo+'</b></div>'+
@@ -2707,20 +2714,14 @@ function renderReceiptModal(){
               (shop.taxType==='pan' ? '' : '<div class="invoice-row"><span>'+t('bill_vat')+' ('+shop.vatRate+'%)</span><span>'+fmtMoney(inv.vat)+'</span></div>')+
               '<div class="invoice-row" style="font-size:16px;font-weight:800;color:var(--crimson-dark);"><span>'+t('bill_total')+'</span><span>'+fmtMoney(inv.total)+'</span></div>'+
             '</div>'+
-            '<div class="invoice-qr">'+
-              (shop.customQr ?
+            (shop.customQr ? ''+
+              '<div class="invoice-qr">'+
                 '<img src="'+shop.customQr+'" width="150" height="150">'+
                 '<div style="font-weight:700;">'+t('invoice_scan_pay')+(shop.qrProvider ? ' ('+t('qr_provider_'+shop.qrProvider)+')' : '')+' — '+fmtMoney(inv.total)+'</div>'+
                 '<button type="button" class="btn btn-outline btn-sm" data-action="copy-invoice-amount" data-amount="'+inv.total.toFixed(2)+'" style="margin-top:2px;">&#128203; '+t('btn_copy_amount')+'</button>'+
-                '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'
-                :
-                '<div id="qrcode-target"></div>'+
-                '<div style="font-weight:700;color:var(--warning);">&#9888; '+t('invoice_demo_qr_label')+'</div>'+
-                '<div class="muted" style="font-size:10.5px;text-align:center;font-family:var(--font-mono);">'+t('qr_txn_id')+': '+inv.id+'</div>'+
-                '<div class="muted" style="font-size:10.5px;text-align:center;font-family:var(--font-mono);">'+t('qr_merchant_id')+': '+escapeHtml(shop.merchantId||shop.id)+'</div>'+
-                '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note')+'</div>'
-              )+
-            '</div>'+
+                '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'+
+              '</div>'
+            : '')+
             (shop.signatureImage ? '<div style="text-align:right;margin-top:14px;"><img src="'+shop.signatureImage+'" style="max-width:130px;max-height:50px;object-fit:contain;"></div>' : '')+
           '</div>'+
           '<div class="invoice-foot">'+t('invoice_thanks')+'</div>'+
@@ -2764,27 +2765,8 @@ function renderLogin(){
   '</div>';
 }
 
-/* ---------------- post-render side effects (QR / charts) ---------------- */
+/* ---------------- post-render side effects (charts) ---------------- */
 function afterRender(){
-  if(state.showReceiptModal && state.lastInvoice){
-    var shop = currentShop();
-    if(shop && !shop.customQr){
-      var target = document.getElementById('qrcode-target');
-      if(target && window.QRCode){
-        target.innerHTML='';
-        var payload = 'PASAL-MANAGER-INVOICE'+
-          '|MERCHANT_ID:'+(shop.merchantId||shop.id||'')+
-          '|TXN_ID:'+state.lastInvoice.id+
-          '|AMOUNT:'+state.lastInvoice.total.toFixed(2)+
-          '|CURRENCY:NPR'+
-          '|INVOICE:'+state.lastInvoice.invoiceNo+
-          '|SHOP:'+(shop.businessName||'')+
-          '|DATE:'+new Date(state.lastInvoice.date).toISOString()+
-          '|NOTE:Demo QR for record-keeping only - not a live payment link. Pay by cash, card, or your own banking app.';
-        try{ new QRCode(target, {text: payload, width:150, height:150, colorDark:'#16305C', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.M}); }catch(e){}
-      }
-    }
-  }
   if(state.currentUser && state.currentUser.role==='shop' && state.shopView==='reports'){
     var shop2 = currentShop();
     var sales = filteredSales(shop2, state.repRange);
@@ -3547,6 +3529,25 @@ function handleAction(action, el){
       saleToCancel.cancelledAt = Date.now();
       fbSaveShop(shop);
       toast(t('toast_bill_cancelled'), 'success');
+      render();
+      break;
+
+    case 'delete-bill':
+      var deleteBillId = el.getAttribute('data-id');
+      var saleToDelete = shop.sales.find(function(s){ return s.id===deleteBillId; });
+      if(!saleToDelete) return;
+      if(!window.confirm(t('confirm_delete_bill'))) return;
+      // If it was never cancelled, its stock was never restored — restore it
+      // now so inventory stays accurate after the record disappears.
+      if(!saleToDelete.cancelled){
+        saleToDelete.items.forEach(function(it){
+          var p = shop.products.find(function(x){ return x.id===it.productId; });
+          if(p) p.stock += it.qty;
+        });
+      }
+      shop.sales = shop.sales.filter(function(s){ return s.id!==deleteBillId; });
+      fbSaveShop(shop);
+      toast(t('toast_bill_deleted'), 'success');
       render();
       break;
 
