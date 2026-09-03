@@ -312,6 +312,9 @@
   .invoice-qr{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0 6px;border-top:1px dashed var(--border);margin-top:12px;}
   .invoice-qr img, .invoice-qr canvas{border-radius:8px;border:1px solid var(--border);padding:6px;background:#fff;}
   .invoice-foot{text-align:center;font-size:11px;color:var(--ink-faint);padding:12px 20px 18px;}
+  .invoice-copy-label{text-align:center;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--gold);background:var(--gold-tint);padding:4px 0;}
+  .invoice-copy-divider{border-top:2px dashed var(--ink-faint);margin:6px 0;position:relative;}
+  .invoice-copy-divider::after{content:'\2702';position:absolute;left:50%;top:-9px;transform:translateX(-50%);background:#fff;padding:0 6px;font-size:12px;color:var(--ink-faint);}
 
   .kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--border);font-size:13px;}
   .kv:last-child{border-bottom:none;}
@@ -387,6 +390,9 @@
     #printable-invoice .invoice-qr div{ color:#000 !important; }
     #printable-invoice .invoice-foot{ font-size:0.9em; padding:2mm 1mm; color:#000 !important; }
     #printable-invoice hr.hair{ border:none; border-top:1px dashed #000; margin:2mm 0; }
+    #printable-invoice .invoice-copy-label{ background:#fff !important; color:#000 !important; border-bottom:1px dashed #000; }
+    #printable-invoice .invoice-copy-divider{ border-top:2px dashed #000; margin:3mm 0; }
+    #printable-invoice .invoice-copy-divider::after{ background:#fff !important; color:#000 !important; }
     /* Never print action buttons even if a stray one ends up inside the sheet. */
     #printable-invoice button{ display:none !important; }
 
@@ -859,6 +865,7 @@ var I18N = {
     bill_customer:'Customer', bill_customer_walkin:'Walk-in Customer', bill_new_customer:'+ New customer',
     bill_payment:'Payment Method', bill_subtotal:'Subtotal', bill_vat:'VAT', bill_total:'Total Payable',
     bill_generate:'Generate VAT Bill', bill_generate_vat:'Generate VAT Bill', bill_generate_pan:'Generate PAN Bill',
+    bill_discount:'Discount', bill_discount_flat:'Rs.', bill_discount_percent:'%',
     bill_qty:'Qty', bill_price:'Price', bill_line_total:'Total',
     pay_cash:'Cash', pay_qr:'QR / Mobile Payment', pay_card:'Card', pay_credit:'Credit (Due)',
     toast_sale_recorded:'Sale recorded and stock updated.', err_cart_empty:'Add at least one product first.',
@@ -915,6 +922,8 @@ var I18N = {
     set_signature_hint:'Shown at the bottom of every bill, above the thank-you line. A photo of a signature on white paper works well. Max 700KB.',
     toast_logo_updated:'Shop logo updated.', toast_signature_updated:'Digital signature updated.',
     set_print_format:'Bill Print Format', set_print_format_hint:'Choose the paper size your printer uses — this only changes how bills are laid out for printing/PDF, not the on-screen preview.',
+    set_two_copies:'Print 2 Copies per Page', set_two_copies_hint:'Prints the customer copy and shop copy together on one page/receipt, separated by a cut line.',
+    copy_customer:'Customer Copy', copy_shop:'Shop Copy',
     print_format_58mm:'58mm Thermal Receipt', print_format_80mm:'80mm Thermal Receipt', print_format_a4:'A4 Paper',
     credit_rep_no_data:'No outstanding credit in this range.',
 
@@ -1050,6 +1059,7 @@ var I18N = {
     bill_customer:'ग्राहक', bill_customer_walkin:'सामान्य ग्राहक', bill_new_customer:'+ नयाँ ग्राहक',
     bill_payment:'भुक्तानी विधि', bill_subtotal:'जम्मा', bill_vat:'भ्याट', bill_total:'तिर्नुपर्ने रकम',
     bill_generate:'भ्याट बिल बनाउनुहोस्', bill_generate_vat:'भ्याट बिल बनाउनुहोस्', bill_generate_pan:'प्यान बिल बनाउनुहोस्',
+    bill_discount:'छुट', bill_discount_flat:'रु.', bill_discount_percent:'%',
     bill_qty:'संख्या', bill_price:'मूल्य', bill_line_total:'जम्मा',
     pay_cash:'नगद', pay_qr:'क्युआर / मोबाइल भुक्तानी', pay_card:'कार्ड', pay_credit:'उधारो',
     toast_sale_recorded:'बिक्री दर्ता भयो र स्टक अद्यावधिक भयो।', err_cart_empty:'पहिले कम्तिमा एउटा सामान थप्नुहोस्।',
@@ -1106,6 +1116,8 @@ var I18N = {
     set_signature_hint:'हरेक बिलको फेदमा, धन्यवाद लाइनभन्दा माथि देखिन्छ। सेतो कागजमा गरिएको हस्ताक्षरको फोटो राम्रो हुन्छ। अधिकतम 700KB।',
     toast_logo_updated:'पसलको लोगो अद्यावधिक भयो।', toast_signature_updated:'डिजिटल हस्ताक्षर अद्यावधिक भयो।',
     set_print_format:'बिल छाप्ने ढाँचा', set_print_format_hint:'तपाईंको प्रिन्टरले प्रयोग गर्ने कागजको साइज छान्नुहोस् — यसले छाप्ने/PDF मा मात्र लेआउट परिवर्तन गर्छ, स्क्रिनमा देखिने पूर्वावलोकन होइन।',
+    set_two_copies:'एक पृष्ठमा २ प्रति छाप्नुहोस्', set_two_copies_hint:'ग्राहक प्रति र पसल प्रति एउटै पृष्ठ/रसिदमा, काट्ने रेखाले छुट्याएर छाप्छ।',
+    copy_customer:'ग्राहक प्रति', copy_shop:'पसल प्रति',
     print_format_58mm:'58mm थर्मल रसिद', print_format_80mm:'80mm थर्मल रसिद', print_format_a4:'A4 कागज',
     credit_rep_no_data:'यस अवधिमा कुनै बाँकी उधारो छैन।',
 
@@ -1155,6 +1167,7 @@ function makeDemoShop(){
     logoImage:null,
     signatureImage:null,
     billPrintFormat:'80mm',
+    printTwoCopies:false,
     active:true,
     invoiceSeq:1,
     suppliers:[
@@ -1240,6 +1253,8 @@ var state = {
   cart:[],
   billingCustomerId:'',
   billingPayment:'cash',
+  billingDiscountType:'flat',
+  billingDiscountValue:0,
   productSearch:'',
   customerSearch:'',
   repRange:'30',
@@ -1331,6 +1346,7 @@ function normalizeShopFields(shop){
   if(shop.logoImage===undefined) shop.logoImage = null;
   if(shop.signatureImage===undefined) shop.signatureImage = null;
   if(!shop.billPrintFormat) shop.billPrintFormat = '80mm';
+  if(shop.printTwoCopies===undefined) shop.printTwoCopies = false;
   (shop.products||[]).forEach(function(p){
     if(p.supplierId===undefined) p.supplierId = null;
     if(p.manufactureDate===undefined) p.manufactureDate = null;
@@ -2025,8 +2041,14 @@ function renderBillingView(){
     var p = shop.products.find(function(x){return x.id===item.productId;});
     return sum + (p ? p.price*item.qty : 0);
   }, 0);
-  var vat = subtotal * (shop.vatRate/100);
-  var total = subtotal + vat;
+  var discountType = state.billingDiscountType || 'flat';
+  var discountValueRaw = Number(state.billingDiscountValue) || 0;
+  var discountAmount = discountType==='percent' ? subtotal*(discountValueRaw/100) : discountValueRaw;
+  if(discountAmount > subtotal) discountAmount = subtotal;
+  if(discountAmount < 0) discountAmount = 0;
+  var netSubtotal = subtotal - discountAmount;
+  var vat = netSubtotal * (shop.vatRate/100);
+  var total = netSubtotal + vat;
 
   var productOptions = '<option value="">'+t('bill_select_product')+'</option>' + shop.products
     .filter(function(p){ return p.stock>0; })
@@ -2069,8 +2091,19 @@ function renderBillingView(){
         }).join('')+
         '</div>'+
       '</div>'+
+      '<div class="field-row">'+
+        '<label class="field-label">'+t('bill_discount')+'</label>'+
+        '<div style="display:flex;gap:8px;">'+
+          '<select class="field" id="billing-discount-type" style="max-width:110px;">'+
+            '<option value="flat" '+(discountType==='flat'?'selected':'')+'>'+t('bill_discount_flat')+'</option>'+
+            '<option value="percent" '+(discountType==='percent'?'selected':'')+'>'+t('bill_discount_percent')+'</option>'+
+          '</select>'+
+          '<input class="field" id="billing-discount-value" type="number" min="0" step="0.01" value="'+(discountValueRaw||'')+'" placeholder="0">'+
+        '</div>'+
+      '</div>'+
       '<hr class="hair">'+
       '<div class="kv"><div class="k">'+t('bill_subtotal')+'</div><div class="v">'+fmtMoney(subtotal)+'</div></div>'+
+      (discountAmount>0 ? '<div class="kv"><div class="k" style="color:var(--success);">'+t('bill_discount')+(discountType==='percent'?' ('+discountValueRaw+'%)':'')+'</div><div class="v" style="color:var(--success);">−'+fmtMoney(discountAmount)+'</div></div>' : '')+
       (shop.taxType==='pan' ? '' : '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>')+
       '<div class="kv" style="font-size:16px;"><div class="k" style="color:var(--ink);font-weight:700;">'+t('bill_total')+'</div><div class="v" style="color:var(--crimson-dark);">'+fmtMoney(total)+'</div></div>'+
       '<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:14px;font-size:14px;" data-action="generate-bill" '+(cart.length===0?'disabled':'')+'>&#128196; '+generateBtnLabel+'</button>'+
@@ -2675,56 +2708,75 @@ function renderSettingsView(){
         '</select>'+
         '<div class="field-hint">'+t('set_print_format_hint')+'</div>'+
       '</div>'+
+      '<div class="field-row" style="display:flex;align-items:flex-start;gap:8px;">'+
+        '<input type="checkbox" id="st-print-two-copies" '+(shop.printTwoCopies?'checked':'')+' style="margin-top:3px;">'+
+        '<label for="st-print-two-copies" style="cursor:pointer;">'+
+          '<div style="font-weight:600;font-size:13px;">'+t('set_two_copies')+'</div>'+
+          '<div class="field-hint" style="margin:2px 0 0;">'+t('set_two_copies_hint')+'</div>'+
+        '</label>'+
+      '</div>'+
       '<button class="btn btn-primary" style="width:100%;justify-content:center;" data-action="save-bill-branding">'+t('btn_save_settings')+'</button>'+
     '</div>'+
   '</div>';
 }
 
 /* ---------------- receipt / invoice modal ---------------- */
-function renderReceiptModal(){
-  var inv = state.lastInvoice;
-  var shop = currentShop();
+// Builds the HTML for one copy of an invoice (head + body + foot). Shared by
+// the single-copy and two-copies-per-page print modes so both stay in sync.
+function buildInvoiceCopyHtml(shop, inv, copyLabel){
   var itemRows = inv.items.map(function(it){
     return '<tr><td>'+escapeHtml(it.name)+'</td><td style="text-align:center;">'+it.qty+'</td><td style="text-align:right;">'+fmtMoney(it.price)+'</td><td style="text-align:right;">'+fmtMoney(it.total)+'</td></tr>';
   }).join('');
+  return ''+
+    (copyLabel ? '<div class="invoice-copy-label">'+escapeHtml(copyLabel)+'</div>' : '')+
+    '<div class="invoice-head" style="display:flex;align-items:flex-start;justify-content:flex-start;gap:10px;">'+
+      (shop.logoImage ? '<img src="'+shop.logoImage+'" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;flex-shrink:0;">' : '')+
+      '<div style="min-width:0;">'+
+        '<div class="shopname">'+escapeHtml(shop.businessName)+'</div>'+
+        '<div class="meta">'+escapeHtml(shop.location)+'</div>'+
+        (shop.phone ? '<div class="meta">'+t('field_phone')+': '+escapeHtml(shop.phone)+'</div>' : '')+
+        '<div class="meta">'+(shop.taxType==='pan' ? t('invoice_pan_reg') : t('invoice_vat_reg'))+' · '+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="invoice-body">'+
+      '<div class="invoice-row"><span>'+t('invoice_no')+'</span><b style="font-family:var(--font-mono);">'+inv.invoiceNo+'</b></div>'+
+      '<div class="invoice-row"><span>'+t('invoice_date')+'</span><b>'+fmtDateTime(inv.date)+'</b></div>'+
+      '<div class="invoice-row"><span>'+t('invoice_customer')+'</span><b>'+escapeHtml(inv.customerName||t('bill_customer_walkin'))+'</b></div>'+
+      '<div class="invoice-row"><span>'+t('invoice_payment')+'</span><b>'+paymentLabel(inv.payment)+'</b></div>'+
+      '<hr class="hair" style="margin:10px 0;">'+
+      '<div class="invoice-items"><table><thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Total</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'+
+      '<div class="invoice-totals">'+
+        '<div class="invoice-row"><span>'+t('bill_subtotal')+'</span><span>'+fmtMoney(inv.subtotal)+'</span></div>'+
+        (inv.discountAmount>0 ? '<div class="invoice-row" style="color:var(--success);"><span>'+t('bill_discount')+(inv.discountType==='percent'?' ('+inv.discountValue+'%)':'')+'</span><span>−'+fmtMoney(inv.discountAmount)+'</span></div>' : '')+
+        (shop.taxType==='pan' ? '' : '<div class="invoice-row"><span>'+t('bill_vat')+' ('+shop.vatRate+'%)</span><span>'+fmtMoney(inv.vat)+'</span></div>')+
+        '<div class="invoice-row" style="font-size:16px;font-weight:800;color:var(--crimson-dark);"><span>'+t('bill_total')+'</span><span>'+fmtMoney(inv.total)+'</span></div>'+
+      '</div>'+
+      (shop.customQr ? ''+
+        '<div class="invoice-qr">'+
+          '<img src="'+shop.customQr+'" width="150" height="150">'+
+          '<div style="font-weight:700;">'+t('invoice_scan_pay')+(shop.qrProvider ? ' ('+t('qr_provider_'+shop.qrProvider)+')' : '')+' — '+fmtMoney(inv.total)+'</div>'+
+          '<button type="button" class="btn btn-outline btn-sm" data-action="copy-invoice-amount" data-amount="'+inv.total.toFixed(2)+'" style="margin-top:2px;">&#128203; '+t('btn_copy_amount')+'</button>'+
+          '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'+
+        '</div>'
+      : '')+
+      (shop.signatureImage ? '<div style="text-align:right;margin-top:14px;"><img src="'+shop.signatureImage+'" style="max-width:130px;max-height:50px;object-fit:contain;"></div>' : '')+
+    '</div>'+
+    '<div class="invoice-foot">'+t('invoice_thanks')+'</div>';
+}
+
+function renderReceiptModal(){
+  var inv = state.lastInvoice;
+  var shop = currentShop();
+  var invoiceSheetInner = shop.printTwoCopies
+    ? buildInvoiceCopyHtml(shop, inv, t('copy_customer')) + '<div class="invoice-copy-divider"></div>' + buildInvoiceCopyHtml(shop, inv, t('copy_shop'))
+    : buildInvoiceCopyHtml(shop, inv, null);
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="receipt">'+
     '<div class="modal" style="max-width:560px;" data-stop>'+
       '<div class="modal-head"><h3>'+(shop.taxType==='pan' ? t('invoice_title_pan') : t('invoice_title'))+(inv.cancelled ? ' <span class="badge badge-danger" style="vertical-align:middle;">'+t('bill_status_cancelled')+'</span>' : '')+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
       '<div class="modal-body" style="background:var(--surface-2);">'+
-        '<div class="invoice-sheet print-format-'+(shop.billPrintFormat||'80mm')+'" id="printable-invoice">'+
-          '<div class="invoice-head" style="display:flex;align-items:flex-start;justify-content:flex-start;gap:10px;">'+
-            (shop.logoImage ? '<img src="'+shop.logoImage+'" style="width:52px;height:52px;object-fit:contain;background:#fff;border-radius:6px;padding:4px;flex-shrink:0;">' : '')+
-            '<div style="min-width:0;">'+
-              '<div class="shopname">'+escapeHtml(shop.businessName)+'</div>'+
-              '<div class="meta">'+escapeHtml(shop.location)+'</div>'+
-              (shop.phone ? '<div class="meta">'+t('field_phone')+': '+escapeHtml(shop.phone)+'</div>' : '')+
-              '<div class="meta">'+(shop.taxType==='pan' ? t('invoice_pan_reg') : t('invoice_vat_reg'))+' · '+t('invoice_pan')+': '+escapeHtml(shop.pan)+'</div>'+
-            '</div>'+
-          '</div>'+
-          '<div class="invoice-body">'+
-            '<div class="invoice-row"><span>'+t('invoice_no')+'</span><b style="font-family:var(--font-mono);">'+inv.invoiceNo+'</b></div>'+
-            '<div class="invoice-row"><span>'+t('invoice_date')+'</span><b>'+fmtDateTime(inv.date)+'</b></div>'+
-            '<div class="invoice-row"><span>'+t('invoice_customer')+'</span><b>'+escapeHtml(inv.customerName||t('bill_customer_walkin'))+'</b></div>'+
-            '<div class="invoice-row"><span>'+t('invoice_payment')+'</span><b>'+paymentLabel(inv.payment)+'</b></div>'+
-            '<hr class="hair" style="margin:10px 0;">'+
-            '<div class="invoice-items"><table><thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Rate</th><th style="text-align:right;">Total</th></tr></thead><tbody>'+itemRows+'</tbody></table></div>'+
-            '<div class="invoice-totals">'+
-              '<div class="invoice-row"><span>'+t('bill_subtotal')+'</span><span>'+fmtMoney(inv.subtotal)+'</span></div>'+
-              (shop.taxType==='pan' ? '' : '<div class="invoice-row"><span>'+t('bill_vat')+' ('+shop.vatRate+'%)</span><span>'+fmtMoney(inv.vat)+'</span></div>')+
-              '<div class="invoice-row" style="font-size:16px;font-weight:800;color:var(--crimson-dark);"><span>'+t('bill_total')+'</span><span>'+fmtMoney(inv.total)+'</span></div>'+
-            '</div>'+
-            (shop.customQr ? ''+
-              '<div class="invoice-qr">'+
-                '<img src="'+shop.customQr+'" width="150" height="150">'+
-                '<div style="font-weight:700;">'+t('invoice_scan_pay')+(shop.qrProvider ? ' ('+t('qr_provider_'+shop.qrProvider)+')' : '')+' — '+fmtMoney(inv.total)+'</div>'+
-                '<button type="button" class="btn btn-outline btn-sm" data-action="copy-invoice-amount" data-amount="'+inv.total.toFixed(2)+'" style="margin-top:2px;">&#128203; '+t('btn_copy_amount')+'</button>'+
-                '<div class="muted" style="font-size:11px;text-align:center;max-width:260px;">'+t('invoice_scan_note_static')+'</div>'+
-              '</div>'
-            : '')+
-            (shop.signatureImage ? '<div style="text-align:right;margin-top:14px;"><img src="'+shop.signatureImage+'" style="max-width:130px;max-height:50px;object-fit:contain;"></div>' : '')+
-          '</div>'+
-          '<div class="invoice-foot">'+t('invoice_thanks')+'</div>'+
+        '<div class="invoice-sheet print-format-'+(shop.billPrintFormat||'80mm')+(shop.printTwoCopies?' two-copies':'')+'" id="printable-invoice">'+
+          invoiceSheetInner+
         '</div>'+
       '</div>'+
       '<div class="modal-foot"><button class="btn btn-outline" data-action="close-receipt">'+t('invoice_close')+'</button>'+
@@ -2987,7 +3039,7 @@ function handleAction(action, el){
         id: uid('s'), businessName:bname, ownerName:oname, pan:pan, regType:reg||'—',
         address:addr, category:cat||'General', location:loc, email:email, phone:phone,
         taxType:taxType, adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
-        merchantId: uname.toUpperCase()+'.MOBILE@BANK', qrProvider:'other', customQr:null, logoImage:null, signatureImage:null, billPrintFormat:'80mm', active:true,
+        merchantId: uname.toUpperCase()+'.MOBILE@BANK', qrProvider:'other', customQr:null, logoImage:null, signatureImage:null, billPrintFormat:'80mm', printTwoCopies:false, active:true,
         invoiceSeq:1, products:[], customers:[], suppliers:[], supplierPurchases:[], sales:[]
       };
       state.shops.push(newShop);
@@ -3612,6 +3664,8 @@ function handleAction(action, el){
     case 'save-bill-branding':
       var printFormatEl = document.getElementById('st-print-format');
       shop.billPrintFormat = printFormatEl ? printFormatEl.value : (shop.billPrintFormat||'80mm');
+      var twoCopiesEl = document.getElementById('st-print-two-copies');
+      shop.printTwoCopies = twoCopiesEl ? twoCopiesEl.checked : !!shop.printTwoCopies;
       fbSaveShop(shop);
       toast(t('toast_settings_saved'), 'success');
       render();
@@ -3807,8 +3861,14 @@ function actionGenerateBill(){
     subtotal += lineTotal;
     return {productId:p.id, name:p.name, qty:ci.qty, price:p.price, total:lineTotal};
   });
-  var vat = subtotal * (shop.vatRate/100);
-  var total = subtotal + vat;
+  var discountType = state.billingDiscountType || 'flat';
+  var discountValueRaw = Number(state.billingDiscountValue) || 0;
+  var discountAmount = discountType==='percent' ? subtotal*(discountValueRaw/100) : discountValueRaw;
+  if(discountAmount > subtotal) discountAmount = subtotal;
+  if(discountAmount < 0) discountAmount = 0;
+  var netSubtotal = subtotal - discountAmount;
+  var vat = netSubtotal * (shop.vatRate/100);
+  var total = netSubtotal + vat;
   items.forEach(function(it){
     var p = shop.products.find(function(x){ return x.id===it.productId; });
     p.stock -= it.qty;
@@ -3818,13 +3878,16 @@ function actionGenerateBill(){
   shop.invoiceSeq++;
   var invoice = {
     id: uid('inv'), invoiceNo:invoiceNo, date:Date.now(), items:items,
-    subtotal:subtotal, vat:vat, total:total, payment:state.billingPayment,
+    subtotal:subtotal, discountType:discountType, discountValue:discountValueRaw, discountAmount:discountAmount,
+    vat:vat, total:total, payment:state.billingPayment,
     customerId: customer ? customer.id : null, customerName: customer ? customer.name : null
   };
   shop.sales.push(invoice);
   state.cart = [];
   state.billingCustomerId = '';
   state.billingPayment = 'cash';
+  state.billingDiscountType = 'flat';
+  state.billingDiscountValue = 0;
   state.productSearch = '';
   state.lastInvoice = invoice;
   state.showReceiptModal = true;
@@ -3942,12 +4005,16 @@ function bindEvents(){
     } else if(el.id==='reset-shop-confirm-input'){
       state.resetShopConfirmInput = el.value;
       reRenderKeepFocus();
+    } else if(el.id==='billing-discount-value'){
+      state.billingDiscountValue = el.value;
+      reRenderKeepFocus();
     }
   });
 
   app.addEventListener('change', function(e){
     var el = e.target;
     if(el.id==='bill-customer'){ state.billingCustomerId = el.value; }
+    if(el.id==='billing-discount-type'){ state.billingDiscountType = el.value; render(); }
     if(el.id==='qr-upload'){ handleQrFile(el); }
     if(el.id==='logo-upload'){ handleLogoFile(el); }
     if(el.id==='signature-upload'){ handleSignatureFile(el); }
