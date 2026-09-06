@@ -2081,7 +2081,7 @@ function renderBulkAddProductsModal(){
 
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="bulk-add">'+
-    '<div class="modal" style="max-width:1100px;" data-stop>'+
+    '<div class="modal" id="bulk-add-modal-scroll" style="max-width:1100px;" data-stop>'+
       '<div class="modal-head"><h3>'+t('bulk_add_title')+'</h3><button class="modal-close" data-action="close-bulk-add-products">&times;</button></div>'+
       '<div class="modal-body">'+
         '<div class="muted" style="font-size:12.5px;margin-bottom:16px;">'+t('bulk_add_sub')+'</div>'+
@@ -2125,7 +2125,7 @@ function renderBulkAddProductsModal(){
 
         '<hr class="hair">'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('bulk_add_items_section')+'</div>'+
-        '<div style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">'+
+        '<div id="bulk-add-items-scroll" style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">'+
           '<table style="min-width:1000px;"><thead><tr>'+
             '<th>'+t('product_name')+'</th><th>'+t('product_category')+'</th><th>'+t('product_unit')+'</th>'+
             '<th>'+t('bulk_add_qty_col')+'</th><th>'+t('product_cost')+'</th><th>'+t('product_price')+'</th>'+
@@ -2999,6 +2999,28 @@ function reRenderKeepFocus(){
   }
 }
 
+// Re-renders while keeping one or more scrollable containers (identified
+// by element id) at the scroll position they were at beforehand — without
+// this, a full render() rebuilds the DOM and every scroll position resets
+// to the top. Pass scrollToBottomId to instead snap that one container to
+// its new bottom (e.g. so a freshly added row is immediately visible).
+function reRenderKeepScroll(idsToPreserve, scrollToBottomId){
+  var positions = {};
+  (idsToPreserve||[]).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) positions[id] = el.scrollTop;
+  });
+  render();
+  Object.keys(positions).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.scrollTop = positions[id];
+  });
+  if(scrollToBottomId){
+    var bottomEl = document.getElementById(scrollToBottomId);
+    if(bottomEl) bottomEl.scrollTop = bottomEl.scrollHeight;
+  }
+}
+
 /* ---------------- auth ----------------
    Single unified login: tries Super Admin credentials first, then
    falls back to matching a Shop Admin account, so the person never
@@ -3342,7 +3364,7 @@ function handleAction(action, el){
     case 'bulk-add-item-row':
       syncBulkAddRowsFromDOM();
       state.bulkAddItems.push(newBulkAddRow());
-      render();
+      reRenderKeepScroll(['bulk-add-modal-scroll'], 'bulk-add-items-scroll');
       break;
 
     case 'bulk-remove-item-row':
@@ -3350,7 +3372,7 @@ function handleAction(action, el){
       var bulkRmIdx = parseInt(el.getAttribute('data-idx'));
       state.bulkAddItems.splice(bulkRmIdx, 1);
       if(state.bulkAddItems.length===0) state.bulkAddItems.push(newBulkAddRow());
-      render();
+      reRenderKeepScroll(['bulk-add-modal-scroll', 'bulk-add-items-scroll']);
       break;
 
     case 'submit-bulk-add-products':
@@ -4330,7 +4352,7 @@ function bindEvents(){
       if(baVal==='none'){ state.bulkAddSupplierMode = 'none'; state.bulkAddSelectedSupplierId = ''; }
       else if(baVal==='new'){ state.bulkAddSupplierMode = 'new'; state.bulkAddSelectedSupplierId = ''; }
       else { state.bulkAddSupplierMode = 'existing'; state.bulkAddSelectedSupplierId = baVal; }
-      render();
+      reRenderKeepScroll(['bulk-add-modal-scroll', 'bulk-add-items-scroll']);
     }
   });
 }
