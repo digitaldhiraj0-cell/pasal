@@ -164,6 +164,41 @@
   .grid-billing{grid-template-columns:1.5fr 1fr;align-items:start;}
   @media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);}}
 
+  /* ---------- mobile hamburger + slide-out drawer ---------- */
+  .mobile-hamburger-btn{
+    display:none; /* shown only on mobile, see breakpoint below */
+    flex-direction:column;justify-content:center;gap:4px;
+    width:34px;height:34px;border:none;background:rgba(255,255,255,0.1);border-radius:8px;
+    padding:0;cursor:pointer;flex-shrink:0;
+  }
+  .mobile-hamburger-btn span{display:block;width:16px;height:2px;background:#fff;border-radius:2px;margin:0 auto;}
+  .mobile-drawer-backdrop{
+    position:fixed;inset:0;background:rgba(22,17,10,0.5);z-index:400;
+    animation:drawerFadeIn .15s ease;
+  }
+  .mobile-drawer-panel{
+    position:fixed;top:0;left:0;bottom:0;width:78vw;max-width:280px;background:var(--surface);
+    z-index:401;box-shadow:var(--shadow-lg);overflow-y:auto;
+    animation:drawerSlideIn .18s ease;
+  }
+  .mobile-drawer-head{
+    display:flex;align-items:center;justify-content:space-between;padding:16px 14px;
+    border-bottom:1px solid var(--border);background:var(--indigo);
+  }
+  .mobile-drawer-head .brand-text .en{color:#fff;font-size:15px;}
+  .mobile-drawer-head .modal-close{background:rgba(255,255,255,0.14);color:#fff;}
+  @keyframes drawerFadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes drawerSlideIn{from{transform:translateX(-100%);}to{transform:translateX(0);}}
+  /* Force the reused sidebar markup back into a normal vertical list
+     inside the drawer, overriding the ≤860px horizontal-strip rules below. */
+  .mobile-drawer-panel .sidebar{
+    display:flex !important;flex-direction:column !important;width:100% !important;
+    overflow:visible !important;border:none !important;white-space:normal !important;
+    padding:14px 10px !important;
+  }
+  .mobile-drawer-panel .side-label{display:block !important;}
+  .mobile-drawer-panel .side-link{flex:none !important;width:100%;padding:11px 12px !important;}
+
   /* =========================================================
      RESPONSIVE / MOBILE LAYOUT
      Tablet and phone breakpoints so every screen (sidebar,
@@ -177,13 +212,8 @@
     .user-chip{padding:5px 10px 5px 5px;}
     .user-chip > div:last-child{display:none;} /* hide name/role text, keep avatar */
     .shell{flex-direction:column;min-height:0;}
-    .sidebar{
-      width:100%;flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch;
-      padding:10px 12px;gap:6px;border-right:none;border-bottom:1px solid var(--border);
-      white-space:nowrap;
-    }
-    .side-label{display:none;}
-    .side-link{flex:0 0 auto;padding:8px 12px;}
+    .mobile-hamburger-btn{display:flex;}
+    .sidebar{display:none;} /* replaced by the hamburger-triggered drawer on mobile */
     .main{padding:18px 14px 50px;}
     .page-head h1{font-size:20px;}
   }
@@ -1318,6 +1348,7 @@ var state = {
   editBillDraft:null,
   showUserMenu:false,
   showChangePasswordModal:false,
+  showMobileDrawer:false,
   changePasswordError:'',
   viewingReceiptFromBillsList:false,
   showReceiptModal:false,
@@ -1492,6 +1523,7 @@ function render(){
     html = renderTopbar() + '<div class="shell">' + renderShopSidebar() + '<div class="main">' + renderShopMain() + '</div></div>';
   }
   if(state.currentUser && state.showChangePasswordModal) html += renderChangePasswordModal();
+  if(state.currentUser && state.showMobileDrawer) html += renderMobileDrawer();
   app.innerHTML = html;
   afterRender();
 }
@@ -1511,9 +1543,14 @@ function renderTopbar(){
   var sub = isSuper ? 'Platform Administrator' : (state.lang==='np' ? 'पसल एडमिन' : 'Shop Admin');
   return ''+
   '<div class="topbar">'+
-    '<div class="brand">'+
-      '<div class="brand-mark">P</div>'+
-      '<div class="brand-text"><div class="en">'+escapeHtml(t('app_name'))+'</div><div class="np">'+escapeHtml(t('app_sub'))+'</div></div>'+
+    '<div style="display:flex;align-items:center;gap:10px;">'+
+      '<button class="mobile-hamburger-btn" data-action="toggle-mobile-drawer" aria-label="Menu">'+
+        '<span></span><span></span><span></span>'+
+      '</button>'+
+      '<div class="brand">'+
+        '<div class="brand-mark">P</div>'+
+        '<div class="brand-text"><div class="en">'+escapeHtml(t('app_name'))+'</div><div class="np">'+escapeHtml(t('app_sub'))+'</div></div>'+
+      '</div>'+
     '</div>'+
     '<div class="top-right">'+
       '<div class="lang-toggle">'+
@@ -1539,6 +1576,20 @@ function renderTopbar(){
 }
 
 /* ---------------- super admin: sidebar ---------------- */
+function renderMobileDrawer(){
+  var isSuper = state.currentUser.role==='super';
+  var sidebarHtml = isSuper ? renderSuperSidebar() : renderShopSidebar();
+  return ''+
+  '<div class="mobile-drawer-backdrop" data-action="close-mobile-drawer"></div>'+
+  '<div class="mobile-drawer-panel">'+
+    '<div class="mobile-drawer-head">'+
+      '<div class="brand"><div class="brand-mark">P</div><div class="brand-text"><div class="en">'+escapeHtml(t('app_name'))+'</div></div></div>'+
+      '<button class="modal-close" data-action="close-mobile-drawer">&times;</button>'+
+    '</div>'+
+    sidebarHtml+
+  '</div>';
+}
+
 function renderSuperSidebar(){
   return ''+
   '<div class="sidebar">'+
@@ -3087,6 +3138,16 @@ function handleAction(action, el){
       render();
       break;
 
+    case 'toggle-mobile-drawer':
+      state.showMobileDrawer = !state.showMobileDrawer;
+      render();
+      break;
+
+    case 'close-mobile-drawer':
+      state.showMobileDrawer = false;
+      render();
+      break;
+
     case 'open-change-password':
       state.showUserMenu = false;
       state.showChangePasswordModal = true;
@@ -3145,12 +3206,14 @@ function handleAction(action, el){
     /* ---- super admin ---- */
     case 'super-nav':
       state.superView = el.getAttribute('data-view');
+      state.showMobileDrawer = false;
       render();
       break;
 
     case 'open-create-shop':
       state.createShop = blankCreateShop();
       state.showCreateShopModal = true;
+      state.showMobileDrawer = false;
       render();
       break;
 
@@ -3347,6 +3410,7 @@ function handleAction(action, el){
       state.shopView = el.getAttribute('data-view');
       state.productSearch = '';
       state.customerSearch = '';
+      state.showMobileDrawer = false;
       render();
       break;
 
