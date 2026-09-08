@@ -891,9 +891,13 @@ var I18N = {
     bill_attachment_current:'Current file:', bill_attachment_replace_hint:'choose a new file above to replace it.',
     suppliers_title:'Suppliers', suppliers_sub:'Manage suppliers and track purchases and investment per supplier.',
     suppliers_tab_manage:'Manage Suppliers', suppliers_tab_report:'Purchase Report',
-    btn_add_supplier:'+ Add Supplier', suppliers_empty:'No suppliers yet. Add one from the Inventory → Add Product form, or here directly.',
+    btn_add_supplier:'+ Add Supplier', suppliers_empty:'No suppliers yet. Add one from the Inventory → Bulk Add from Bill form, or here directly.',
     suppliers_products_col:'Products',
     add_supplier_title:'Add Supplier', edit_supplier_title:'Edit Supplier', btn_save_supplier:'Save Supplier',
+    edit_purchase_title:'Edit Purchase Entry', edit_purchase_sub:'Fix the product, quantity, cost, date, or bill for this purchase. Stock is adjusted automatically.',
+    toast_purchase_updated:'Purchase entry updated and stock adjusted.',
+    err_purchase_edit_negative_stock:'This change would make stock negative — some of the originally purchased quantity has likely already been sold. Reduce the quantity less, or restock first.',
+    product_code:'Product Code (S.N.)', product_code_placeholder:'Optional — e.g. SKU-1024',
     toast_supplier_added:'Supplier added.', toast_supplier_updated:'Supplier updated.',
     confirm_remove_supplier:'Remove this supplier?',
     confirm_remove_supplier_linked:'This supplier is linked to {n} product(s). Removing it will unlink those products (their data stays, just without a supplier). Continue?',
@@ -1095,9 +1099,13 @@ var I18N = {
     bill_attachment_current:'हालको फाइल:', bill_attachment_replace_hint:'बदल्न माथि नयाँ फाइल छान्नुहोस्।',
     suppliers_title:'आपूर्तिकर्ताहरू', suppliers_sub:'आपूर्तिकर्ता व्यवस्थापन गर्नुहोस् र प्रत्येक आपूर्तिकर्ताको खरिद र लगानी ट्र्याक गर्नुहोस्।',
     suppliers_tab_manage:'आपूर्तिकर्ता व्यवस्थापन', suppliers_tab_report:'खरिद प्रतिवेदन',
-    btn_add_supplier:'+ आपूर्तिकर्ता थप्नुहोस्', suppliers_empty:'हालसम्म कुनै आपूर्तिकर्ता छैन। सामान थप्ने फारमबाट वा यहाँ सिधै थप्नुहोस्।',
+    btn_add_supplier:'+ आपूर्तिकर्ता थप्नुहोस्', suppliers_empty:'हालसम्म कुनै आपूर्तिकर्ता छैन। बिलबाट धेरै सामान थप्ने फारमबाट वा यहाँ सिधै थप्नुहोस्।',
     suppliers_products_col:'सामानहरू',
     add_supplier_title:'आपूर्तिकर्ता थप्नुहोस्', edit_supplier_title:'आपूर्तिकर्ता सम्पादन गर्नुहोस्', btn_save_supplier:'आपूर्तिकर्ता सुरक्षित गर्नुहोस्',
+    edit_purchase_title:'खरिद प्रविष्टि सम्पादन गर्नुहोस्', edit_purchase_sub:'यस खरिदको सामान, परिमाण, लागत, मिति, वा बिल सच्याउनुहोस्। स्टक स्वतः समायोजन हुन्छ।',
+    toast_purchase_updated:'खरिद प्रविष्टि अद्यावधिक भयो र स्टक समायोजन भयो।',
+    err_purchase_edit_negative_stock:'यो परिवर्तनले स्टक ऋणात्मक बनाउनेछ — सम्भवतः सुरुमा किनेको केही परिमाण पहिले नै बिक्री भइसकेको छ। परिमाण थोरै घटाउनुहोस्, वा पहिले स्टक थप्नुहोस्।',
+    product_code:'सामान कोड (सि.नं.)', product_code_placeholder:'ऐच्छिक — जस्तै SKU-1024',
     toast_supplier_added:'आपूर्तिकर्ता थपियो।', toast_supplier_updated:'आपूर्तिकर्ता अद्यावधिक भयो।',
     confirm_remove_supplier:'यो आपूर्तिकर्ता हटाउने हो?',
     confirm_remove_supplier_linked:'यो आपूर्तिकर्ता {n} सामानसँग जोडिएको छ। हटाउँदा ती सामानहरूबाट आपूर्तिकर्ता हटिनेछ (सामानको डाटा जोगिनेछ)। जारी राख्ने?',
@@ -1340,6 +1348,7 @@ var state = {
   detailedReportRange:'30',
   showReportDownloadMenu:false,
   showAddSupplierModal:false,
+  showEditPurchaseModal:null,
   editingSupplierId:null,
   showAddStockModal:null,
   showAddCustomerModal:false,
@@ -1892,6 +1901,7 @@ function renderShopMain(){
   if(state.showBillsListModal) body += renderBillsListModal();
   if(state.showEditBillModal) body += renderEditBillModal();
   if(state.showAddSupplierModal) body += renderSupplierModal();
+  if(state.showEditPurchaseModal) body += renderEditPurchaseModal();
   if(state.showReceiptModal && state.lastInvoice) body += renderReceiptModal();
   return body;
 }
@@ -1981,12 +1991,11 @@ function renderInventoryView(){
   return ''+
   '<div class="page-head"><div><h1>'+t('inv_title')+'</h1><div class="sub">'+t('inv_sub')+'</div></div>'+
     '<div style="display:flex;gap:8px;">'+
-      '<button class="btn btn-outline" data-action="open-bulk-add-products">&#128203; '+t('btn_bulk_add_products')+'</button>'+
-      '<button class="btn btn-primary" data-action="open-add-product">'+t('btn_add_product')+'</button>'+
+      '<button class="btn btn-primary" data-action="open-bulk-add-products">&#128203; '+t('btn_bulk_add_products')+'</button>'+
     '</div>'+
   '</div>'+
   '<div class="search-box" style="max-width:320px;margin-bottom:14px;">&#128269;<input id="product-search-input" placeholder="'+t('search_products')+'" value="'+escapeHtml(state.productSearch)+'" data-action="search-products"></div>'+
-  (shop.products.length===0 ? '<div class="card empty-state"><div class="ic">&#128230;</div>'+t('inv_empty')+'</div>' :
+  (shop.products.length===0 ? '<div class="card empty-state"><div class="ic">&#128230;</div>'+t('inv_empty')+'<div style="margin-top:12px;"><button class="btn btn-primary" data-action="open-bulk-add-products">&#128203; '+t('btn_bulk_add_products')+'</button></div></div>' :
   '<div class="table-wrap"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_price')+'</th><th>'+t('th_stock')+'</th><th>'+t('th_status')+'</th><th>'+t('th_actions')+'</th></tr></thead><tbody>'+
   (rows || '<tr><td colspan="6" class="empty-state">No matches.</td></tr>')+
   '</tbody></table></div>');
@@ -1995,7 +2004,7 @@ function renderInventoryView(){
 function renderProductModal(){
   var shop = currentShop();
   var editing = state.editingProductId ? shop.products.find(function(p){return p.id===state.editingProductId;}) : null;
-  var p = editing || {name:'',category:'',unit:'pcs',price:'',cost:'',stock:0,lowStockThreshold:5,manufactureDate:'',expiryDate:''};
+  var p = editing || {code:'',name:'',category:'',unit:'pcs',price:'',cost:'',stock:0,lowStockThreshold:5,manufactureDate:'',expiryDate:''};
   var mode = state.productModalSupplierMode || 'none';
   var selectedSupplier = mode==='existing' ? (shop.suppliers||[]).find(function(s){return s.id===state.productModalSelectedSupplierId;}) : null;
   var supplierOptions = '<option value="none" '+(mode==='none'?'selected':'')+'>'+t('supplier_none')+'</option>'+
@@ -2062,7 +2071,11 @@ function renderProductModal(){
           '</div>'+
         '')+
         '<hr class="hair">'+
-        '<div class="field-row"><label class="field-label">'+t('product_name')+'</label><input class="field" id="pm-name" value="'+escapeHtml(p.name)+'"></div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('product_code')+'</label><input class="field" id="pm-code" value="'+escapeHtml(p.code||'')+'" placeholder="'+t('product_code_placeholder')+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_name')+'</label><input class="field" id="pm-name" list="pm-product-names-datalist" value="'+escapeHtml(p.name)+'"></div>'+
+        '</div>'+
+        '<datalist id="pm-product-names-datalist">'+productNameDatalistOptions(shop)+'</datalist>'+
         '<div class="grid grid-2">'+
           '<div class="field-row"><label class="field-label">'+t('product_category')+'</label><input class="field" id="pm-category" value="'+escapeHtml(p.category)+'"></div>'+
           '<div class="field-row"><label class="field-label">'+t('product_unit')+'</label><input class="field" id="pm-unit" value="'+escapeHtml(p.unit)+'" placeholder="pcs / kg / bag"></div>'+
@@ -2087,8 +2100,19 @@ function renderProductModal(){
 }
 
 /* ---------------- inventory: bulk add products from a single supplier bill ---------------- */
+// Builds <option> entries for a product-name datalist: every existing
+// product name plus, if extraRows is given, any name already typed into
+// another row in the same in-progress form — so a name typed for one item
+// is immediately reusable/suggested for the next, without waiting to save.
+function productNameDatalistOptions(shop, extraRows){
+  var names = {};
+  (shop.products||[]).forEach(function(p){ if(p.name) names[p.name] = true; });
+  (extraRows||[]).forEach(function(r){ if(r.name && r.name.trim()) names[r.name.trim()] = true; });
+  return Object.keys(names).sort().map(function(n){ return '<option value="'+escapeHtml(n)+'">'; }).join('');
+}
+
 function newBulkAddRow(){
-  return { id: uid('row'), name:'', category:'', unit:'pcs', qty:'', cost:'', price:'', lowStockThreshold:'5', manufactureDate:'', expiryDate:'' };
+  return { id: uid('row'), code:'', name:'', category:'', unit:'pcs', qty:'', cost:'', price:'', lowStockThreshold:'5', manufactureDate:'', expiryDate:'' };
 }
 
 // Reads whatever is currently typed into each row's inputs back into
@@ -2097,7 +2121,7 @@ function newBulkAddRow(){
 function syncBulkAddRowsFromDOM(){
   state.bulkAddItems.forEach(function(row){
     var g = function(suffix){ var el = document.getElementById('ba-'+suffix+'-'+row.id); return el ? el.value : ''; };
-    row.name = g('name'); row.category = g('category'); row.unit = g('unit') || 'pcs';
+    row.code = g('code'); row.name = g('name'); row.category = g('category'); row.unit = g('unit') || 'pcs';
     row.qty = g('qty'); row.cost = g('cost'); row.price = g('price');
     row.lowStockThreshold = g('lowstock'); row.manufactureDate = g('mfgdate'); row.expiryDate = g('expdate');
   });
@@ -2119,7 +2143,8 @@ function renderBulkAddProductsModal(){
 
   var rowsHtml = state.bulkAddItems.map(function(row, idx){
     return '<tr>'+
-      '<td style="min-width:150px;"><input class="field" id="ba-name-'+row.id+'" value="'+escapeHtml(row.name)+'" placeholder="'+t('product_name')+'"></td>'+
+      '<td style="min-width:110px;"><input class="field" id="ba-code-'+row.id+'" value="'+escapeHtml(row.code)+'" placeholder="'+t('product_code_placeholder')+'"></td>'+
+      '<td style="min-width:150px;"><input class="field" id="ba-name-'+row.id+'" list="bulk-product-names-datalist" value="'+escapeHtml(row.name)+'" placeholder="'+t('product_name')+'"></td>'+
       '<td style="min-width:110px;"><input class="field" id="ba-category-'+row.id+'" value="'+escapeHtml(row.category)+'" placeholder="'+t('product_category')+'"></td>'+
       '<td style="min-width:80px;"><input class="field" id="ba-unit-'+row.id+'" value="'+escapeHtml(row.unit)+'" placeholder="pcs"></td>'+
       '<td style="min-width:70px;"><input class="field" id="ba-qty-'+row.id+'" type="number" min="0" value="'+escapeHtml(row.qty)+'"></td>'+
@@ -2179,12 +2204,13 @@ function renderBulkAddProductsModal(){
         '<hr class="hair">'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('bulk_add_items_section')+'</div>'+
         '<div id="bulk-add-items-scroll" style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">'+
-          '<table style="min-width:1000px;"><thead><tr>'+
-            '<th>'+t('product_name')+'</th><th>'+t('product_category')+'</th><th>'+t('product_unit')+'</th>'+
+          '<table style="min-width:1100px;"><thead><tr>'+
+            '<th>'+t('product_code')+'</th><th>'+t('product_name')+'</th><th>'+t('product_category')+'</th><th>'+t('product_unit')+'</th>'+
             '<th>'+t('bulk_add_qty_col')+'</th><th>'+t('product_cost')+'</th><th>'+t('product_price')+'</th>'+
             '<th>'+t('product_lowstock')+'</th><th>'+t('product_mfg_date')+'</th><th>'+t('product_exp_date')+'</th><th></th>'+
           '</tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
         '</div>'+
+        '<datalist id="bulk-product-names-datalist">'+productNameDatalistOptions(shop, state.bulkAddItems)+'</datalist>'+
         '<button type="button" class="btn btn-outline btn-sm" style="margin-top:10px;" data-action="bulk-add-item-row">+ '+t('bulk_add_item_btn')+'</button>'+
         '<div class="field-hint" style="margin-top:8px;">'+t('bulk_add_rows_hint').replace('{n}', state.bulkAddItems.length)+'</div>'+
       '</div>'+
@@ -2375,7 +2401,8 @@ function renderSuppliersView(){
       body += report.map(function(r){
         var rows = r.entries.map(function(e){
           return '<tr><td>'+fmtDate(e.date)+'</td><td>'+escapeHtml(e.productName)+'</td><td>'+e.qty+'</td><td>'+fmtMoney(e.costPrice)+'</td><td style="font-weight:700;">'+fmtMoney(e.total)+'</td>'+
-            '<td>'+(e.billAttachment ? '<a href="'+e.billAttachment+'" download="'+escapeHtml(e.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">&#128206; '+t('bill_view')+'</a>' : '—')+'</td></tr>';
+            '<td>'+(e.billAttachment ? '<a href="'+e.billAttachment+'" download="'+escapeHtml(e.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">&#128206; '+t('bill_view')+'</a>' : '—')+'</td>'+
+            '<td><button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+e.id+'">'+t('btn_edit')+'</button></td></tr>';
         }).join('');
         return '<div class="card" style="margin-bottom:16px;">'+
           '<div class="card-pad" style="padding-bottom:12px;">'+
@@ -2386,7 +2413,7 @@ function renderSuppliersView(){
               '<div class="muted" style="font-size:11px;">'+r.totalUnits+' '+t('sup_rep_units')+' · '+r.productCount+' '+t('sup_rep_products')+'</div></div>'+
             '</div>'+
           '</div>'+
-          (r.entries.length ? '<div class="table-wrap" style="border:none;"><table><thead><tr><th>'+t('invoice_date')+'</th><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('sup_rep_unit_cost')+'</th><th>'+t('bill_line_total')+'</th><th>'+t('bill_attachment')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+          (r.entries.length ? '<div class="table-wrap" style="border:none;"><table><thead><tr><th>'+t('invoice_date')+'</th><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('sup_rep_unit_cost')+'</th><th>'+t('bill_line_total')+'</th><th>'+t('bill_attachment')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'
             : '<div class="empty-state" style="padding:16px;">'+t('sup_rep_no_purchases')+'</div>')+
         '</div>';
       }).join('');
@@ -2441,6 +2468,50 @@ function renderSupplierModal(){
       '</div>'+
       '<div class="modal-foot"><button class="btn btn-outline" data-action="close-supplier-modal">'+t('btn_cancel')+'</button>'+
         '<button class="btn btn-primary" data-action="save-supplier" data-id="'+(editing?editing.id:'')+'">'+t('btn_save_supplier')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderEditPurchaseModal(){
+  var shop = currentShop();
+  var entry = (shop.supplierPurchases||[]).find(function(p){ return p.id===state.showEditPurchaseModal; });
+  if(!entry) return '';
+  var productOptions = (shop.products||[]).map(function(p){
+    return '<option value="'+p.id+'" '+(entry.productId===p.id?'selected':'')+'>'+(p.code?'['+escapeHtml(p.code)+'] ':'')+escapeHtml(p.name)+' — '+escapeHtml(p.category||'')+'</option>';
+  }).join('');
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="edit-purchase">'+
+    '<div class="modal" style="max-width:520px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('edit_purchase_title')+'</h3><button class="modal-close" data-action="close-edit-purchase">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12px;margin-bottom:14px;">'+t('edit_purchase_sub')+'</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('th_product')+'</label>'+
+          '<select class="field" id="ep-product">'+productOptions+'</select>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('bulk_add_qty_col')+'</label><input class="field" id="ep-qty" type="number" min="0" value="'+entry.qty+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_cost')+'</label><input class="field" id="ep-cost" type="number" min="0" value="'+entry.costPrice+'"></div>'+
+        '</div>'+
+        '<div class="grid grid-2">'+
+          '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="ep-total" type="number" min="0" value="'+entry.total+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="ep-date" type="date" value="'+dateStr(entry.date)+'"></div>'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('bill_payment')+'</label>'+
+          '<select class="field" id="ep-payment">'+
+            ['cash','qr','card','credit'].map(function(m){ return '<option value="'+m+'" '+((entry.paymentMethod||'cash')===m?'selected':'')+'>'+paymentLabel(m)+'</option>'; }).join('')+
+          '</select>'+
+        '</div>'+
+        '<div class="field-row">'+
+          '<label class="field-label">'+t('bill_attachment')+'</label>'+
+          (entry.billAttachment ? '<div class="field-hint">'+t('bill_attachment_current')+' <a href="'+entry.billAttachment+'" download="'+escapeHtml(entry.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">'+escapeHtml(entry.billFileName||t('bill_view'))+'</a></div>' : '')+
+          '<input class="field" id="ep-bill-file" type="file" accept="application/pdf,image/*" style="margin-top:6px;">'+
+          '<div class="field-hint">'+t('bill_attachment_hint')+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-edit-purchase">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="submit-edit-purchase">'+t('bulk_add_save_btn')+'</button></div>'+
     '</div>'+
   '</div>';
 }
@@ -3110,6 +3181,7 @@ function closeModalByName(name){
   else if(name==='stock') state.showAddStockModal = null;
   else if(name==='customer') state.showAddCustomerModal = false;
   else if(name==='supplier'){ state.showAddSupplierModal = false; state.editingSupplierId = null; }
+  else if(name==='edit-purchase'){ state.showEditPurchaseModal = null; }
   else if(name==='bills-list') state.showBillsListModal = false;
   else if(name==='edit-bill'){ state.showEditBillModal = null; state.editBillDraft = null; }
   else if(name==='change-password'){ state.showChangePasswordModal = false; state.changePasswordError = ''; }
@@ -3658,6 +3730,19 @@ function handleAction(action, el){
       render();
       break;
 
+    case 'open-edit-purchase':
+      state.showEditPurchaseModal = el.getAttribute('data-id');
+      render();
+      break;
+
+    case 'close-edit-purchase':
+      closeModalByName('edit-purchase');
+      break;
+
+    case 'submit-edit-purchase':
+      performEditPurchase(shop);
+      break;
+
     case 'remove-supplier':
       var rmSupId = el.getAttribute('data-id');
       var linkedProducts = shop.products.filter(function(p){ return p.supplierId===rmSupId; }).length;
@@ -4050,7 +4135,7 @@ async function performBulkAddProducts(shop){
     var priceNum = parseFloat(r.price);
     var newProductId = uid('p');
     shop.products.push({
-      id: newProductId, name: r.name.trim(), category: r.category.trim()||'General', unit: r.unit.trim()||'pcs',
+      id: newProductId, code: (r.code||'').trim(), name: r.name.trim(), category: r.category.trim()||'General', unit: r.unit.trim()||'pcs',
       price: priceNum, cost: costNum, stock: qtyNum, lowStockThreshold: parseInt(r.lowStockThreshold)||5,
       manufactureDate: r.manufactureDate||null, expiryDate: r.expiryDate||null, supplierId: resolvedSupplierId
     });
@@ -4081,8 +4166,86 @@ async function performBulkAddProducts(shop){
   render();
 }
 
+async function performEditPurchase(shop){
+  var entry = (shop.supplierPurchases||[]).find(function(p){ return p.id===state.showEditPurchaseModal; });
+  if(!entry) return;
+
+  var newProductId = document.getElementById('ep-product').value;
+  var newQty = parseInt(document.getElementById('ep-qty').value);
+  var newCost = parseFloat(document.getElementById('ep-cost').value);
+  var newTotalRaw = parseFloat(document.getElementById('ep-total').value);
+  var newDateEl = document.getElementById('ep-date');
+  var newDate = newDateEl && newDateEl.value ? new Date(newDateEl.value).getTime() : entry.date;
+  var newPayment = document.getElementById('ep-payment').value;
+  var newBillFileEl = document.getElementById('ep-bill-file');
+
+  var newProduct = shop.products.find(function(p){ return p.id===newProductId; });
+  if(!newProduct || isNaN(newQty) || newQty<0 || isNaN(newCost)){
+    toast(t('err_required'), 'error');
+    return;
+  }
+
+  // Reconcile stock: undo this entry's old impact, then apply the new one —
+  // handles both "same product, different quantity" and "moved to a
+  // different product entirely" without double-counting either way. Checked
+  // BEFORE mutating anything, since some of the originally purchased stock
+  // may have already been sold — reducing the quantity now could otherwise
+  // push a product's stock negative, which isn't physically possible.
+  var movingProduct = entry.productId !== newProductId;
+  var oldProduct = movingProduct ? shop.products.find(function(p){ return p.id===entry.productId; }) : null;
+  var oldProductResultingStock = movingProduct && oldProduct ? oldProduct.stock - entry.qty : null;
+  var newProductResultingStock = movingProduct ? newProduct.stock + newQty : newProduct.stock + (newQty - entry.qty);
+  if((oldProductResultingStock!==null && oldProductResultingStock<0) || newProductResultingStock<0){
+    toast(t('err_purchase_edit_negative_stock'), 'error');
+    return;
+  }
+
+  // Validate the bill file (if a new one was chosen) BEFORE touching stock —
+  // otherwise an oversized-file error would abort the function after stock
+  // was already mutated in memory but never saved, leaving things out of sync.
+  var pendingBillFile = null;
+  if(newBillFileEl && newBillFileEl.files && newBillFileEl.files[0]){
+    pendingBillFile = newBillFileEl.files[0];
+    if(pendingBillFile.size > 700*1024){
+      toast(t('err_file_too_large'), 'error');
+      return;
+    }
+  }
+
+  // Now apply the stock changes already validated above.
+  if(movingProduct){
+    if(oldProduct) oldProduct.stock = oldProductResultingStock;
+    newProduct.stock = newProductResultingStock;
+  } else {
+    newProduct.stock = newProductResultingStock;
+  }
+
+  if(pendingBillFile){
+    try{
+      entry.billAttachment = await readFileAsDataURL(pendingBillFile);
+      entry.billFileName = pendingBillFile.name;
+    }catch(e){
+      console.error('Reading bill attachment failed:', e);
+    }
+  }
+
+  entry.productId = newProductId;
+  entry.productName = newProduct.name;
+  entry.qty = newQty;
+  entry.costPrice = newCost;
+  entry.total = !isNaN(newTotalRaw) && newTotalRaw>0 ? newTotalRaw : newCost*newQty;
+  entry.date = newDate;
+  entry.paymentMethod = newPayment;
+
+  fbSaveShop(shop);
+  state.showEditPurchaseModal = null;
+  toast(t('toast_purchase_updated'), 'success');
+  render();
+}
+
 async function performSaveProduct(shop, el){
   var pid = el.getAttribute('data-id');
+  var code = document.getElementById('pm-code').value.trim();
   var name = document.getElementById('pm-name').value.trim();
   var category = document.getElementById('pm-category').value.trim();
   var unit = document.getElementById('pm-unit').value.trim() || 'pcs';
@@ -4121,7 +4284,7 @@ async function performSaveProduct(shop, el){
   if(pid){
     var existing = shop.products.find(function(p){ return p.id===pid; });
     if(existing){
-      existing.name=name; existing.category=category; existing.unit=unit;
+      existing.code=code; existing.name=name; existing.category=category; existing.unit=unit;
       existing.price=price; existing.cost=cost; existing.lowStockThreshold=lowstock;
       existing.manufactureDate=mfgDate; existing.expiryDate=expDate;
       existing.supplierId=resolvedSupplierId;
@@ -4183,7 +4346,7 @@ async function performSaveProduct(shop, el){
   } else {
     var stock = parseInt(document.getElementById('pm-stock').value) || 0;
     var newProductId = uid('p');
-    shop.products.push({ id: newProductId, name:name, category:category||'General', unit:unit, price:price, cost:cost, stock:stock, lowStockThreshold:lowstock, manufactureDate:mfgDate, expiryDate:expDate, supplierId:resolvedSupplierId });
+    shop.products.push({ id: newProductId, code:code, name:name, category:category||'General', unit:unit, price:price, cost:cost, stock:stock, lowStockThreshold:lowstock, manufactureDate:mfgDate, expiryDate:expDate, supplierId:resolvedSupplierId });
 
     if(resolvedSupplierId && stock>0){
       var purchaseDateEl = document.getElementById('pm-purchase-date');
