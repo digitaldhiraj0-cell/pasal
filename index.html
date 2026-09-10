@@ -876,7 +876,8 @@ var I18N = {
     btn_restock:'Add Stock', btn_edit:'Edit', btn_remove:'Remove',
     add_product_title:'Add New Product', edit_product_title:'Edit Product',
     product_name:'Product Name', product_category:'Category', product_unit:'Unit',
-    product_price:'Selling Price (Rs.)', product_cost:'Cost Price (Rs.)', product_stock:'Opening Stock',
+    product_price:'Selling Price (Rs.)', product_cost:'Cost Price (Rs.)', product_stock:'Current Stock',
+    pm_stock_readonly_hint:'Stock is changed via Add Stock or Bulk Add From Bill, not from here.',
     product_lowstock:'Low Stock Threshold', btn_save_product:'Save Product',
     product_mfg_date:'Manufacture Date', product_exp_date:'Expiry Date',
     supplier_none:'— No Supplier / Not Tracked —', supplier_add_new:'+ Add New Supplier',
@@ -1084,7 +1085,8 @@ var I18N = {
     btn_restock:'स्टक थप्नुहोस्', btn_edit:'सम्पादन', btn_remove:'हटाउनुहोस्',
     add_product_title:'नयाँ सामान थप्नुहोस्', edit_product_title:'सामान सम्पादन गर्नुहोस्',
     product_name:'सामानको नाम', product_category:'प्रकार', product_unit:'एकाइ',
-    product_price:'बिक्री मूल्य (रु.)', product_cost:'लागत मूल्य (रु.)', product_stock:'सुरुको स्टक',
+    product_price:'बिक्री मूल्य (रु.)', product_cost:'लागत मूल्य (रु.)', product_stock:'हालको स्टक',
+    pm_stock_readonly_hint:'स्टक थप्ने वा बिलबाट धेरै सामान थप्ने मार्फत परिवर्तन गरिन्छ, यहाँबाट होइन।',
     product_lowstock:'कम स्टक सीमा', btn_save_product:'सामान सुरक्षित गर्नुहोस्',
     product_mfg_date:'उत्पादन मिति', product_exp_date:'म्याद सकिने मिति',
     supplier_none:'— आपूर्तिकर्ता छैन —', supplier_add_new:'+ नयाँ आपूर्तिकर्ता थप्नुहोस्',
@@ -1425,9 +1427,11 @@ function normalizeShopFields(shop){
     if(p.supplierId===undefined) p.supplierId = null;
     if(p.manufactureDate===undefined) p.manufactureDate = null;
     if(p.expiryDate===undefined) p.expiryDate = null;
+    if(p.code===undefined) p.code = null;
   });
   shop.supplierPurchases.forEach(function(pur){
     if(!pur.paymentMethod) pur.paymentMethod = 'cash';
+    if(pur.billNo===undefined) pur.billNo = null;
   });
   return shop;
 }
@@ -1975,6 +1979,7 @@ function renderInventoryView(){
     var status = p.stock===0 ? 'out' : (p.stock<=p.lowStockThreshold ? 'low' : 'ok');
     var badge = status==='out' ? '<span class="badge badge-danger">'+t('status_out')+'</span>' : status==='low' ? '<span class="badge badge-warning">'+t('status_low')+'</span>' : '<span class="badge badge-success">'+t('status_ok')+'</span>';
     return '<tr>'+
+      '<td style="font-family:var(--font-mono);color:var(--ink-soft);">'+(p.code?escapeHtml(p.code):'—')+'</td>'+
       '<td><div style="font-weight:700;">'+escapeHtml(p.name)+'</div><div class="muted" style="font-size:11px;">'+fmtMoney(p.cost)+' '+(state.lang==='np'?'लागत':'cost')+'</div></td>'+
       '<td><span class="tag-pill">'+escapeHtml(p.category)+'</span></td>'+
       '<td style="font-weight:600;">'+fmtMoney(p.price)+'</td>'+
@@ -1996,8 +2001,8 @@ function renderInventoryView(){
   '</div>'+
   '<div class="search-box" style="max-width:320px;margin-bottom:14px;">&#128269;<input id="product-search-input" placeholder="'+t('search_products')+'" value="'+escapeHtml(state.productSearch)+'" data-action="search-products"></div>'+
   (shop.products.length===0 ? '<div class="card empty-state"><div class="ic">&#128230;</div>'+t('inv_empty')+'<div style="margin-top:12px;"><button class="btn btn-primary" data-action="open-bulk-add-products">&#128203; '+t('btn_bulk_add_products')+'</button></div></div>' :
-  '<div class="table-wrap"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_price')+'</th><th>'+t('th_stock')+'</th><th>'+t('th_status')+'</th><th>'+t('th_actions')+'</th></tr></thead><tbody>'+
-  (rows || '<tr><td colspan="6" class="empty-state">No matches.</td></tr>')+
+  '<div class="table-wrap"><table><thead><tr><th>'+t('product_code')+'</th><th>'+t('th_product')+'</th><th>'+t('th_category')+'</th><th>'+t('th_price')+'</th><th>'+t('th_stock')+'</th><th>'+t('th_status')+'</th><th>'+t('th_actions')+'</th></tr></thead><tbody>'+
+  (rows || '<tr><td colspan="7" class="empty-state">No matches.</td></tr>')+
   '</tbody></table></div>');
 }
 
@@ -2031,7 +2036,7 @@ function renderProductModal(){
   return ''+
   '<div class="modal-backdrop" data-action="backdrop-close" data-modal="product">'+
     '<div class="modal" style="max-width:560px;" data-stop>'+
-      '<div class="modal-head"><h3>'+(editing?t('edit_product_title'):t('add_product_title'))+'</h3><button class="modal-close" data-action="close-product-modal">&times;</button></div>'+
+      '<div class="modal-head"><h3>'+t('edit_product_title')+'</h3><button class="modal-close" data-action="close-product-modal">&times;</button></div>'+
       '<div class="modal-body">'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('supplier_details_section')+'</div>'+
         '<div class="field-row"><label class="field-label">'+t('supplier_select_label')+'</label>'+
@@ -2085,7 +2090,7 @@ function renderProductModal(){
           '<div class="field-row"><label class="field-label">'+t('product_cost')+'</label><input class="field" id="pm-cost" type="number" value="'+p.cost+'"></div>'+
         '</div>'+
         '<div class="grid grid-2">'+
-          '<div class="field-row"><label class="field-label">'+t('product_stock')+(editing?' ('+t('field_optional')+')':'')+'</label><input class="field" id="pm-stock" type="number" value="'+(editing?0:p.stock)+'" '+(editing?'disabled':'')+'></div>'+
+          '<div class="field-row"><label class="field-label">'+t('product_stock')+'</label><input class="field" value="'+(p.stock||0)+' '+escapeHtml(p.unit||'')+'" disabled style="background:var(--surface-2);"><div class="field-hint">'+t('pm_stock_readonly_hint')+'</div></div>'+
           '<div class="field-row"><label class="field-label">'+t('product_lowstock')+'</label><input class="field" id="pm-lowstock" type="number" value="'+p.lowStockThreshold+'"></div>'+
         '</div>'+
         '<div class="grid grid-2">'+
@@ -2400,7 +2405,9 @@ function renderSuppliersView(){
     } else {
       body += report.map(function(r){
         var rows = r.entries.map(function(e){
-          return '<tr><td>'+fmtDate(e.date)+'</td><td>'+escapeHtml(e.productName)+'</td><td>'+e.qty+'</td><td>'+fmtMoney(e.costPrice)+'</td><td style="font-weight:700;">'+fmtMoney(e.total)+'</td>'+
+          var linkedProduct = shop.products.find(function(p){ return p.id===e.productId; });
+          var codeDisplay = linkedProduct && linkedProduct.code ? '<span class="tag-pill" style="font-family:var(--font-mono);">'+escapeHtml(linkedProduct.code)+'</span>' : '—';
+          return '<tr><td>'+fmtDate(e.date)+'</td><td style="font-family:var(--font-mono);">'+escapeHtml(e.billNo||'—')+'</td><td>'+codeDisplay+'</td><td>'+escapeHtml(e.productName)+'</td><td>'+e.qty+'</td><td>'+fmtMoney(e.costPrice)+'</td><td style="font-weight:700;">'+fmtMoney(e.total)+'</td>'+
             '<td>'+(e.billAttachment ? '<a href="'+e.billAttachment+'" download="'+escapeHtml(e.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">&#128206; '+t('bill_view')+'</a>' : '—')+'</td>'+
             '<td><button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+e.id+'">'+t('btn_edit')+'</button></td></tr>';
         }).join('');
@@ -2413,7 +2420,7 @@ function renderSuppliersView(){
               '<div class="muted" style="font-size:11px;">'+r.totalUnits+' '+t('sup_rep_units')+' · '+r.productCount+' '+t('sup_rep_products')+'</div></div>'+
             '</div>'+
           '</div>'+
-          (r.entries.length ? '<div class="table-wrap" style="border:none;"><table><thead><tr><th>'+t('invoice_date')+'</th><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('sup_rep_unit_cost')+'</th><th>'+t('bill_line_total')+'</th><th>'+t('bill_attachment')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+          (r.entries.length ? '<div class="table-wrap" style="border:none;"><table><thead><tr><th>'+t('invoice_date')+'</th><th>'+t('bulk_add_bill_no')+'</th><th>'+t('product_code')+'</th><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('sup_rep_unit_cost')+'</th><th>'+t('bill_line_total')+'</th><th>'+t('bill_attachment')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'
             : '<div class="empty-state" style="padding:16px;">'+t('sup_rep_no_purchases')+'</div>')+
         '</div>';
       }).join('');
@@ -2732,7 +2739,13 @@ function getDetailedReportData(shop, type, range){
     tableRows = purchases.map(function(p){
       var supName = supplierName(shop, p.supplierId) || '—';
       var ref = 'PUR-' + p.id.slice(-6).toUpperCase();
-      return [ref, fmtDate(p.date), supName, paymentLabel(p.paymentMethod||'cash'), p.total];
+      var linkedProduct = shop.products.find(function(x){ return x.id===p.productId; });
+      var productLabel = (linkedProduct && linkedProduct.code ? '['+linkedProduct.code+'] ' : '') + (p.productName||'—');
+      // Positions 0-4 stay exactly as before (ref, date, name, payment, total)
+      // so nothing that already reads those indices breaks; product label
+      // and the entry's own id are appended for the on-screen table/exports
+      // that know to look for them, and for the Edit button's data-id.
+      return [ref, fmtDate(p.date), supName, paymentLabel(p.paymentMethod||'cash'), p.total, productLabel, p.id];
     });
   }
 
@@ -2776,14 +2789,19 @@ function downloadReportAsPdf(shop, type, range){
   doc.text(t('rep_range')+': '+t(RANGE_LABEL_MAP[range]||'range_30')+'   |   '+t('detailed_rep_record_count')+': '+data.count, pageWidth/2, y, {align:'center'});
   y += 6;
 
-  var head = [[data.refColLabel, t('invoice_date'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]];
-  var body = data.tableRows.map(function(r){ return [r[0], r[1], r[2], r[3], fmtMoney(r[4])]; });
+  var showProductCol = type==='purchases';
+  var head = showProductCol
+    ? [[data.refColLabel, t('invoice_date'), t('th_product'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]]
+    : [[data.refColLabel, t('invoice_date'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]];
+  var body = data.tableRows.map(function(r){
+    return showProductCol ? [r[0], r[1], r[5], r[2], r[3], fmtMoney(r[4])] : [r[0], r[1], r[2], r[3], fmtMoney(r[4])];
+  });
 
   doc.autoTable({
     startY: y,
     head: head,
     body: body,
-    foot: [['', '', '', t('bill_total'), fmtMoney(data.total)]],
+    foot: showProductCol ? [['', '', '', '', t('bill_total'), fmtMoney(data.total)]] : [['', '', '', t('bill_total'), fmtMoney(data.total)]],
     styles: { fontSize:8.5 },
     headStyles: { fillColor:[22,48,92] },
     footStyles: { fillColor:[245,235,215], textColor:[20,20,20], fontStyle:'bold' }
@@ -2807,12 +2825,19 @@ function downloadReportAsExcel(shop, type, range){
   aoa.push([reportTypeLabel(type) + ' ' + t('nav_detailed_reports')]);
   aoa.push([t('rep_range')+': '+t(RANGE_LABEL_MAP[range]||'range_30'), t('detailed_rep_record_count')+': '+data.count]);
   aoa.push([]);
-  aoa.push([data.refColLabel, t('invoice_date'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]);
-  data.tableRows.forEach(function(r){ aoa.push([r[0], r[1], r[2], r[3], r[4]]); });
-  aoa.push(['', '', '', t('bill_total'), data.total]);
+  var showProductCol = type==='purchases';
+  aoa.push(showProductCol
+    ? [data.refColLabel, t('invoice_date'), t('th_product'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]
+    : [data.refColLabel, t('invoice_date'), data.nameColLabel, t('bill_payment'), t('bill_line_total')]);
+  data.tableRows.forEach(function(r){
+    aoa.push(showProductCol ? [r[0], r[1], r[5], r[2], r[3], r[4]] : [r[0], r[1], r[2], r[3], r[4]]);
+  });
+  aoa.push(showProductCol ? ['', '', '', '', t('bill_total'), data.total] : ['', '', '', t('bill_total'), data.total]);
 
   var ws = window.XLSX.utils.aoa_to_sheet(aoa);
-  ws['!cols'] = [{wch:18},{wch:12},{wch:24},{wch:14},{wch:14}];
+  ws['!cols'] = showProductCol
+    ? [{wch:18},{wch:12},{wch:26},{wch:20},{wch:14},{wch:14}]
+    : [{wch:18},{wch:12},{wch:24},{wch:14},{wch:14}];
   var wb = window.XLSX.utils.book_new();
   window.XLSX.utils.book_append_sheet(wb, ws, type==='sales' ? 'Sales' : 'Purchases');
   window.XLSX.writeFile(wb, safeFileSlug(shop.businessName)+'_'+type+'_report.xlsx');
@@ -2830,7 +2855,12 @@ function renderDetailedReportsView(){
 
   var data = getDetailedReportData(shop, type, range);
   var emptyMsg = type==='purchases' ? t('sup_rep_no_purchases') : (type==='credit' ? t('credit_rep_no_data') : t('rep_no_data'));
+  var showProductCol = type==='purchases';
   var rows = data.tableRows.map(function(r){
+    if(showProductCol){
+      return '<tr><td style="font-family:var(--font-mono);">'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[5])+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(r[4])+'</td>'+
+        '<td><button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+r[6]+'">'+t('btn_edit')+'</button></td></tr>';
+    }
     return '<tr><td style="font-family:var(--font-mono);">'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(r[4])+'</td></tr>';
   }).join('');
 
@@ -2873,16 +2903,27 @@ function renderDetailedReportsView(){
     '<div class="stat-card accent-indigo"><div class="label">'+t('detailed_rep_record_count')+'</div><div class="value">'+data.count+'</div></div>'+
     '<div class="stat-card accent-gold"><div class="label">'+t('rep_range')+'</div><div class="value" style="font-size:16px;">'+t((ranges.find(function(r){return r[0]===range;})||['','range_30'])[1])+'</div></div>'+
   '</div>'+
-  (rows ? '<div class="table-wrap"><table><thead><tr><th>'+data.refColLabel+'</th><th>'+t('invoice_date')+'</th><th>'+data.nameColLabel+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">'+t('bill_line_total')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+  (rows ? '<div class="table-wrap"><table><thead><tr><th>'+data.refColLabel+'</th><th>'+t('invoice_date')+'</th>'+
+      (showProductCol ? '<th>'+t('th_product')+'</th>' : '')+
+      '<th>'+data.nameColLabel+'</th><th>'+t('bill_payment')+'</th><th style="text-align:right;">'+t('bill_line_total')+'</th>'+
+      (showProductCol ? '<th></th>' : '')+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>'
     : '<div class="card empty-state">'+emptyMsg+'</div>')+
-  renderPrintableReport(shop, type, range, data.count, data.total, rows, data.refColLabel, data.nameColLabel);
+  renderPrintableReport(shop, type, range, data.count, data.total, data.tableRows, data.refColLabel, data.nameColLabel, showProductCol);
 }
 
 // Hidden container used only when printing — becomes visible via the
 // #printable-report print rules, with a letterhead (shop name, address,
 // PAN) at the top as required for anything downloaded/printed from here.
-function renderPrintableReport(shop, type, range, count, total, rows, refColLabel, nameColLabel){
+function renderPrintableReport(shop, type, range, count, total, tableRows, refColLabel, nameColLabel, showProductCol){
   var rangeLabelMap = {'7':t('range_7'),'30':t('range_30'),'90':t('range_90'),'all':t('range_all')};
+  var printRows = (tableRows||[]).map(function(r){
+    if(showProductCol){
+      return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[5])+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td>'+fmtMoney(r[4])+'</td></tr>';
+    }
+    return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td>'+fmtMoney(r[4])+'</td></tr>';
+  }).join('');
+  var totalColspan = showProductCol ? 5 : 4;
   return ''+
   '<div id="printable-report" style="display:none;">'+
     '<div class="report-letterhead">'+
@@ -2892,9 +2933,12 @@ function renderPrintableReport(shop, type, range, count, total, rows, refColLabe
     '</div>'+
     '<div class="report-title">'+reportTypeLabel(type)+' '+t('nav_detailed_reports')+'</div>'+
     '<div class="report-range">'+t('rep_range')+': '+(rangeLabelMap[range]||range)+' &nbsp;·&nbsp; '+t('detailed_rep_record_count')+': '+count+'</div>'+
-    '<table><thead><tr><th>'+refColLabel+'</th><th>'+t('invoice_date')+'</th><th>'+nameColLabel+'</th><th>'+t('bill_payment')+'</th><th>'+t('bill_line_total')+'</th></tr></thead>'+
-    '<tbody>'+(rows || '')+
-    '<tr class="report-total-row"><td colspan="4">'+t('bill_total')+'</td><td>'+fmtMoney(total)+'</td></tr>'+
+    '<table><thead><tr><th>'+refColLabel+'</th><th>'+t('invoice_date')+'</th>'+
+      (showProductCol ? '<th>'+t('th_product')+'</th>' : '')+
+      '<th>'+nameColLabel+'</th><th>'+t('bill_payment')+'</th><th>'+t('bill_line_total')+'</th>'+
+    '</tr></thead>'+
+    '<tbody>'+printRows+
+    '<tr class="report-total-row"><td colspan="'+totalColspan+'">'+t('bill_total')+'</td><td>'+fmtMoney(total)+'</td></tr>'+
     '</tbody></table>'+
     '<div class="report-footer">'+t('detailed_rep_generated_on')+' '+fmtDateTime(Date.now())+'</div>'+
   '</div>';
@@ -3515,14 +3559,6 @@ function handleAction(action, el){
 
     case 'submit-bulk-add-products':
       performBulkAddProducts(shop);
-      break;
-
-    case 'open-add-product':
-      state.editingProductId = null;
-      state.showAddProductModal = true;
-      state.productModalSupplierMode = 'none';
-      state.productModalSelectedSupplierId = '';
-      render();
       break;
 
     case 'open-edit-product':
@@ -4343,47 +4379,6 @@ async function performSaveProduct(shop, el){
       }
     }
     toast(t('toast_product_updated'), 'success');
-  } else {
-    var stock = parseInt(document.getElementById('pm-stock').value) || 0;
-    var newProductId = uid('p');
-    shop.products.push({ id: newProductId, code:code, name:name, category:category||'General', unit:unit, price:price, cost:cost, stock:stock, lowStockThreshold:lowstock, manufactureDate:mfgDate, expiryDate:expDate, supplierId:resolvedSupplierId });
-
-    if(resolvedSupplierId && stock>0){
-      var purchaseDateEl = document.getElementById('pm-purchase-date');
-      var totalAmountEl = document.getElementById('pm-total-amount');
-      var billFileEl = document.getElementById('pm-bill-file');
-      var purchasePaymentEl = document.getElementById('pm-purchase-payment');
-      var purchaseDate = purchaseDateEl && purchaseDateEl.value ? new Date(purchaseDateEl.value).getTime() : Date.now();
-      var totalAmountEntered = totalAmountEl ? parseFloat(totalAmountEl.value) : NaN;
-      var purchasePayment = purchasePaymentEl ? purchasePaymentEl.value : 'cash';
-      // The explicitly entered Total Amount becomes this purchase's investment
-      // figure (and therefore the supplier's Total Investment in the Purchase
-      // Report). If left blank, fall back to cost price × quantity as before.
-      var purchaseTotal = !isNaN(totalAmountEntered) && totalAmountEntered > 0 ? totalAmountEntered : cost*stock;
-
-      var billAttachment = null, billFileName = null;
-      if(billFileEl && billFileEl.files && billFileEl.files[0]){
-        var billFile = billFileEl.files[0];
-        if(billFile.size > 700*1024){
-          toast(t('err_file_too_large'), 'error');
-        } else {
-          try{
-            billAttachment = await readFileAsDataURL(billFile);
-            billFileName = billFile.name;
-          }catch(e){
-            console.error('Reading bill attachment failed:', e);
-          }
-        }
-      }
-
-      if(!shop.supplierPurchases) shop.supplierPurchases = [];
-      shop.supplierPurchases.push({
-        id: uid('pur'), supplierId:resolvedSupplierId, productId:newProductId, productName:name,
-        qty:stock, costPrice:cost, total:purchaseTotal, date: purchaseDate, paymentMethod:purchasePayment,
-        billAttachment:billAttachment, billFileName:billFileName
-      });
-    }
-    toast(t('toast_product_added'), 'success');
   }
 
   state.showAddProductModal = false;
