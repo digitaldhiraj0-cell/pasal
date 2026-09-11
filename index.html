@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nepali-date-converter/dist/nepali-date-converter.umd.js"></script>
 <style>
   :root{
     --bg: #FAF6EE;
@@ -325,6 +326,15 @@
   .role-tabs{display:flex;gap:6px;background:var(--surface-2);padding:4px;border-radius:9px;margin-bottom:18px;}
   .role-tabs button{flex:1;border:none;background:transparent;padding:8px 6px;border-radius:7px;font-size:12.5px;font-weight:700;color:var(--ink-soft);}
   .role-tabs button.active{background:#fff;color:var(--crimson-dark);box-shadow:var(--shadow-sm);}
+  .supplier-section-tabs{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .supplier-section-tab{
+    display:flex;align-items:center;gap:10px;padding:14px 20px;border-radius:12px;
+    border:2px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;color:var(--ink-soft);
+    min-width:200px;justify-content:flex-start;
+  }
+  .supplier-section-tab .ic{font-size:19px;}
+  .supplier-section-tab:hover{border-color:var(--indigo-soft);background:var(--indigo-tint);}
+  .supplier-section-tab.active{border-color:var(--crimson);background:var(--crimson-tint);color:var(--crimson-dark);box-shadow:var(--shadow-sm);}
   .demo-box{background:var(--gold-tint);border:1px dashed #d8b866;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#6b4e10;margin-top:14px;line-height:1.5;}
   .demo-box b{cursor:pointer;text-decoration:underline;}
   .login-error{background:var(--danger-tint);color:var(--danger);border-radius:8px;padding:9px 12px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
@@ -886,6 +896,7 @@ var I18N = {
     supplier_existing_hint:'To edit this supplier\'s details, go to Suppliers → Manage Suppliers.',
     supplier_location:'Supplier Location',
     purchase_date:'Purchase Date', total_amount:'Total Amount',
+    date_ad_label:'English (AD)', date_bs_label:'Nepali (BS)',
     total_amount_hint:'If left blank, this is calculated automatically as cost price × quantity.',
     bill_attachment:'Attach Bill (PDF or Image)', bill_attachment_hint:'Optional. Max 700KB — a photo or scan of the supplier\'s bill/receipt.',
     bill_view:'View Bill', err_file_too_large:'That file is too large — please use a file under 700KB.',
@@ -1095,6 +1106,7 @@ var I18N = {
     supplier_existing_hint:'यस आपूर्तिकर्ताको विवरण सम्पादन गर्न, आपूर्तिकर्ताहरू → व्यवस्थापन मा जानुहोस्।',
     supplier_location:'आपूर्तिकर्ताको ठेगाना',
     purchase_date:'खरिद मिति', total_amount:'कुल रकम',
+    date_ad_label:'अंग्रेजी (AD)', date_bs_label:'नेपाली (BS)',
     total_amount_hint:'खाली छाडेमा, यो लागत मूल्य × परिमाणबाट स्वतः गणना हुन्छ।',
     bill_attachment:'बिल संलग्न गर्नुहोस् (PDF वा फोटो)', bill_attachment_hint:'ऐच्छिक। अधिकतम 700KB — आपूर्तिकर्ताको बिल/रसिदको फोटो वा स्क्यान।',
     bill_view:'बिल हेर्नुहोस्', err_file_too_large:'यो फाइल धेरै ठूलो छ — कृपया 700KB भन्दा सानो फाइल प्रयोग गर्नुहोस्।',
@@ -1276,6 +1288,45 @@ function makeDemoShop(){
 function dateStr(ts){
   var d = new Date(ts);
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+/* ---------------- Nepali (Bikram Sambat) ↔ English (AD) date sync ----------------
+   Uses the nepali-date-converter library (loaded via CDN in <head>), which is
+   valid for 2000–2090 BS (~1943–2033 AD) — comfortably covers any real
+   purchase date. Conversion only ever touches the DOM directly (never
+   state), so it can't interfere with anything the rest of the app reads —
+   only the English (AD) field's value is what gets saved. */
+function adDateToBsString(adStr){
+  if(!adStr || !window.NepaliDate || !window.NepaliDate.default) return '';
+  try{
+    var d = new Date(adStr+'T00:00:00');
+    if(isNaN(d.getTime())) return '';
+    var nd = new window.NepaliDate.default(d);
+    return nd.format('YYYY-MM-DD');
+  }catch(e){ return ''; }
+}
+function bsDateToAdString(bsStr){
+  if(!bsStr || !window.NepaliDate || !window.NepaliDate.default) return '';
+  var m = bsStr.trim().match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+  if(!m) return '';
+  try{
+    var nd = new window.NepaliDate.default(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10));
+    var ad = nd.getAD();
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    return ad.year+'-'+pad(ad.month+1)+'-'+pad(ad.date);
+  }catch(e){ return ''; }
+}
+// Renders a paired English-date-picker + Nepali-date-text-field for Purchase
+// Date, wherever it's needed. Typing/picking either one live-updates the
+// other — data-bs-for links the BS field back to its AD field's id.
+function purchaseDateFieldHtml(adId, adValue){
+  var bsValue = adDateToBsString(adValue);
+  return '<div class="grid grid-2">'+
+    '<div class="field-row"><label class="field-label">'+t('purchase_date')+' — '+t('date_ad_label')+'</label>'+
+      '<input class="field purchase-date-ad" id="'+adId+'" type="date" value="'+escapeHtml(adValue)+'"></div>'+
+    '<div class="field-row"><label class="field-label">'+t('purchase_date')+' — '+t('date_bs_label')+'</label>'+
+      '<input class="field purchase-date-bs" id="'+adId+'-bs" data-bs-for="'+adId+'" placeholder="YYYY-MM-DD" value="'+escapeHtml(bsValue)+'"></div>'+
+  '</div>';
 }
 
 function seedDemoSales(shop){
@@ -2053,11 +2104,10 @@ function renderProductModal(){
           '</div>'+
           supField('pm-sup-location','supplier_location', mode==='existing'?sv('location'):'', mode==='existing')+
           (mode==='existing' ? '<div class="field-hint">'+t('supplier_existing_hint')+'</div>' : '')+
-          '<div class="grid grid-2">'+
-            '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="pm-purchase-date" type="date" value="'+purchaseDateValue+'"></div>'+
-            '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="pm-total-amount" type="number" placeholder="0.00" value="'+escapeHtml(totalAmountValue===''?'':String(totalAmountValue))+'">'+
-              '<div class="field-hint">'+t('total_amount_hint')+'</div>'+
-            '</div>'+
+          purchaseDateFieldHtml('pm-purchase-date', purchaseDateValue)+
+          '<div class="field-row">'+
+            '<label class="field-label">'+t('total_amount')+'</label><input class="field" id="pm-total-amount" type="number" placeholder="0.00" value="'+escapeHtml(totalAmountValue===''?'':String(totalAmountValue))+'">'+
+            '<div class="field-hint">'+t('total_amount_hint')+'</div>'+
           '</div>'+
           '<div class="field-row" style="max-width:220px;">'+
             '<label class="field-label">'+t('bill_payment')+'</label>'+
@@ -2188,8 +2238,8 @@ function renderBulkAddProductsModal(){
 
         '<hr class="hair">'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('bulk_add_bill_details')+'</div>'+
-        '<div class="grid grid-3">'+
-          '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="ba-purchase-date" type="date" value="'+dateStr(Date.now())+'"></div>'+
+        purchaseDateFieldHtml('ba-purchase-date', dateStr(Date.now()))+
+        '<div class="grid grid-2">'+
           '<div class="field-row"><label class="field-label">'+t('bulk_add_bill_no')+'</label><input class="field" id="ba-bill-no" placeholder="'+t('bulk_add_bill_no_placeholder')+'"></div>'+
           '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="ba-total-amount" type="number" placeholder="0.00">'+
             '<div class="field-hint">'+t('bulk_add_total_amount_hint')+'</div>'+
@@ -2239,6 +2289,11 @@ function renderAddStockModal(){
         '<div class="kv"><div class="k">'+t('th_product')+'</div><div class="v">'+escapeHtml(p.name)+'</div></div>'+
         '<div class="kv"><div class="k">'+t('th_stock')+' ('+(state.lang==='np'?'हालको':'current')+')</div><div class="v">'+p.stock+' '+escapeHtml(p.unit)+'</div></div>'+
         '<div class="field-row" style="margin-top:14px;"><label class="field-label">'+t('add_stock_qty')+'</label><input class="field" id="as-qty" type="number" value="10" min="1"></div>'+
+        purchaseDateFieldHtml('as-purchase-date', dateStr(Date.now()))+
+        '<div class="field-row"><label class="field-label">'+t('bulk_add_bill_no')+'</label><input class="field" id="as-bill-no" placeholder="'+t('bulk_add_bill_no_placeholder')+'"></div>'+
+        (p.supplierId ? '<div class="field-row"><label class="field-label">'+t('bill_payment')+'</label><select class="field" id="as-payment-method">'+
+          ['cash','qr','card','credit'].map(function(m){ return '<option value="'+m+'">'+paymentLabel(m)+'</option>'; }).join('')+
+        '</select></div>' : '')+
         '<div class="field-row"><label class="field-label">'+t('add_stock_note')+'</label><input class="field" id="as-note" placeholder="e.g. supplier delivery"></div>'+
       '</div>'+
       '<div class="modal-foot"><button class="btn btn-outline" data-action="close-add-stock">'+t('btn_cancel')+'</button>'+
@@ -2387,9 +2442,13 @@ function renderSuppliersView(){
     '<div><h1>'+t('suppliers_title')+'</h1><div class="sub">'+t('suppliers_sub')+'</div></div>'+
     (state.supplierSubView==='manage' ? '<button class="btn btn-primary" data-action="open-add-supplier">'+t('btn_add_supplier')+'</button>' : '')+
   '</div>'+
-  '<div class="role-tabs" style="max-width:340px;margin-bottom:18px;">'+
-    '<button data-action="supplier-subview" data-view="manage" class="'+(state.supplierSubView==='manage'?'active':'')+'">'+t('suppliers_tab_manage')+'</button>'+
-    '<button data-action="supplier-subview" data-view="report" class="'+(state.supplierSubView==='report'?'active':'')+'">'+t('suppliers_tab_report')+'</button>'+
+  '<div class="supplier-section-tabs">'+
+    '<button data-action="supplier-subview" data-view="manage" class="supplier-section-tab '+(state.supplierSubView==='manage'?'active':'')+'">'+
+      '<span class="ic">&#128666;</span><span>'+t('suppliers_tab_manage')+'</span>'+
+    '</button>'+
+    '<button data-action="supplier-subview" data-view="report" class="supplier-section-tab '+(state.supplierSubView==='report'?'active':'')+'">'+
+      '<span class="ic">&#128202;</span><span>'+t('suppliers_tab_report')+'</span>'+
+    '</button>'+
   '</div>';
 
   if(state.supplierSubView==='report'){
@@ -2500,10 +2559,8 @@ function renderEditPurchaseModal(){
           '<div class="field-row"><label class="field-label">'+t('bulk_add_qty_col')+'</label><input class="field" id="ep-qty" type="number" min="0" value="'+entry.qty+'"></div>'+
           '<div class="field-row"><label class="field-label">'+t('product_cost')+'</label><input class="field" id="ep-cost" type="number" min="0" value="'+entry.costPrice+'"></div>'+
         '</div>'+
-        '<div class="grid grid-2">'+
-          '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="ep-total" type="number" min="0" value="'+entry.total+'"></div>'+
-          '<div class="field-row"><label class="field-label">'+t('purchase_date')+'</label><input class="field" id="ep-date" type="date" value="'+dateStr(entry.date)+'"></div>'+
-        '</div>'+
+        '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="ep-total" type="number" min="0" value="'+entry.total+'"></div>'+
+        purchaseDateFieldHtml('ep-date', dateStr(entry.date))+
         '<div class="field-row">'+
           '<label class="field-label">'+t('bill_payment')+'</label>'+
           '<select class="field" id="ep-payment">'+
@@ -3609,8 +3666,17 @@ function handleAction(action, el){
       if(prod && qty>0){
         prod.stock += qty;
         if(prod.supplierId){
+          var asPurchaseDateEl = document.getElementById('as-purchase-date');
+          var asBillNoEl = document.getElementById('as-bill-no');
+          var asPaymentEl = document.getElementById('as-payment-method');
+          var asPurchaseDate = asPurchaseDateEl && asPurchaseDateEl.value ? new Date(asPurchaseDateEl.value).getTime() : Date.now();
           if(!shop.supplierPurchases) shop.supplierPurchases = [];
-          shop.supplierPurchases.push({ id: uid('pur'), supplierId:prod.supplierId, productId:prod.id, productName:prod.name, qty:qty, costPrice:prod.cost, total:prod.cost*qty, date: Date.now(), paymentMethod:'cash' });
+          shop.supplierPurchases.push({
+            id: uid('pur'), supplierId:prod.supplierId, productId:prod.id, productName:prod.name,
+            qty:qty, costPrice:prod.cost, total:prod.cost*qty, date: asPurchaseDate,
+            paymentMethod: asPaymentEl ? asPaymentEl.value : 'cash',
+            billNo: asBillNoEl && asBillNoEl.value.trim() ? asBillNoEl.value.trim() : null
+          });
         }
         fbSaveShop(shop);
         toast(t('toast_stock_added'), 'success');
@@ -4551,6 +4617,16 @@ function bindEvents(){
     } else if(el.id==='billing-discount-value'){
       state.billingDiscountValue = el.value;
       reRenderKeepFocus();
+    } else if(el.classList && el.classList.contains('purchase-date-ad')){
+      var bsCompanion = document.getElementById(el.id+'-bs');
+      if(bsCompanion) bsCompanion.value = adDateToBsString(el.value);
+    } else if(el.classList && el.classList.contains('purchase-date-bs')){
+      var adTargetId = el.getAttribute('data-bs-for');
+      var convertedAd = bsDateToAdString(el.value);
+      if(convertedAd && adTargetId){
+        var adField = document.getElementById(adTargetId);
+        if(adField) adField.value = convertedAd;
+      }
     }
   });
 
@@ -4577,6 +4653,10 @@ function bindEvents(){
       else if(baVal==='new'){ state.bulkAddSupplierMode = 'new'; state.bulkAddSelectedSupplierId = ''; }
       else { state.bulkAddSupplierMode = 'existing'; state.bulkAddSelectedSupplierId = baVal; }
       reRenderKeepScroll(['bulk-add-modal-scroll', 'bulk-add-items-scroll']);
+    }
+    if(el.classList && el.classList.contains('purchase-date-ad')){
+      var bsCompanion2 = document.getElementById(el.id+'-bs');
+      if(bsCompanion2) bsCompanion2.value = adDateToBsString(el.value);
     }
   });
 }
