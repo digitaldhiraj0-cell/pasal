@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -963,6 +962,10 @@ var I18N = {
     bills_list_title:'Bills Issued', bills_list_sub:'View, edit, or cancel any bill from the selected date range.',
     bill_status:'Status', bill_status_active:'Active', bill_status_cancelled:'Cancelled',
     btn_view:'View', btn_cancel_bill:'Cancel Bill', btn_delete_bill:'Delete Bill',
+    btn_view_edit_bill:'View/Edit Bill',
+    edit_bulk_bill_title:'Edit Bill — All Line Items', edit_bulk_bill_sub:'Change quantities, costs, prices, or any other detail for every product on this bill — no need to delete and redo the whole bulk entry.',
+    toast_bulk_bill_updated:'Bill updated — all line items saved.',
+    toast_bulk_bill_updated_clamped:'Bill updated. Note: stock for one or more removed items couldn\'t go below zero (some may already be sold), so it was set to 0.',
     confirm_delete_bill:'Permanently delete this bill? This cannot be undone. If it was not already cancelled, its stock will be restored first.',
     toast_bill_deleted:'Bill permanently deleted.',
     edit_bill_title:'Edit Bill', edit_bill_sub:'Adjust the customer, payment method, or items on this bill. Stock and totals are recalculated automatically.',
@@ -1173,6 +1176,10 @@ var I18N = {
     bills_list_title:'जारी बिलहरू', bills_list_sub:'छानिएको मितिको दायराबाट कुनै पनि बिल हेर्नुहोस्, सम्पादन गर्नुहोस्, वा रद्द गर्नुहोस्।',
     bill_status:'स्थिति', bill_status_active:'सक्रिय', bill_status_cancelled:'रद्द भयो',
     btn_view:'हेर्नुहोस्', btn_cancel_bill:'बिल रद्द गर्नुहोस्', btn_delete_bill:'बिल मेटाउनुहोस्',
+    btn_view_edit_bill:'बिल हेर्नुहोस्/सम्पादन गर्नुहोस्',
+    edit_bulk_bill_title:'बिल सम्पादन गर्नुहोस् — सबै सामान', edit_bulk_bill_sub:'यस बिलको हरेक सामानको परिमाण, लागत, मूल्य, वा अन्य विवरण परिवर्तन गर्नुहोस् — सम्पूर्ण बल्क प्रविष्टि मेटाएर फेरि गर्नु पर्दैन।',
+    toast_bulk_bill_updated:'बिल अद्यावधिक भयो — सबै सामान सुरक्षित भयो।',
+    toast_bulk_bill_updated_clamped:'बिल अद्यावधिक भयो। नोट: हटाइएका एक वा बढी सामानको स्टक शून्यभन्दा तल जान सकेन (केही पहिले नै बिक्री भइसकेको हुन सक्छ), त्यसैले यसलाई ० मा सेट गरियो।',
     confirm_delete_bill:'यो बिल स्थायी रूपमा मेटाउने हो? यो फिर्ता गर्न सकिँदैन। यदि यो पहिले नै रद्द भएको थिएन भने, स्टक पहिले फिर्ता हुनेछ।',
     toast_bill_deleted:'बिल स्थायी रूपमा मेटाइयो।',
     edit_bill_title:'बिल सम्पादन गर्नुहोस्', edit_bill_sub:'यस बिलको ग्राहक, भुक्तानी विधि, वा सामान समायोजन गर्नुहोस्। स्टक र जम्मा रकम स्वतः पुनः गणना हुन्छ।',
@@ -1410,6 +1417,8 @@ var state = {
   showReportDownloadMenu:false,
   showAddSupplierModal:false,
   showEditPurchaseModal:null,
+  showEditBulkBillModal:null,
+  editBulkBillDraft:null,
   editingSupplierId:null,
   showAddStockModal:null,
   showAddCustomerModal:false,
@@ -1521,6 +1530,16 @@ function latestPurchaseForProduct(shop, productId){
   var entries = (shop.supplierPurchases||[]).filter(function(p){ return p.productId===productId; });
   if(entries.length===0) return null;
   return entries.slice().sort(function(a,b){ return b.date - a.date; })[0];
+}
+// Groups purchase-log entries that came from the same supplier bill (same
+// supplier + same non-blank Bill No.) so they can be viewed/edited together
+// instead of one at a time. Entries without a Bill No. aren't groupable —
+// those still use the single-entry editor.
+function billGroupKeyFor(entry){
+  return (entry && entry.billNo) ? (entry.supplierId+'::'+entry.billNo) : null;
+}
+function getBillGroupEntries(shop, key){
+  return (shop.supplierPurchases||[]).filter(function(e){ return billGroupKeyFor(e)===key; });
 }
 // Per-supplier totals for the Supplier Report: total invested, total units,
 // and the list of individual purchase-log entries for that supplier.
@@ -1965,6 +1984,7 @@ function renderShopMain(){
   if(state.showEditBillModal) body += renderEditBillModal();
   if(state.showAddSupplierModal) body += renderSupplierModal();
   if(state.showEditPurchaseModal) body += renderEditPurchaseModal();
+  if(state.showEditBulkBillModal) body += renderEditBulkBillModal();
   if(state.showReceiptModal && state.lastInvoice) body += renderReceiptModal();
   return body;
 }
@@ -2474,9 +2494,13 @@ function renderSuppliersView(){
         var rows = r.entries.map(function(e){
           var linkedProduct = shop.products.find(function(p){ return p.id===e.productId; });
           var codeDisplay = linkedProduct && linkedProduct.code ? '<span class="tag-pill" style="font-family:var(--font-mono);">'+escapeHtml(linkedProduct.code)+'</span>' : '—';
+          var billKey = billGroupKeyFor(e);
+          var actionBtn = billKey
+            ? '<button type="button" class="btn btn-outline btn-sm" data-action="open-edit-bulk-bill" data-key="'+billKey+'">'+t('btn_view_edit_bill')+'</button>'
+            : '<button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+e.id+'">'+t('btn_edit')+'</button>';
           return '<tr><td>'+fmtDate(e.date)+'</td><td style="font-family:var(--font-mono);">'+escapeHtml(e.billNo||'—')+'</td><td>'+codeDisplay+'</td><td>'+escapeHtml(e.productName)+'</td><td>'+e.qty+'</td><td>'+fmtMoney(e.costPrice)+'</td><td style="font-weight:700;">'+fmtMoney(e.total)+'</td>'+
             '<td>'+(e.billAttachment ? '<a href="'+e.billAttachment+'" download="'+escapeHtml(e.billFileName||'bill')+'" target="_blank" style="color:var(--indigo);font-weight:600;">&#128206; '+t('bill_view')+'</a>' : '—')+'</td>'+
-            '<td><button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+e.id+'">'+t('btn_edit')+'</button></td></tr>';
+            '<td>'+actionBtn+'</td></tr>';
         }).join('');
         return '<div class="card" style="margin-bottom:16px;">'+
           '<div class="card-pad" style="padding-bottom:12px;">'+
@@ -2584,6 +2608,90 @@ function renderEditPurchaseModal(){
       '</div>'+
       '<div class="modal-foot"><button class="btn btn-outline" data-action="close-edit-purchase">'+t('btn_cancel')+'</button>'+
         '<button class="btn btn-primary" data-action="submit-edit-purchase">'+t('bulk_add_save_btn')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------------- edit a whole bulk-added bill (all its line items together) ---------------- */
+function newEditBulkBillRow(){
+  return { id: uid('bbrow'), entryId:null, productId:null, code:'', name:'', category:'', unit:'pcs', qty:'', cost:'', price:'', lowStockThreshold:'5', manufactureDate:'', expiryDate:'' };
+}
+
+function syncEditBulkBillRowsFromDOM(){
+  state.editBulkBillDraft.items.forEach(function(row){
+    var g = function(suffix){ var el = document.getElementById('bb-'+suffix+'-'+row.id); return el ? el.value : ''; };
+    row.code = g('code'); row.name = g('name'); row.category = g('category'); row.unit = g('unit') || 'pcs';
+    row.qty = g('qty'); row.cost = g('cost'); row.price = g('price');
+    row.lowStockThreshold = g('lowstock'); row.manufactureDate = g('mfgdate'); row.expiryDate = g('expdate');
+  });
+  var billNoEl = document.getElementById('bb-bill-no');
+  var totalEl = document.getElementById('bb-total-amount');
+  var paymentEl = document.getElementById('bb-payment-method');
+  if(billNoEl) state.editBulkBillDraft.billNo = billNoEl.value.trim();
+  if(totalEl) state.editBulkBillDraft.totalAmount = totalEl.value;
+  if(paymentEl) state.editBulkBillDraft.paymentMethod = paymentEl.value;
+}
+
+function renderEditBulkBillModal(){
+  var shop = currentShop();
+  var draft = state.editBulkBillDraft;
+  if(!draft) return '';
+  var supplier = (shop.suppliers||[]).find(function(s){ return s.id===draft.supplierId; });
+
+  var rowsHtml = draft.items.map(function(row, idx){
+    return '<tr>'+
+      '<td style="min-width:110px;"><input class="field" id="bb-code-'+row.id+'" value="'+escapeHtml(row.code)+'" placeholder="'+t('product_code_placeholder')+'"></td>'+
+      '<td style="min-width:150px;"><input class="field" id="bb-name-'+row.id+'" list="bulk-bill-product-names-datalist" value="'+escapeHtml(row.name)+'" placeholder="'+t('product_name')+'"></td>'+
+      '<td style="min-width:110px;"><input class="field" id="bb-category-'+row.id+'" value="'+escapeHtml(row.category)+'" placeholder="'+t('product_category')+'"></td>'+
+      '<td style="min-width:80px;"><input class="field" id="bb-unit-'+row.id+'" value="'+escapeHtml(row.unit)+'" placeholder="pcs"></td>'+
+      '<td style="min-width:70px;"><input class="field" id="bb-qty-'+row.id+'" type="number" min="0" value="'+escapeHtml(row.qty)+'"></td>'+
+      '<td style="min-width:90px;"><input class="field" id="bb-cost-'+row.id+'" type="number" min="0" value="'+escapeHtml(row.cost)+'"></td>'+
+      '<td style="min-width:90px;"><input class="field" id="bb-price-'+row.id+'" type="number" min="0" value="'+escapeHtml(row.price)+'"></td>'+
+      '<td style="min-width:80px;"><input class="field" id="bb-lowstock-'+row.id+'" type="number" min="0" value="'+escapeHtml(row.lowStockThreshold)+'"></td>'+
+      '<td style="min-width:130px;"><input class="field" id="bb-mfgdate-'+row.id+'" type="date" value="'+escapeHtml(row.manufactureDate)+'"></td>'+
+      '<td style="min-width:130px;"><input class="field" id="bb-expdate-'+row.id+'" type="date" value="'+escapeHtml(row.expiryDate)+'"></td>'+
+      '<td><button type="button" class="btn btn-outline btn-sm" data-action="bulk-bill-remove-item-row" data-idx="'+idx+'" style="color:var(--danger);">&#128465;</button></td>'+
+    '</tr>';
+  }).join('');
+
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="edit-bulk-bill">'+
+    '<div class="modal" style="max-width:1100px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('edit_bulk_bill_title')+'</h3><button class="modal-close" data-action="close-edit-bulk-bill">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="muted" style="font-size:12.5px;margin-bottom:16px;">'+t('edit_bulk_bill_sub')+'</div>'+
+        '<div class="kv"><div class="k">'+t('supplier_select_label')+'</div><div class="v">'+escapeHtml(supplier?supplier.companyName:'—')+'</div></div>'+
+        '<div class="grid grid-2" style="margin-top:10px;">'+
+          purchaseDateFieldHtml('bb-purchase-date', draft.purchaseDate)+
+        '</div>'+
+        '<div class="grid grid-3">'+
+          '<div class="field-row"><label class="field-label">'+t('bulk_add_bill_no')+'</label><input class="field" id="bb-bill-no" value="'+escapeHtml(draft.billNo)+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('total_amount')+'</label><input class="field" id="bb-total-amount" type="number" placeholder="0.00" value="'+escapeHtml(draft.totalAmount)+'">'+
+            '<div class="field-hint">'+t('bulk_add_total_amount_hint')+'</div>'+
+          '</div>'+
+          '<div class="field-row"><label class="field-label">'+t('bill_payment')+'</label>'+
+            '<select class="field" id="bb-payment-method">'+
+              ['cash','qr','card','credit'].map(function(m){ return '<option value="'+m+'" '+(draft.paymentMethod===m?'selected':'')+'>'+paymentLabel(m)+'</option>'; }).join('')+
+            '</select>'+
+          '</div>'+
+        '</div>'+
+        '<hr class="hair">'+
+        '<div style="font-weight:700;font-size:13px;margin-bottom:10px;">'+t('bulk_add_items_section')+'</div>'+
+        '<div id="edit-bulk-bill-items-scroll" style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">'+
+          '<table style="min-width:1100px;"><thead><tr>'+
+            '<th>'+t('product_code')+'</th><th>'+t('product_name')+'</th><th>'+t('product_category')+'</th><th>'+t('product_unit')+'</th>'+
+            '<th>'+t('bulk_add_qty_col')+'</th><th>'+t('product_cost')+'</th><th>'+t('product_price')+'</th>'+
+            '<th>'+t('product_lowstock')+'</th><th>'+t('product_mfg_date')+'</th><th>'+t('product_exp_date')+'</th><th></th>'+
+          '</tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
+        '</div>'+
+        '<datalist id="bulk-bill-product-names-datalist">'+productNameDatalistOptions(shop, draft.items)+'</datalist>'+
+        '<button type="button" class="btn btn-outline btn-sm" style="margin-top:10px;" data-action="bulk-bill-add-item-row">+ '+t('bulk_add_item_btn')+'</button>'+
+        '<div class="field-hint" style="margin-top:8px;">'+t('bulk_add_rows_hint').replace('{n}', draft.items.length)+'</div>'+
+      '</div>'+
+      '<div class="modal-foot">'+
+        '<button class="btn btn-outline" data-action="close-edit-bulk-bill">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="submit-edit-bulk-bill">'+t('bulk_add_save_btn')+'</button>'+
+      '</div>'+
     '</div>'+
   '</div>';
 }
@@ -2807,10 +2915,10 @@ function getDetailedReportData(shop, type, range){
       var linkedProduct = shop.products.find(function(x){ return x.id===p.productId; });
       var productLabel = (linkedProduct && linkedProduct.code ? '['+linkedProduct.code+'] ' : '') + (p.productName||'—');
       // Positions 0-4 stay exactly as before (ref, date, name, payment, total)
-      // so nothing that already reads those indices breaks; product label
-      // and the entry's own id are appended for the on-screen table/exports
-      // that know to look for them, and for the Edit button's data-id.
-      return [ref, fmtDate(p.date), supName, paymentLabel(p.paymentMethod||'cash'), p.total, productLabel, p.id];
+      // so nothing that already reads those indices breaks; product label,
+      // the entry's own id, and its bill-group key (if any) are appended for
+      // the on-screen table that knows to look for them.
+      return [ref, fmtDate(p.date), supName, paymentLabel(p.paymentMethod||'cash'), p.total, productLabel, p.id, billGroupKeyFor(p)];
     });
   }
 
@@ -2923,8 +3031,11 @@ function renderDetailedReportsView(){
   var showProductCol = type==='purchases';
   var rows = data.tableRows.map(function(r){
     if(showProductCol){
+      var repActionBtn = r[7]
+        ? '<button type="button" class="btn btn-outline btn-sm" data-action="open-edit-bulk-bill" data-key="'+r[7]+'">'+t('btn_view_edit_bill')+'</button>'
+        : '<button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+r[6]+'">'+t('btn_edit')+'</button>';
       return '<tr><td style="font-family:var(--font-mono);">'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[5])+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(r[4])+'</td>'+
-        '<td><button type="button" class="btn btn-outline btn-sm" data-action="open-edit-purchase" data-id="'+r[6]+'">'+t('btn_edit')+'</button></td></tr>';
+        '<td>'+repActionBtn+'</td></tr>';
     }
     return '<tr><td style="font-family:var(--font-mono);">'+r[0]+'</td><td>'+r[1]+'</td><td>'+escapeHtml(r[2])+'</td><td>'+r[3]+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(r[4])+'</td></tr>';
   }).join('');
@@ -3291,6 +3402,7 @@ function closeModalByName(name){
   else if(name==='customer') state.showAddCustomerModal = false;
   else if(name==='supplier'){ state.showAddSupplierModal = false; state.editingSupplierId = null; }
   else if(name==='edit-purchase'){ state.showEditPurchaseModal = null; }
+  else if(name==='edit-bulk-bill'){ state.showEditBulkBillModal = null; state.editBulkBillDraft = null; }
   else if(name==='bills-list') state.showBillsListModal = false;
   else if(name==='edit-bill'){ state.showEditBillModal = null; state.editBillDraft = null; }
   else if(name==='change-password'){ state.showChangePasswordModal = false; state.changePasswordError = ''; }
@@ -3853,6 +3965,58 @@ function handleAction(action, el){
       performEditPurchase(shop);
       break;
 
+    case 'open-edit-bulk-bill':
+      var billKey = el.getAttribute('data-key');
+      var groupEntries = getBillGroupEntries(shop, billKey);
+      if(groupEntries.length===0) return;
+      var firstEntry = groupEntries[0];
+      state.showEditBulkBillModal = billKey;
+      state.editBulkBillDraft = {
+        supplierId: firstEntry.supplierId,
+        billNo: firstEntry.billNo || '',
+        purchaseDate: dateStr(firstEntry.date),
+        paymentMethod: firstEntry.paymentMethod || 'cash',
+        totalAmount: String(sumBy(groupEntries, 'total')),
+        items: groupEntries.map(function(entry){
+          var linkedProduct = shop.products.find(function(p){ return p.id===entry.productId; });
+          return {
+            id: uid('bbrow'), entryId: entry.id, productId: entry.productId,
+            code: linkedProduct ? (linkedProduct.code||'') : '',
+            name: entry.productName || (linkedProduct?linkedProduct.name:''),
+            category: linkedProduct ? (linkedProduct.category||'') : '',
+            unit: linkedProduct ? (linkedProduct.unit||'pcs') : 'pcs',
+            qty: String(entry.qty), cost: String(entry.costPrice),
+            price: linkedProduct ? String(linkedProduct.price) : '',
+            lowStockThreshold: linkedProduct ? String(linkedProduct.lowStockThreshold||5) : '5',
+            manufactureDate: linkedProduct ? (linkedProduct.manufactureDate||'') : '',
+            expiryDate: linkedProduct ? (linkedProduct.expiryDate||'') : ''
+          };
+        })
+      };
+      render();
+      break;
+
+    case 'close-edit-bulk-bill':
+      closeModalByName('edit-bulk-bill');
+      break;
+
+    case 'bulk-bill-add-item-row':
+      syncEditBulkBillRowsFromDOM();
+      state.editBulkBillDraft.items.push(newEditBulkBillRow());
+      reRenderKeepScroll(['edit-bulk-bill-items-scroll']);
+      break;
+
+    case 'bulk-bill-remove-item-row':
+      syncEditBulkBillRowsFromDOM();
+      var bbRmIdx = parseInt(el.getAttribute('data-idx'));
+      state.editBulkBillDraft.items.splice(bbRmIdx, 1);
+      reRenderKeepScroll(['edit-bulk-bill-items-scroll']);
+      break;
+
+    case 'submit-edit-bulk-bill':
+      performEditBulkBill(shop);
+      break;
+
     case 'remove-supplier':
       var rmSupId = el.getAttribute('data-id');
       var linkedProducts = shop.products.filter(function(p){ return p.supplierId===rmSupId; }).length;
@@ -4350,6 +4514,131 @@ async function performEditPurchase(shop){
   fbSaveShop(shop);
   state.showEditPurchaseModal = null;
   toast(t('toast_purchase_updated'), 'success');
+  render();
+}
+
+async function performEditBulkBill(shop){
+  syncEditBulkBillRowsFromDOM();
+  var draft = state.editBulkBillDraft;
+  if(!draft) return;
+
+  var candidateRows = draft.items.filter(function(r){ return r.name && r.name.trim(); });
+  if(candidateRows.length===0){
+    toast(t('bulk_add_err_no_items'), 'error');
+    return;
+  }
+  for(var i=0;i<candidateRows.length;i++){
+    var r = candidateRows[i];
+    var priceNum = parseFloat(r.price);
+    var qtyNum = parseInt(r.qty);
+    if(isNaN(priceNum) || isNaN(qtyNum) || qtyNum<0){
+      toast(t('bulk_add_err_row_invalid').replace('{n}', String(i+1)).replace('{name}', r.name), 'error');
+      return;
+    }
+  }
+
+  var purchaseDateEl = document.getElementById('bb-purchase-date');
+  var purchaseDate = purchaseDateEl && purchaseDateEl.value ? new Date(purchaseDateEl.value).getTime() : Date.now();
+  var billNo = draft.billNo ? draft.billNo.trim() : '';
+  var billTotalEntered = parseFloat(draft.totalAmount);
+  var paymentMethod = draft.paymentMethod || 'cash';
+
+  // Quantity changes on rows still present in the bill are blocked from
+  // pushing stock negative (some of the original stock may have already
+  // been sold) — checked up front, before anything is mutated.
+  for(var j=0;j<candidateRows.length;j++){
+    var row = candidateRows[j];
+    if(row.entryId){
+      var originalEntry = (shop.supplierPurchases||[]).find(function(e){ return e.id===row.entryId; });
+      var linkedProd = originalEntry ? shop.products.find(function(p){ return p.id===originalEntry.productId; }) : null;
+      if(originalEntry && linkedProd){
+        var qtyDelta = parseInt(row.qty) - originalEntry.qty;
+        if(linkedProd.stock + qtyDelta < 0){
+          toast(t('err_purchase_edit_negative_stock')+' ('+row.name+')', 'error');
+          return;
+        }
+      }
+    }
+  }
+
+  // Rows that were originally in this bill but are no longer in the draft
+  // were removed — undo their stock impact (clamped at 0, since some may
+  // already be sold) and delete their purchase-log entry.
+  var remainingEntryIds = {};
+  candidateRows.forEach(function(r){ if(r.entryId) remainingEntryIds[r.entryId] = true; });
+  var originalGroupEntries = getBillGroupEntries(shop, state.showEditBulkBillModal);
+  var removedEntries = originalGroupEntries.filter(function(e){ return !remainingEntryIds[e.id]; });
+  var anyClampedToZero = false;
+  removedEntries.forEach(function(e){
+    var p = shop.products.find(function(x){ return x.id===e.productId; });
+    if(p){
+      var resulting = p.stock - e.qty;
+      if(resulting < 0){ resulting = 0; anyClampedToZero = true; }
+      p.stock = resulting;
+    }
+    shop.supplierPurchases = shop.supplierPurchases.filter(function(x){ return x.id!==e.id; });
+  });
+
+  // Distribute the one shared Total Amount across items proportionally to
+  // each item's own cost×qty share — same rule Bulk Add uses.
+  var itemCostTotals = candidateRows.map(function(r){ return (parseFloat(r.cost)||0) * parseInt(r.qty); });
+  var sumCostTotals = itemCostTotals.reduce(function(a,b){ return a+b; }, 0);
+  var useSharedTotal = !isNaN(billTotalEntered) && billTotalEntered > 0;
+
+  candidateRows.forEach(function(row, idx){
+    var qtyNum = parseInt(row.qty);
+    var costNum = parseFloat(row.cost) || 0;
+    var priceNum = parseFloat(row.price);
+    var allocatedTotal = useSharedTotal
+      ? (sumCostTotals>0 ? (itemCostTotals[idx]/sumCostTotals)*billTotalEntered : billTotalEntered/candidateRows.length)
+      : itemCostTotals[idx];
+
+    if(row.entryId){
+      var entry = shop.supplierPurchases.find(function(e){ return e.id===row.entryId; });
+      var product = entry ? shop.products.find(function(p){ return p.id===entry.productId; }) : null;
+      if(entry && product){
+        product.stock += (qtyNum - entry.qty);
+        product.code = row.code.trim()||null;
+        product.name = row.name.trim();
+        product.category = row.category.trim()||'General';
+        product.unit = row.unit.trim()||'pcs';
+        product.price = priceNum;
+        product.cost = costNum;
+        product.lowStockThreshold = parseInt(row.lowStockThreshold)||5;
+        product.manufactureDate = row.manufactureDate||null;
+        product.expiryDate = row.expiryDate||null;
+
+        entry.productName = product.name;
+        entry.qty = qtyNum;
+        entry.costPrice = costNum;
+        entry.total = allocatedTotal;
+        entry.date = purchaseDate;
+        entry.paymentMethod = paymentMethod;
+        entry.billNo = billNo||null;
+      }
+    } else {
+      // A row added while editing this bill — creates a brand-new product,
+      // just like adding an item in Bulk Add would.
+      var newProductId = uid('p');
+      shop.products.push({
+        id: newProductId, code: row.code.trim()||null, name: row.name.trim(), category: row.category.trim()||'General',
+        unit: row.unit.trim()||'pcs', price: priceNum, cost: costNum, stock: qtyNum,
+        lowStockThreshold: parseInt(row.lowStockThreshold)||5, manufactureDate: row.manufactureDate||null,
+        expiryDate: row.expiryDate||null, supplierId: draft.supplierId
+      });
+      if(!shop.supplierPurchases) shop.supplierPurchases = [];
+      shop.supplierPurchases.push({
+        id: uid('pur'), supplierId: draft.supplierId, productId: newProductId, productName: row.name.trim(),
+        qty: qtyNum, costPrice: costNum, total: allocatedTotal, date: purchaseDate,
+        paymentMethod: paymentMethod, billNo: billNo||null, billAttachment: null, billFileName: null
+      });
+    }
+  });
+
+  fbSaveShop(shop);
+  state.showEditBulkBillModal = null;
+  state.editBulkBillDraft = null;
+  toast(anyClampedToZero ? t('toast_bulk_bill_updated_clamped') : t('toast_bulk_bill_updated'), 'success');
   render();
 }
 
