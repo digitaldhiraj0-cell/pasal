@@ -367,6 +367,40 @@
 
   .tag-pill{display:inline-flex;padding:3px 10px;border-radius:999px;background:var(--surface-2);font-size:11.5px;font-weight:600;color:var(--ink-soft);}
 
+  /* ---------- formal VAT Tax Invoice (bilingual) ---------- */
+  .tax-invoice-sheet{background:#fff;border:1px solid var(--border);border-radius:4px;max-width:760px;margin:0 auto;padding:22px 26px;color:#1a1a1a;font-size:12.5px;}
+  .ti-header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:14px;}
+  .ti-business-name{font-family:var(--font-display);font-size:24px;font-weight:700;}
+  .ti-line{font-size:12px;color:#333;}
+  .ti-title{font-family:var(--font-display);font-size:16px;font-weight:700;margin-top:6px;}
+  .ti-meta-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:10px;}
+  .ti-meta-col > div{margin-bottom:6px;line-height:1.5;}
+  .ti-dotted{display:inline-block;min-width:120px;border-bottom:1px dotted #999;}
+  .ti-pan-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .ti-pan-box{display:inline-flex;align-items:center;justify-content:center;width:20px;height:22px;border:1px solid #333;font-family:var(--font-mono);font-size:12px;}
+  .ti-payment-mode{margin:6px 0 14px;font-size:12.5px;}
+  .ti-items-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+  .ti-items-table th, .ti-items-table td{border:1px solid #333;padding:6px 8px;font-size:11.5px;}
+  .ti-items-table thead th{background:var(--surface-2);font-weight:700;line-height:1.3;}
+  .ti-bottom-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:18px;}
+  .ti-words-col{border:1px solid #333;padding:10px;font-size:12px;}
+  .ti-words-line{margin-top:8px;font-style:italic;border-bottom:1px dotted #999;padding-bottom:10px;min-height:32px;}
+  .ti-summary-table{width:100%;border-collapse:collapse;}
+  .ti-summary-table td{border:1px solid #333;padding:6px 8px;font-size:12px;}
+  .ti-summary-table td:last-child{text-align:right;width:110px;font-family:var(--font-mono);}
+  .ti-total-row td{font-weight:800;background:var(--surface-2);}
+  .ti-footer{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;font-size:11.5px;margin-top:10px;}
+  .ti-footer-note{color:#444;max-width:280px;line-height:1.5;}
+  .ti-signatures{display:flex;gap:30px;}
+  .ti-sig-col{text-align:center;min-width:150px;}
+  .ti-sig-line{border-bottom:1px solid #333;margin-top:26px;}
+  @media print{
+    #printable-tax-invoice, #printable-tax-invoice *{visibility:visible;}
+    #printable-tax-invoice{position:absolute;top:0;left:0;width:100%;}
+    #printable-tax-invoice .tax-invoice-sheet{border:none;max-width:none;padding:0;}
+    #printable-tax-invoice button{display:none !important;}
+  }
+
   @media print{
     /* Named pages: three selectable bill formats (58mm/80mm thermal, or
        full A4) plus the separate Reports printout — each gets its own
@@ -383,6 +417,7 @@
     html, body{ background:#fff !important; }
     body *{visibility:hidden;}
     #printable-invoice, #printable-invoice *{visibility:visible;}
+    #printable-tax-invoice, #printable-tax-invoice *{visibility:visible;}
     #printable-report, #printable-report *{visibility:visible;}
     #printable-invoice{
       position:absolute;top:0;left:0;
@@ -710,6 +745,39 @@ function fmtMoney(n){
   n = Number(n)||0;
   return 'Rs. ' + n.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
+function numberToWordsRupees(amount){
+  var ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+    'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  var tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function twoDigits(n){
+    if(n===0) return '';
+    if(n<20) return ones[n];
+    return tens[Math.floor(n/10)] + (n%10 ? ' '+ones[n%10] : '');
+  }
+  function threeDigits(n){
+    var h = Math.floor(n/100), r = n%100;
+    var out = '';
+    if(h) out += ones[h]+' Hundred';
+    if(r) out += (out?' ':'')+twoDigits(r);
+    return out;
+  }
+  var rupees = Math.floor(Math.max(0, amount || 0));
+  var paisa = Math.round((Math.max(0, amount || 0) - rupees) * 100);
+  if(rupees===0 && paisa===0) return 'Rupees Zero Only';
+  var crore = Math.floor(rupees / 10000000); rupees %= 10000000;
+  var lakh = Math.floor(rupees / 100000); rupees %= 100000;
+  var thousand = Math.floor(rupees / 1000); rupees %= 1000;
+  var hundred = rupees;
+  var parts = [];
+  if(crore) parts.push(threeDigits(crore)+' Crore');
+  if(lakh) parts.push(threeDigits(lakh)+' Lakh');
+  if(thousand) parts.push(threeDigits(thousand)+' Thousand');
+  if(hundred) parts.push(threeDigits(hundred));
+  var words = parts.length ? parts.join(' ') : 'Zero';
+  var result = 'Rupees ' + words;
+  if(paisa>0) result += ' and ' + twoDigits(paisa) + ' Paisa';
+  return result + ' Only';
+}
 function fmtDate(d){
   var dt = new Date(d);
   return dt.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
@@ -978,6 +1046,7 @@ var I18N = {
     btn_add_customer:'+ Add Customer', search_customers:'Search customers…',
     th_name:'Name', th_phone:'Phone', th_address:'Address', th_purchases:'Total Purchases', th_visits:'Bills',
     add_customer_title:'Add Customer', customer_name:'Full Name', customer_phone:'Phone Number', customer_address:'Address',
+    customer_pan:'PAN Number', customer_pan_hint:'Only needed for business buyers on a formal VAT Tax Invoice.',
     btn_save_customer:'Save Customer', toast_customer_added:'Customer added.', cust_empty:'No customers yet.',
 
     set_title:'Settings', set_sub:'Configure how your shop bills and accepts payment.',
@@ -1192,6 +1261,7 @@ var I18N = {
     btn_add_customer:'+ ग्राहक थप्नुहोस्', search_customers:'ग्राहक खोज्नुहोस्…',
     th_name:'नाम', th_phone:'फोन', th_address:'ठेगाना', th_purchases:'कुल खरिद', th_visits:'बिलहरू',
     add_customer_title:'ग्राहक थप्नुहोस्', customer_name:'पूरा नाम', customer_phone:'फोन नम्बर', customer_address:'ठेगाना',
+    customer_pan:'प्यान नम्बर', customer_pan_hint:'औपचारिक भ्याट कर बिलमा व्यापारिक खरिदकर्ताको लागि मात्र आवश्यक।',
     btn_save_customer:'ग्राहक सुरक्षित गर्नुहोस्', toast_customer_added:'ग्राहक थपियो।', cust_empty:'हालसम्म कुनै ग्राहक छैन।',
 
     set_title:'सेटिङ', set_sub:'तपाईंको पसलले कसरी बिल बनाउँछ र भुक्तानी लिन्छ भनी कन्फिगर गर्नुहोस्।',
@@ -1500,6 +1570,9 @@ function normalizeShopFields(shop){
   shop.supplierPurchases.forEach(function(pur){
     if(!pur.paymentMethod) pur.paymentMethod = 'cash';
     if(pur.billNo===undefined) pur.billNo = null;
+  });
+  (shop.customers||[]).forEach(function(c){
+    if(c.pan===undefined) c.pan = null;
   });
   return shop;
 }
@@ -2453,6 +2526,7 @@ function renderCustomerModal(){
         '<div class="field-row"><label class="field-label">'+t('customer_name')+'</label><input class="field" id="cm-name"></div>'+
         '<div class="field-row"><label class="field-label">'+t('customer_phone')+'</label><input class="field" id="cm-phone"></div>'+
         '<div class="field-row"><label class="field-label">'+t('customer_address')+' ('+t('field_optional')+')</label><input class="field" id="cm-address"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('customer_pan')+' ('+t('field_optional')+')</label><input class="field" id="cm-pan" maxlength="9" placeholder="9 digits" style="font-family:var(--font-mono);letter-spacing:1px;"><div class="field-hint">'+t('customer_pan_hint')+'</div></div>'+
       '</div>'+
       '<div class="modal-foot"><button class="btn btn-outline" data-action="close-add-customer">'+t('btn_cancel')+'</button>'+
         '<button class="btn btn-primary" data-action="save-customer">'+t('btn_save_customer')+'</button></div>'+
@@ -3258,9 +3332,123 @@ function buildInvoiceCopyHtml(shop, inv, copyLabel){
     '<div class="invoice-foot">'+t('invoice_thanks')+'</div>';
 }
 
+function panBoxesHtml(panValue){
+  var digits = String(panValue||'').replace(/\D/g,'').split('');
+  var out = '';
+  for(var i=0;i<9;i++){ out += '<span class="ti-pan-box">'+(digits[i]||'')+'</span>'; }
+  return out;
+}
+function paymentModeDisplayHtml(payment){
+  var map = { cash:'Cash', credit:'Credit', qr:'Other', card:'Other' };
+  var selected = map[payment] || 'Other';
+  return ['Cash','Cheque','Credit','Other'].map(function(o){
+    return o===selected ? '<b style="text-decoration:underline;">'+o+'</b>' : o;
+  }).join(' / ');
+}
+function buildVatTaxInvoiceHtml(shop, inv){
+  var custRecord = inv.customerId ? (shop.customers||[]).find(function(c){ return c.id===inv.customerId; }) : null;
+  var custAddress = custRecord ? (custRecord.address||'') : '';
+  var custPan = custRecord ? (custRecord.pan||'') : '';
+  var netSubtotal = inv.subtotal - (inv.discountAmount||0);
+  var discountPct = inv.discountType==='percent' ? (inv.discountValue||0) : (inv.subtotal>0 ? ((inv.discountAmount||0)/inv.subtotal*100) : 0);
+  var dateDisplay = fmtDate(inv.date);
+  var bsDateStr = adDateToBsString(dateStr(inv.date));
+  if(bsDateStr) dateDisplay += ' <span class="muted">(BS '+bsDateStr+')</span>';
+
+  var itemRows = inv.items.map(function(it, idx){
+    var linkedProduct = shop.products.find(function(p){ return p.id===it.productId; });
+    var hsCode = linkedProduct ? (linkedProduct.code||'') : '';
+    return '<tr>'+
+      '<td style="text-align:center;">'+(idx+1)+'</td>'+
+      '<td style="text-align:center;font-family:var(--font-mono);">'+escapeHtml(hsCode)+'</td>'+
+      '<td>'+escapeHtml(it.name)+'</td>'+
+      '<td style="text-align:center;">'+it.qty+'</td>'+
+      '<td style="text-align:right;">'+it.price.toFixed(2)+'</td>'+
+      '<td style="text-align:right;">'+it.total.toFixed(2)+'</td>'+
+    '</tr>';
+  }).join('');
+  var blankRowsNeeded = Math.max(0, 3 - inv.items.length);
+  for(var b=0;b<blankRowsNeeded;b++){
+    itemRows += '<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>';
+  }
+
+  return ''+
+  '<div class="tax-invoice-sheet">'+
+    '<div class="ti-header">'+
+      '<div class="ti-business-name">'+escapeHtml(shop.businessName)+'</div>'+
+      '<div class="ti-line">'+escapeHtml(shop.address||shop.location||'')+'</div>'+
+      (shop.phone ? '<div class="ti-line">Tel/Mob / फोन: '+escapeHtml(shop.phone)+'</div>' : '')+
+      (shop.email ? '<div class="ti-line">Email / इमेल: '+escapeHtml(shop.email)+'</div>' : '')+
+      '<div class="ti-title">Tax Invoice / कर बिल</div>'+
+    '</div>'+
+    '<div class="ti-meta-grid">'+
+      '<div class="ti-meta-col">'+
+        '<div>Invoice No / बिल नं.: <b style="font-family:var(--font-mono);">'+escapeHtml(inv.invoiceNo)+'</b></div>'+
+        '<div>Seller\'s PAN No / बिक्रेताको प्यान नं.: <b>'+escapeHtml(shop.pan)+'</b></div>'+
+        '<div>Buyer\'s Name / खरिदकर्ताको नाम: <span class="ti-dotted">'+escapeHtml(inv.customerName||'')+'</span></div>'+
+        '<div>Buyer\'s Address / खरिदकर्ताको ठेगाना: <span class="ti-dotted">'+escapeHtml(custAddress)+'</span></div>'+
+        '<div class="ti-pan-row">Buyer\'s PAN No / खरिदकर्ताको प्यान नं.: '+panBoxesHtml(custPan)+'</div>'+
+      '</div>'+
+      '<div class="ti-meta-col">'+
+        '<div>Transaction Date / कारोबार मिति: <b>'+dateDisplay+'</b></div>'+
+        '<div>Bill Issuing Date / बिल जारी मिति: <b>'+dateDisplay+'</b></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="ti-payment-mode">Mode of Payment / भुक्तानी विधि: '+paymentModeDisplayHtml(inv.payment)+'</div>'+
+    '<table class="ti-items-table">'+
+      '<thead><tr>'+
+        '<th>S.N.<br>क्र.सं.</th><th>H.S. Code<br>एच.एस. कोड</th><th>Particulars<br>विवरण</th>'+
+        '<th>Quantity<br>परिमाण</th><th>Rate per Unit (Rs.)<br>दर प्रति इकाई (रु.)</th><th>Total Amount (Rs.)<br>जम्मा रकम (रु.)</th>'+
+      '</tr></thead>'+
+      '<tbody>'+itemRows+'</tbody>'+
+    '</table>'+
+    '<div class="ti-bottom-grid">'+
+      '<div class="ti-words-col">'+
+        '<div>Amount in Words / अक्षरमा रकम:</div>'+
+        '<div class="ti-words-line">Rs. '+numberToWordsRupees(inv.total)+'</div>'+
+      '</div>'+
+      '<table class="ti-summary-table">'+
+        '<tr><td>Gross Amount / कुल रकम</td><td>'+inv.subtotal.toFixed(2)+'</td></tr>'+
+        '<tr><td>'+discountPct.toFixed(1)+'% Discount / छुट</td><td>'+(inv.discountAmount||0).toFixed(2)+'</td></tr>'+
+        '<tr><td>Taxable Value / कर योग्य रकम</td><td>'+netSubtotal.toFixed(2)+'</td></tr>'+
+        '<tr><td>'+(shop.vatRate||13)+'% VAT / मूल्य अभिवृद्धि कर</td><td>'+inv.vat.toFixed(2)+'</td></tr>'+
+        '<tr class="ti-total-row"><td>Total Amount / जम्मा रकम</td><td>'+inv.total.toFixed(2)+'</td></tr>'+
+      '</table>'+
+    '</div>'+
+    '<div class="ti-footer">'+
+      '<div class="ti-footer-note">Goods sold would not be refundable E. &amp; O.E.<br>बिक्री भएको सामान फिर्ता हुने छैन।</div>'+
+      '<div class="ti-signatures">'+
+        '<div class="ti-sig-col">Customer\'s Signature / ग्राहकको दस्तखत:<div class="ti-sig-line"></div></div>'+
+        '<div class="ti-sig-col">'+
+          (shop.signatureImage ? '<img src="'+shop.signatureImage+'" style="max-width:110px;max-height:44px;object-fit:contain;display:block;margin:0 auto 2px;">' : '')+
+          'Seller\'s Signature (or For '+escapeHtml(shop.businessName)+') / बिक्रेताको दस्तखत:<div class="ti-sig-line"></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
 function renderReceiptModal(){
   var inv = state.lastInvoice;
   var shop = currentShop();
+
+  // VAT-registered shops (anything not explicitly PAN-only, matching how the
+  // rest of the app treats legacy shops) get the formal bilingual Tax Invoice.
+  // PAN-registered shops fall through to the existing receipt, unchanged.
+  if(shop.taxType!=='pan'){
+    return ''+
+    '<div class="modal-backdrop" data-action="backdrop-close" data-modal="receipt">'+
+      '<div class="modal" style="max-width:880px;" data-stop>'+
+        '<div class="modal-head"><h3>Tax Invoice / कर बिल'+(inv.cancelled ? ' <span class="badge badge-danger" style="vertical-align:middle;">'+t('bill_status_cancelled')+'</span>' : '')+'</h3><button class="modal-close" data-action="close-receipt">&times;</button></div>'+
+        '<div class="modal-body" style="background:var(--surface-2);overflow-x:auto;">'+
+          '<div id="printable-tax-invoice">'+buildVatTaxInvoiceHtml(shop, inv)+'</div>'+
+        '</div>'+
+        '<div class="modal-foot"><button class="btn btn-outline" data-action="close-receipt">'+t('invoice_close')+'</button>'+
+          '<button class="btn btn-primary" data-action="print-invoice">&#128424; '+t('invoice_print')+'</button></div>'+
+      '</div>'+
+    '</div>';
+  }
+
   var invoiceSheetInner = shop.printTwoCopies
     ? buildInvoiceCopyHtml(shop, inv, t('copy_customer')) + '<div class="invoice-copy-divider"></div>' + buildInvoiceCopyHtml(shop, inv, t('copy_shop'))
     : buildInvoiceCopyHtml(shop, inv, null);
@@ -3888,11 +4076,12 @@ function handleAction(action, el){
       var cname = document.getElementById('cm-name').value.trim();
       var cphone = document.getElementById('cm-phone').value.trim();
       var caddr = document.getElementById('cm-address').value.trim();
+      var cpan = document.getElementById('cm-pan').value.trim();
       if(!cname || !cphone){
         toast(t('err_required'), 'error');
         return;
       }
-      var newCust = {id:uid('c'), name:cname, phone:cphone, address:caddr};
+      var newCust = {id:uid('c'), name:cname, phone:cphone, address:caddr, pan:cpan||null};
       shop.customers.push(newCust);
       state.billingCustomerId = newCust.id;
       state.showAddCustomerModal = false;
