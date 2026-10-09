@@ -889,6 +889,7 @@ var I18N = {
     nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings', nav_suppliers:'Suppliers',
     nav_detailed_reports:'Reports',
     nav_hotel_pos:'Hotel POS',
+    shop_category_placeholder:'Choose or type a category', shop_category_hint:'Choose "Hotel" to enable rooms, tables and Hotel POS on the dashboard. You can also type your own category.',
     business_type:'Business Category', bt_retail:'General / Retail', bt_hotel:'Hotel',
     business_type_hint:'Choose Hotel to manage rooms and tables and take table/room orders from the dashboard.',
     hotel_panel_title:'Rooms & Tables', hotel_panel_sub:'Add and manage your rooms and tables, and take orders for them.',
@@ -1131,6 +1132,7 @@ var I18N = {
     nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ', nav_suppliers:'आपूर्तिकर्ताहरू',
     nav_detailed_reports:'प्रतिवेदनहरू',
     nav_hotel_pos:'होटल POS',
+    shop_category_placeholder:'वर्ग छान्नुहोस् वा टाइप गर्नुहोस्', shop_category_hint:'ड्यासबोर्डमा कोठा, टेबल र होटल POS सक्षम गर्न "Hotel" छान्नुहोस्। तपाईं आफ्नै वर्ग पनि टाइप गर्न सक्नुहुन्छ।',
     business_type:'व्यवसाय वर्ग', bt_retail:'सामान्य / खुद्रा', bt_hotel:'होटल',
     business_type_hint:'कोठा र टेबल व्यवस्थापन गर्न र ड्यासबोर्डबाट अर्डर लिन होटल छान्नुहोस्।',
     hotel_panel_title:'कोठा र टेबल', hotel_panel_sub:'कोठा र टेबलहरू थप्नुहोस् र व्यवस्थापन गर्नुहोस्, र तिनका लागि अर्डर लिनुहोस्।',
@@ -1908,7 +1910,7 @@ function renderCreateShopModal(){
         '</div>'+
         '<div class="grid grid-2">'+
           field('cs-regType','reg_type',cs.regType)+
-          field('cs-category','shop_category',cs.category)+
+          '<div class="field-row"><label class="field-label">'+t('shop_category')+'</label>'+shopCategoryInputHtml('cs-category', cs.category||'')+'<div class="field-hint">'+t('shop_category_hint')+'</div></div>'+
         '</div>'+
         '<div class="field-row">'+
           '<label class="field-label">'+t('business_address')+'</label>'+
@@ -1972,7 +1974,7 @@ function renderEditShopModal(){
         '</div>'+
         '<div class="grid grid-2">'+
           '<div class="field-row"><label class="field-label">'+t('reg_type')+'</label><input class="field" id="es-regType" value="'+escapeHtml(shop.regType||'')+'"></div>'+
-          '<div class="field-row"><label class="field-label">'+t('shop_category')+'</label><input class="field" id="es-category" value="'+escapeHtml(shop.category||'')+'"></div>'+
+          '<div class="field-row"><label class="field-label">'+t('shop_category')+'</label>'+shopCategoryInputHtml('es-category', shop.category||'')+'</div>'+
         '</div>'+
         '<div class="field-row">'+
           '<label class="field-label">'+t('business_address')+'</label>'+
@@ -1996,13 +1998,6 @@ function renderEditShopModal(){
           '<div class="field-hint">'+t('tax_reg_hint')+'</div>'+
         '</div>'+
         '<hr class="hair">'+
-        '<div class="field-row"><label class="field-label">'+t('business_type')+'</label>'+
-          '<select class="field" id="es-businesstype">'+
-            '<option value="retail" '+((shop.businessType||'retail')==='retail'?'selected':'')+'>'+t('bt_retail')+'</option>'+
-            '<option value="hotel" '+(shop.businessType==='hotel'?'selected':'')+'>'+t('bt_hotel')+'</option>'+
-          '</select>'+
-          '<div class="field-hint">'+t('business_type_hint')+'</div>'+
-        '</div>'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:6px;">'+t('admin_login_section')+'</div>'+
         '<div class="field-hint" style="margin-bottom:10px;">'+t('es_password_sync_note')+'</div>'+
         '<div class="grid grid-2">'+
@@ -2085,7 +2080,16 @@ function renderResetShopModal(){
 
 /* ---------------- shop admin: sidebar ---------------- */
 /* ---------------- Hotel: rooms, tables and simplified POS ---------------- */
-function isHotelShop(shop){ return !!shop && shop.businessType==='hotel'; }
+// A shop is a hotel when its Shop Category says Hotel (chosen or typed).
+// The saved businessType flag is kept in sync with it on every save.
+function isHotelCategory(cat){ return /hotel/i.test(String(cat||'')); }
+function isHotelShop(shop){ return !!shop && (isHotelCategory(shop.category) || shop.businessType==='hotel'); }
+// Dropdown of common categories that still accepts any typed entry.
+var SHOP_CATEGORY_SUGGESTIONS = ['Hotel','Restaurant & Café','Grocery & Daily Needs','Clothing & Apparel','Electronics','Hardware & Tools','Pharmacy','Stationery','General Store'];
+function shopCategoryInputHtml(id, value){
+  return '<input class="field" id="'+id+'" list="'+id+'-options" value="'+escapeHtml(value)+'" placeholder="'+t('shop_category_placeholder')+'" autocomplete="off">'+
+    '<datalist id="'+id+'-options">'+SHOP_CATEGORY_SUGGESTIONS.map(function(c){ return '<option value="'+escapeHtml(c)+'">'; }).join('')+'</datalist>';
+}
 
 function hotelStatusBadge(kind, status){
   var label, cls;
@@ -4108,7 +4112,7 @@ function handleAction(action, el){
       var newShop = {
         id: uid('s'), businessName:bname, ownerName:oname, pan:pan, regType:reg||'—',
         address:addr, category:cat||'General', location:loc, email:email, phone:phone,
-        taxType:taxType, adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
+        taxType:taxType, businessType: isHotelCategory(cat)?'hotel':'retail', adminUsername:uname, adminPassword:pwd, vatRate:newVatRate,
         merchantId: uname.toUpperCase()+'.MOBILE@BANK', qrProvider:'other', customQr:null, logoImage:null, signatureImage:null, billPrintFormat:'80mm', printTwoCopies:false, active:true,
         invoiceSeq:1, products:[], customers:[], suppliers:[], supplierPurchases:[], sales:[]
       };
@@ -4161,8 +4165,7 @@ function handleAction(action, el){
       editShop.email = eEmail;
       editShop.phone = ePhone;
       editShop.taxType = eTaxType;
-      var eBizEl = document.getElementById('es-businesstype');
-      editShop.businessType = eBizEl ? eBizEl.value : (editShop.businessType||'retail');
+      editShop.businessType = isHotelCategory(editShop.category) ? 'hotel' : 'retail';
       // VAT-registered shops always bill at 13%; PAN-only shops never add VAT.
       editShop.vatRate = (eTaxType==='vat') ? 13 : 0;
       state.showEditShopModal = null;
