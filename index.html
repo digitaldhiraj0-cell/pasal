@@ -888,6 +888,33 @@ var I18N = {
     nav_dashboard:'Dashboard', nav_inventory:'Inventory', nav_billing:'Billing / POS',
     nav_reports:'Sales Reports', nav_customers:'Customers', nav_settings:'Settings', nav_suppliers:'Suppliers',
     nav_detailed_reports:'Reports',
+    nav_hotel_pos:'Hotel POS',
+    business_type:'Business Category', bt_retail:'General / Retail', bt_hotel:'Hotel',
+    business_type_hint:'Choose Hotel to manage rooms and tables and take table/room orders from the dashboard.',
+    hotel_panel_title:'Rooms & Tables', hotel_panel_sub:'Add and manage your rooms and tables, and take orders for them.',
+    hotel_add_room:'+ Add Room', hotel_add_table:'+ Add Table',
+    hotel_rooms_title:'Rooms', hotel_tables_title:'Tables',
+    hotel_room_number:'Room', hotel_room_type:'Room Type', hotel_room_rate:'Rate per Night (Rs.)',
+    hotel_table_number:'Table', hotel_table_seats:'Seats',
+    hotel_room_modal_add:'Add Room', hotel_room_modal_edit:'Edit Room',
+    hotel_table_modal_add:'Add Table', hotel_table_modal_edit:'Edit Table',
+    hotel_save:'Save', hotel_edit:'Edit', hotel_delete:'Delete', hotel_take_order:'Take Order', hotel_checkout:'Check Out',
+    hotel_status_available:'Available', hotel_status_occupied:'Occupied', hotel_status_cleaning:'Cleaning', hotel_status_free:'Free',
+    hotel_no_rooms:'No rooms added yet. Use "+ Add Room" above.', hotel_no_tables:'No tables added yet. Use "+ Add Table" above.',
+    hotel_folio_due:'Outstanding bill', hotel_confirm_delete:'Delete this item? This cannot be undone.',
+    hotel_err_number:'Please enter a room or table number.',
+    hotel_toast_saved:'Saved.', hotel_toast_deleted:'Deleted.',
+    hotel_pos_title:'Hotel POS', hotel_pos_sub:'Take an order and bill it to a room, a table, or a walk-in customer.',
+    hotel_pos_target:'Bill to', hotel_pos_walkin:'Walk-in (no room or table)',
+    hotel_pos_group_rooms:'Rooms', hotel_pos_group_tables:'Tables',
+    hotel_pos_add_item:'Add Item', hotel_pos_order:'Order', hotel_pos_empty:'No items yet. Choose a product above and add it.',
+    hotel_pos_settle:'Settle & Print Bill', hotel_pos_post_room:'Add to Room Bill',
+    hotel_pos_err_empty:'Add at least one item first.', hotel_pos_err_qty:'Quantity must be at least 1.',
+    hotel_pos_err_stock:'Not enough stock for one of the items, or the room/table no longer exists.',
+    hotel_pos_toast_done:'Bill created and linked.', hotel_pos_toast_posted:'Added to the room bill. Settle it at check-out.',
+    hotel_checkout_title:'Room Check-out', hotel_checkout_settle:'Settle outstanding bill with',
+    hotel_checkout_confirm:'Confirm Check-out', hotel_toast_checked_out:'Room checked out and bill settled.',
+    hotel_linked_room:'Room', hotel_linked_table:'Table',
     detailed_reports_sub:'Generate detailed printable reports of sales and purchases.',
     detailed_rep_print:'Print / Download', detailed_rep_tab_sales:'Sales', detailed_rep_tab_purchases:'Purchases',
     detailed_rep_tab_credit:'Credit', credit_rep_total_outstanding:'Total Outstanding Credit',
@@ -1103,6 +1130,33 @@ var I18N = {
     nav_dashboard:'ड्यासबोर्ड', nav_inventory:'सामान सूची', nav_billing:'बिलिङ / बिक्री',
     nav_reports:'बिक्री प्रतिवेदन', nav_customers:'ग्राहकहरू', nav_settings:'सेटिङ', nav_suppliers:'आपूर्तिकर्ताहरू',
     nav_detailed_reports:'प्रतिवेदनहरू',
+    nav_hotel_pos:'होटल POS',
+    business_type:'व्यवसाय वर्ग', bt_retail:'सामान्य / खुद्रा', bt_hotel:'होटल',
+    business_type_hint:'कोठा र टेबल व्यवस्थापन गर्न र ड्यासबोर्डबाट अर्डर लिन होटल छान्नुहोस्।',
+    hotel_panel_title:'कोठा र टेबल', hotel_panel_sub:'कोठा र टेबलहरू थप्नुहोस् र व्यवस्थापन गर्नुहोस्, र तिनका लागि अर्डर लिनुहोस्।',
+    hotel_add_room:'+ कोठा थप्नुहोस्', hotel_add_table:'+ टेबल थप्नुहोस्',
+    hotel_rooms_title:'कोठाहरू', hotel_tables_title:'टेबलहरू',
+    hotel_room_number:'कोठा', hotel_room_type:'कोठाको प्रकार', hotel_room_rate:'प्रति रात दर (रु.)',
+    hotel_table_number:'टेबल', hotel_table_seats:'सिट',
+    hotel_room_modal_add:'कोठा थप्नुहोस्', hotel_room_modal_edit:'कोठा सम्पादन गर्नुहोस्',
+    hotel_table_modal_add:'टेबल थप्नुहोस्', hotel_table_modal_edit:'टेबल सम्पादन गर्नुहोस्',
+    hotel_save:'सुरक्षित गर्नुहोस्', hotel_edit:'सम्पादन', hotel_delete:'मेटाउनुहोस्', hotel_take_order:'अर्डर लिनुहोस्', hotel_checkout:'चेक आउट',
+    hotel_status_available:'उपलब्ध', hotel_status_occupied:'भरिएको', hotel_status_cleaning:'सफा गर्दै', hotel_status_free:'खाली',
+    hotel_no_rooms:'हालसम्म कुनै कोठा थपिएको छैन। माथि "+ कोठा थप्नुहोस्" प्रयोग गर्नुहोस्।', hotel_no_tables:'हालसम्म कुनै टेबल थपिएको छैन। माथि "+ टेबल थप्नुहोस्" प्रयोग गर्नुहोस्।',
+    hotel_folio_due:'बाँकी बिल', hotel_confirm_delete:'यो वस्तु मेटाउने हो? यो फिर्ता गर्न सकिँदैन।',
+    hotel_err_number:'कृपया कोठा वा टेबल नम्बर लेख्नुहोस्।',
+    hotel_toast_saved:'सुरक्षित भयो।', hotel_toast_deleted:'मेटाइयो।',
+    hotel_pos_title:'होटल POS', hotel_pos_sub:'अर्डर लिनुहोस् र कोठा, टेबल वा सामान्य ग्राहकलाई बिल गर्नुहोस्।',
+    hotel_pos_target:'बिल गर्ने', hotel_pos_walkin:'सामान्य ग्राहक (कोठा वा टेबल होइन)',
+    hotel_pos_group_rooms:'कोठाहरू', hotel_pos_group_tables:'टेबलहरू',
+    hotel_pos_add_item:'सामान थप्नुहोस्', hotel_pos_order:'अर्डर', hotel_pos_empty:'अहिलेसम्म कुनै सामान छैन। माथि सामान छानेर थप्नुहोस्।',
+    hotel_pos_settle:'भुक्तानी गरी बिल छाप्नुहोस्', hotel_pos_post_room:'कोठाको बिलमा थप्नुहोस्',
+    hotel_pos_err_empty:'पहिले कम्तिमा एउटा सामान थप्नुहोस्।', hotel_pos_err_qty:'परिमाण कम्तिमा १ हुनुपर्छ।',
+    hotel_pos_err_stock:'एउटा सामानको स्टक पर्याप्त छैन, वा कोठा/टेबल अब अवस्थित छैन।',
+    hotel_pos_toast_done:'बिल बनाइयो र जोडियो।', hotel_pos_toast_posted:'कोठाको बिलमा थपियो। चेक आउटमा भुक्तानी गर्नुहोस्।',
+    hotel_checkout_title:'कोठा चेक आउट', hotel_checkout_settle:'बाँकी बिल यसबाट भुक्तानी गर्नुहोस्',
+    hotel_checkout_confirm:'चेक आउट पुष्टि गर्नुहोस्', hotel_toast_checked_out:'कोठाको चेक आउट भयो र बिल भुक्तानी भयो।',
+    hotel_linked_room:'कोठा', hotel_linked_table:'टेबल',
     detailed_reports_sub:'बिक्री र खरिदको विस्तृत छाप्न मिल्ने प्रतिवेदन बनाउनुहोस्।',
     detailed_rep_print:'प्रिन्ट / डाउनलोड', detailed_rep_tab_sales:'बिक्री', detailed_rep_tab_purchases:'खरिद',
     detailed_rep_tab_credit:'उधारो', credit_rep_total_outstanding:'कुल बाँकी उधारो',
@@ -1488,6 +1542,11 @@ var state = {
   showAddSupplierModal:false,
   showEditPurchaseModal:null,
   showEditBulkBillModal:null,
+  showHotelRoomModal:null,
+  showHotelTableModal:null,
+  showRoomCheckoutModal:null,
+  hotelPosTarget:null,
+  hotelPosCart:[],
   editBulkBillDraft:null,
   editingSupplierId:null,
   showAddStockModal:null,
@@ -1555,6 +1614,9 @@ function lowStockProducts(shop){
 // Firestore, so older records (created before Suppliers/Expiry existed)
 // don't crash the UI — they just show up empty until filled in.
 function normalizeShopFields(shop){
+  if(!shop.businessType) shop.businessType = 'retail';
+  if(!shop.rooms) shop.rooms = [];
+  if(!shop.tables) shop.tables = [];
   if(!shop.suppliers) shop.suppliers = [];
   if(!shop.supplierPurchases) shop.supplierPurchases = [];
   if(shop.logoImage===undefined) shop.logoImage = null;
@@ -1934,6 +1996,13 @@ function renderEditShopModal(){
           '<div class="field-hint">'+t('tax_reg_hint')+'</div>'+
         '</div>'+
         '<hr class="hair">'+
+        '<div class="field-row"><label class="field-label">'+t('business_type')+'</label>'+
+          '<select class="field" id="es-businesstype">'+
+            '<option value="retail" '+((shop.businessType||'retail')==='retail'?'selected':'')+'>'+t('bt_retail')+'</option>'+
+            '<option value="hotel" '+(shop.businessType==='hotel'?'selected':'')+'>'+t('bt_hotel')+'</option>'+
+          '</select>'+
+          '<div class="field-hint">'+t('business_type_hint')+'</div>'+
+        '</div>'+
         '<div style="font-weight:700;font-size:13px;margin-bottom:6px;">'+t('admin_login_section')+'</div>'+
         '<div class="field-hint" style="margin-bottom:10px;">'+t('es_password_sync_note')+'</div>'+
         '<div class="grid grid-2">'+
@@ -2015,6 +2084,207 @@ function renderResetShopModal(){
 }
 
 /* ---------------- shop admin: sidebar ---------------- */
+/* ---------------- Hotel: rooms, tables and simplified POS ---------------- */
+function isHotelShop(shop){ return !!shop && shop.businessType==='hotel'; }
+
+function hotelStatusBadge(kind, status){
+  var label, cls;
+  if(status==='occupied'){ label = t('hotel_status_occupied'); cls = 'badge-warning'; }
+  else if(kind==='room' && status==='cleaning'){ label = t('hotel_status_cleaning'); cls = 'badge-indigo'; }
+  else if(kind==='room'){ label = t('hotel_status_available'); cls = 'badge-success'; }
+  else { label = t('hotel_status_free'); cls = 'badge-success'; }
+  return '<span class="badge '+cls+'">'+label+'</span>';
+}
+
+// Unpaid room charges: credit sales linked to this room that aren't cancelled.
+function roomFolioSales(shop, roomId){
+  return (shop.sales||[]).filter(function(s){
+    return !s.cancelled && s.payment==='credit' && s.linkedTo && s.linkedTo.kind==='room' && s.linkedTo.id===roomId;
+  });
+}
+
+function renderHotelPanel(shop){
+  var rooms = shop.rooms || [];
+  var tables = shop.tables || [];
+
+  var roomCards = rooms.length ? '<div class="grid grid-3" style="margin-bottom:18px;">'+rooms.map(function(r){
+    var due = sumBy(roomFolioSales(shop, r.id), 'total');
+    var st = r.status || 'available';
+    return '<div class="card card-pad" style="display:flex;flex-direction:column;gap:10px;">'+
+      '<div class="flex-between"><div>'+
+        '<div style="font-weight:700;font-size:15px;">'+t('hotel_room_number')+' '+escapeHtml(r.number)+'</div>'+
+        '<div class="muted" style="font-size:12px;">'+escapeHtml(r.type||'')+' · '+fmtMoney(r.rate)+'</div>'+
+      '</div>'+hotelStatusBadge('room', st)+'</div>'+
+      (due>0 ? '<div style="font-size:12.5px;"><b>'+t('hotel_folio_due')+':</b> '+fmtMoney(due)+'</div>' : '')+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        ['available','occupied','cleaning'].map(function(s){
+          var lbl = s==='available' ? t('hotel_status_available') : (s==='occupied' ? t('hotel_status_occupied') : t('hotel_status_cleaning'));
+          return '<button class="btn btn-sm '+(st===s?'btn-indigo':'btn-outline')+'" data-action="set-hotel-room-status" data-id="'+r.id+'" data-status="'+s+'">'+lbl+'</button>';
+        }).join('')+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        '<button class="btn btn-primary btn-sm" data-action="hotel-take-order" data-kind="room" data-id="'+r.id+'">'+t('hotel_take_order')+'</button>'+
+        (due>0 || st==='occupied' ? '<button class="btn btn-outline btn-sm" data-action="open-room-checkout" data-id="'+r.id+'">'+t('hotel_checkout')+'</button>' : '')+
+        '<button class="btn btn-outline btn-sm" data-action="open-hotel-room" data-id="'+r.id+'">'+t('hotel_edit')+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="delete-hotel-room" data-id="'+r.id+'" style="color:var(--danger);">'+t('hotel_delete')+'</button>'+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>' : '<div class="card empty-state" style="margin-bottom:18px;">'+t('hotel_no_rooms')+'</div>';
+
+  var tableCards = tables.length ? '<div class="grid grid-3" style="margin-bottom:18px;">'+tables.map(function(tb){
+    var st = tb.status || 'free';
+    return '<div class="card card-pad" style="display:flex;flex-direction:column;gap:10px;">'+
+      '<div class="flex-between"><div>'+
+        '<div style="font-weight:700;font-size:15px;">'+t('hotel_table_number')+' '+escapeHtml(tb.number)+'</div>'+
+        '<div class="muted" style="font-size:12px;">'+t('hotel_table_seats')+': '+(tb.seats||0)+'</div>'+
+      '</div>'+hotelStatusBadge('table', st)+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        '<button class="btn btn-sm '+(st==='free'?'btn-indigo':'btn-outline')+'" data-action="set-hotel-table-status" data-id="'+tb.id+'" data-status="free">'+t('hotel_status_free')+'</button>'+
+        '<button class="btn btn-sm '+(st==='occupied'?'btn-indigo':'btn-outline')+'" data-action="set-hotel-table-status" data-id="'+tb.id+'" data-status="occupied">'+t('hotel_status_occupied')+'</button>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        '<button class="btn btn-primary btn-sm" data-action="hotel-take-order" data-kind="table" data-id="'+tb.id+'">'+t('hotel_take_order')+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="open-hotel-table" data-id="'+tb.id+'">'+t('hotel_edit')+'</button>'+
+        '<button class="btn btn-outline btn-sm" data-action="delete-hotel-table" data-id="'+tb.id+'" style="color:var(--danger);">'+t('hotel_delete')+'</button>'+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>' : '<div class="card empty-state" style="margin-bottom:18px;">'+t('hotel_no_tables')+'</div>';
+
+  return ''+
+  '<div class="page-head"><div><h1>'+t('hotel_panel_title')+'</h1><div class="sub">'+t('hotel_panel_sub')+'</div></div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+      '<button class="btn btn-outline" data-action="open-hotel-table" data-id="new">'+t('hotel_add_table')+'</button>'+
+      '<button class="btn btn-primary" data-action="open-hotel-room" data-id="new">'+t('hotel_add_room')+'</button>'+
+    '</div>'+
+  '</div>'+
+  '<div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--ink-soft);">'+t('hotel_rooms_title')+'</div>'+
+  roomCards+
+  '<div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--ink-soft);">'+t('hotel_tables_title')+'</div>'+
+  tableCards+
+  '<hr class="hair">';
+}
+
+function renderHotelRoomModal(){
+  var shop = currentShop();
+  var editing = state.showHotelRoomModal && state.showHotelRoomModal!=='new'
+    ? (shop.rooms||[]).find(function(r){ return r.id===state.showHotelRoomModal; }) : null;
+  var r = editing || {number:'', type:'', rate:''};
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="hotel-room">'+
+    '<div class="modal" style="max-width:440px;" data-stop>'+
+      '<div class="modal-head"><h3>'+(editing?t('hotel_room_modal_edit'):t('hotel_room_modal_add'))+'</h3><button class="modal-close" data-action="close-hotel-room">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="field-row"><label class="field-label">'+t('hotel_room_number')+'</label><input class="field" id="hr-number" value="'+escapeHtml(r.number)+'"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('hotel_room_type')+'</label><input class="field" id="hr-type" value="'+escapeHtml(r.type||'')+'" placeholder="Standard / Deluxe / Suite"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('hotel_room_rate')+'</label><input class="field" id="hr-rate" type="number" min="0" value="'+escapeHtml(String(r.rate===undefined?'':r.rate))+'"></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-hotel-room">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="save-hotel-room" data-id="'+(editing?editing.id:'')+'">'+t('hotel_save')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderHotelTableModal(){
+  var shop = currentShop();
+  var editing = state.showHotelTableModal && state.showHotelTableModal!=='new'
+    ? (shop.tables||[]).find(function(x){ return x.id===state.showHotelTableModal; }) : null;
+  var tb = editing || {number:'', seats:''};
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="hotel-table">'+
+    '<div class="modal" style="max-width:440px;" data-stop>'+
+      '<div class="modal-head"><h3>'+(editing?t('hotel_table_modal_edit'):t('hotel_table_modal_add'))+'</h3><button class="modal-close" data-action="close-hotel-table">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="field-row"><label class="field-label">'+t('hotel_table_number')+'</label><input class="field" id="ht-number" value="'+escapeHtml(tb.number)+'"></div>'+
+        '<div class="field-row"><label class="field-label">'+t('hotel_table_seats')+'</label><input class="field" id="ht-seats" type="number" min="0" value="'+escapeHtml(String(tb.seats===undefined?'':tb.seats))+'"></div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-hotel-table">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="save-hotel-table" data-id="'+(editing?editing.id:'')+'">'+t('hotel_save')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderRoomCheckoutModal(){
+  var shop = currentShop();
+  var room = (shop.rooms||[]).find(function(r){ return r.id===state.showRoomCheckoutModal; });
+  if(!room) return '';
+  var due = sumBy(roomFolioSales(shop, room.id), 'total');
+  return ''+
+  '<div class="modal-backdrop" data-action="backdrop-close" data-modal="room-checkout">'+
+    '<div class="modal" style="max-width:440px;" data-stop>'+
+      '<div class="modal-head"><h3>'+t('hotel_checkout_title')+' — '+t('hotel_room_number')+' '+escapeHtml(room.number)+'</h3><button class="modal-close" data-action="close-room-checkout">&times;</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="kv"><div class="k">'+t('hotel_folio_due')+'</div><div class="v">'+fmtMoney(due)+'</div></div>'+
+        '<div class="field-row" style="margin-top:14px;"><label class="field-label">'+t('hotel_checkout_settle')+'</label>'+
+          '<select class="field" id="rc-payment">'+['cash','qr','card'].map(function(m){ return '<option value="'+m+'">'+paymentLabel(m)+'</option>'; }).join('')+'</select>'+
+        '</div>'+
+      '</div>'+
+      '<div class="modal-foot"><button class="btn btn-outline" data-action="close-room-checkout">'+t('btn_cancel')+'</button>'+
+        '<button class="btn btn-primary" data-action="confirm-room-checkout" data-id="'+room.id+'">'+t('hotel_checkout_confirm')+'</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function renderHotelPosView(){
+  var shop = currentShop();
+  var target = state.hotelPosTarget;
+  var rooms = shop.rooms || [], tables = shop.tables || [];
+  var isRoom = !!(target && target.kind==='room');
+  var targetOptions = '<option value="">'+t('hotel_pos_walkin')+'</option>'+
+    '<optgroup label="'+t('hotel_pos_group_rooms')+'">'+rooms.map(function(r){
+      return '<option value="room:'+r.id+'" '+(target&&target.kind==='room'&&target.id===r.id?'selected':'')+'>'+t('hotel_linked_room')+' '+escapeHtml(r.number)+'</option>';
+    }).join('')+'</optgroup>'+
+    '<optgroup label="'+t('hotel_pos_group_tables')+'">'+tables.map(function(tb){
+      return '<option value="table:'+tb.id+'" '+(target&&target.kind==='table'&&target.id===tb.id?'selected':'')+'>'+t('hotel_linked_table')+' '+escapeHtml(tb.number)+'</option>';
+    }).join('')+'</optgroup>';
+  var productOptions = shop.products.filter(function(p){ return p.stock>0; }).map(function(p){
+    return '<option value="'+p.id+'">'+escapeHtml(p.name)+' — '+fmtMoney(p.price)+' ('+p.stock+' '+escapeHtml(p.unit)+')</option>';
+  }).join('');
+  var cart = state.hotelPosCart || [];
+  var subtotal = 0;
+  var lines = cart.map(function(item, idx){
+    var p = shop.products.find(function(x){ return x.id===item.productId; });
+    if(!p) return '';
+    var lt = p.price * item.qty;
+    subtotal += lt;
+    return '<tr><td>'+escapeHtml(p.name)+'</td><td style="text-align:center;">'+item.qty+'</td><td style="text-align:right;">'+fmtMoney(p.price)+'</td><td style="text-align:right;font-weight:700;">'+fmtMoney(lt)+'</td>'+
+      '<td><button class="btn btn-outline btn-sm" data-action="hotel-pos-remove" data-idx="'+idx+'" style="color:var(--danger);">&times;</button></td></tr>';
+  }).join('');
+  var vat = subtotal*((shop.vatRate||0)/100);
+  var total = subtotal+vat;
+  var payRow = isRoom ? '' : '<div class="field-row"><label class="field-label">'+t('bill_payment')+'</label>'+
+    '<select class="field" id="hp-payment">'+['cash','qr','card','credit'].map(function(m){ return '<option value="'+m+'">'+paymentLabel(m)+'</option>'; }).join('')+'</select></div>';
+  return ''+
+  '<div class="page-head"><div><h1>'+t('hotel_pos_title')+'</h1><div class="sub">'+t('hotel_pos_sub')+'</div></div></div>'+
+  '<div class="grid grid-billing">'+
+    '<div>'+
+      '<div class="card card-pad" style="margin-bottom:14px;">'+
+        '<div class="field-row"><label class="field-label">'+t('hotel_pos_target')+'</label>'+
+          '<select class="field" id="hp-target">'+targetOptions+'</select></div>'+
+        '<div class="field-row"><label class="field-label">'+t('bill_select_product_label')+'</label>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+            '<select class="field" id="hp-product" style="flex:1;min-width:180px;"><option value="">'+t('bill_select_product')+'</option>'+productOptions+'</select>'+
+            '<input class="field" id="hp-qty" type="number" min="1" value="1" style="width:90px;">'+
+            '<button type="button" class="btn btn-indigo" data-action="hotel-pos-add">+ '+t('hotel_pos_add_item')+'</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card">'+
+        '<div class="card-pad" style="padding-bottom:0;"><h3 style="margin:0;font-size:15px;">'+t('hotel_pos_order')+'</h3></div>'+
+        (cart.length ? '<div class="table-wrap" style="border:none;margin-top:10px;"><table><thead><tr><th>'+t('th_product')+'</th><th>'+t('bill_qty')+'</th><th>'+t('bill_price')+'</th><th>'+t('bill_line_total')+'</th><th></th></tr></thead><tbody>'+lines+'</tbody></table></div>'
+          : '<div class="empty-state">'+t('hotel_pos_empty')+'</div>')+
+      '</div>'+
+    '</div>'+
+    '<div class="card card-pad">'+
+      payRow+
+      '<hr class="hair">'+
+      '<div class="kv"><div class="k">'+t('bill_subtotal')+'</div><div class="v">'+fmtMoney(subtotal)+'</div></div>'+
+      (vat>0 ? '<div class="kv"><div class="k">'+t('bill_vat')+' ('+shop.vatRate+'%)</div><div class="v">'+fmtMoney(vat)+'</div></div>' : '')+
+      '<div class="kv" style="font-size:16px;"><div class="k" style="color:var(--ink);font-weight:700;">'+t('bill_total')+'</div><div class="v" style="color:var(--crimson-dark);">'+fmtMoney(total)+'</div></div>'+
+      '<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:14px;" data-action="hotel-pos-settle" '+(cart.length===0?'disabled':'')+'>&#128196; '+(isRoom ? t('hotel_pos_post_room') : t('hotel_pos_settle'))+'</button>'+
+    '</div>'+
+  '</div>';
+}
+
 function renderShopSidebar(){
   var shop = currentShop();
   var lowCount = lowStockProducts(shop).length;
@@ -2033,6 +2303,7 @@ function renderShopSidebar(){
     link('reports','&#128200;','nav_reports')+
     link('customers','&#128101;','nav_customers')+
     link('settings','&#9881;','nav_settings')+
+    (isHotelShop(shop) ? link('hotelpos','&#9733;','nav_hotel_pos') : '')+
     link('detailedReports','&#128203;','nav_detailed_reports')+
   '</div>';
 }
@@ -2047,8 +2318,14 @@ function renderShopMain(){
     case 'customers': body = renderCustomersView(); break;
     case 'settings': body = renderSettingsView(); break;
     case 'detailedReports': body = renderDetailedReportsView(); break;
+    case 'hotelpos': body = renderHotelPosView(); break;
     default: body = renderDashboardView();
   }
+  var hotelShop = currentShop();
+  if(state.shopView==='dashboard' && isHotelShop(hotelShop)) body = renderHotelPanel(hotelShop) + body;
+  if(state.showHotelRoomModal) body += renderHotelRoomModal();
+  if(state.showHotelTableModal) body += renderHotelTableModal();
+  if(state.showRoomCheckoutModal) body += renderRoomCheckoutModal();
   if(state.showAddProductModal) body += renderProductModal();
   if(state.showBulkAddModal) body += renderBulkAddProductsModal();
   if(state.showAddStockModal) body += renderAddStockModal();
@@ -3591,6 +3868,9 @@ function closeModalByName(name){
   else if(name==='supplier'){ state.showAddSupplierModal = false; state.editingSupplierId = null; }
   else if(name==='edit-purchase'){ state.showEditPurchaseModal = null; }
   else if(name==='edit-bulk-bill'){ state.showEditBulkBillModal = null; state.editBulkBillDraft = null; }
+  else if(name==='hotel-room'){ state.showHotelRoomModal = null; }
+  else if(name==='hotel-table'){ state.showHotelTableModal = null; }
+  else if(name==='room-checkout'){ state.showRoomCheckoutModal = null; }
   else if(name==='bills-list') state.showBillsListModal = false;
   else if(name==='edit-bill'){ state.showEditBillModal = null; state.editBillDraft = null; }
   else if(name==='change-password'){ state.showChangePasswordModal = false; state.changePasswordError = ''; }
@@ -3599,6 +3879,77 @@ function closeModalByName(name){
 }
 
 /* ---------------- action dispatcher ---------------- */
+// Creates a bill from the Hotel POS cart. Room orders are posted to the room's
+// folio as credit (settled at check-out); table and walk-in orders are paid
+// immediately. Every bill records which room/table it belongs to.
+function performHotelPosSettle(shop){
+  var cart = state.hotelPosCart || [];
+  if(cart.length===0){ toast(t('hotel_pos_err_empty'), 'error'); return; }
+  var target = state.hotelPosTarget;
+  var isRoom = !!(target && target.kind==='room');
+
+  var items = [], subtotal = 0;
+  for(var i=0;i<cart.length;i++){
+    var p = shop.products.find(function(x){ return x.id===cart[i].productId; });
+    if(!p || cart[i].qty<1 || p.stock < cart[i].qty){ toast(t('hotel_pos_err_stock'), 'error'); return; }
+    var lt = p.price * cart[i].qty;
+    subtotal += lt;
+    items.push({productId:p.id, name:p.name, qty:cart[i].qty, price:p.price, total:lt});
+  }
+
+  var linkedTo = null, customerName = null, linkedTable = null, linkedRoom = null;
+  if(target){
+    if(target.kind==='room'){
+      linkedRoom = (shop.rooms||[]).find(function(r){ return r.id===target.id; });
+      if(!linkedRoom){ toast(t('hotel_pos_err_stock'), 'error'); return; }
+      linkedTo = {kind:'room', id:linkedRoom.id, number:linkedRoom.number};
+      customerName = t('hotel_linked_room')+' '+linkedRoom.number;
+    } else {
+      linkedTable = (shop.tables||[]).find(function(x){ return x.id===target.id; });
+      if(!linkedTable){ toast(t('hotel_pos_err_stock'), 'error'); return; }
+      linkedTo = {kind:'table', id:linkedTable.id, number:linkedTable.number};
+      customerName = t('hotel_linked_table')+' '+linkedTable.number;
+    }
+  }
+
+  var payment = 'credit';
+  var payEl = document.getElementById('hp-payment');
+  if(!isRoom && payEl) payment = payEl.value;
+
+  var vat = subtotal*((shop.vatRate||0)/100);
+  var total = subtotal+vat;
+
+  items.forEach(function(it){
+    var p = shop.products.find(function(x){ return x.id===it.productId; });
+    p.stock -= it.qty;
+  });
+
+  var invoiceNo = nextInvoiceNo(shop);
+  shop.invoiceSeq++;
+  var sale = {
+    id: uid('inv'), invoiceNo: invoiceNo, date: Date.now(), items: items,
+    subtotal: subtotal, discountType:'flat', discountValue:0, discountAmount:0,
+    vat: vat, total: total, payment: payment, customerId: null, customerName: customerName,
+    linkedTo: linkedTo
+  };
+  shop.sales.push(sale);
+  if(linkedTable) linkedTable.status = 'free';
+
+  state.hotelPosCart = [];
+  fbSaveShop(shop);
+
+  if(isRoom){
+    toast(t('hotel_pos_toast_posted'), 'success');
+    render();
+    return;
+  }
+  state.hotelPosTarget = null;
+  state.lastInvoice = sale;
+  state.showReceiptModal = true;
+  toast(t('hotel_pos_toast_done'), 'success');
+  render();
+}
+
 function handleAction(action, el){
   var shop = currentShop();
   switch(action){
@@ -3810,6 +4161,8 @@ function handleAction(action, el){
       editShop.email = eEmail;
       editShop.phone = ePhone;
       editShop.taxType = eTaxType;
+      var eBizEl = document.getElementById('es-businesstype');
+      editShop.businessType = eBizEl ? eBizEl.value : (editShop.businessType||'retail');
       // VAT-registered shops always bill at 13%; PAN-only shops never add VAT.
       editShop.vatRate = (eTaxType==='vat') ? 13 : 0;
       state.showEditShopModal = null;
@@ -3883,6 +4236,145 @@ function handleAction(action, el){
       state.resetShopConfirmInput = '';
       fbSaveShop(shopToReset);
       toast(t('toast_shop_reset'), 'success');
+      render();
+      break;
+
+    /* ---- hotel: rooms, tables, POS, check-out ---- */
+    case 'open-hotel-room':
+      state.showHotelRoomModal = el.getAttribute('data-id') || 'new';
+      render();
+      break;
+
+    case 'close-hotel-room':
+      closeModalByName('hotel-room');
+      break;
+
+    case 'save-hotel-room':
+      var hrNumber = document.getElementById('hr-number').value.trim();
+      var hrType = document.getElementById('hr-type').value.trim();
+      var hrRate = parseFloat(document.getElementById('hr-rate').value);
+      if(!hrNumber){ toast(t('hotel_err_number'), 'error'); return; }
+      if(!shop.rooms) shop.rooms = [];
+      var hrId = el.getAttribute('data-id');
+      if(hrId){
+        var hrRoom = shop.rooms.find(function(r){ return r.id===hrId; });
+        if(hrRoom){ hrRoom.number = hrNumber; hrRoom.type = hrType; hrRoom.rate = isNaN(hrRate)?0:hrRate; }
+      } else {
+        shop.rooms.push({id:uid('room'), number:hrNumber, type:hrType, rate:isNaN(hrRate)?0:hrRate, status:'available'});
+      }
+      state.showHotelRoomModal = null;
+      fbSaveShop(shop);
+      toast(t('hotel_toast_saved'), 'success');
+      render();
+      break;
+
+    case 'delete-hotel-room':
+      var dRoomId = el.getAttribute('data-id');
+      if(!window.confirm(t('hotel_confirm_delete'))) return;
+      shop.rooms = (shop.rooms||[]).filter(function(r){ return r.id!==dRoomId; });
+      fbSaveShop(shop);
+      toast(t('hotel_toast_deleted'), 'success');
+      render();
+      break;
+
+    case 'set-hotel-room-status':
+      var srRoom = (shop.rooms||[]).find(function(r){ return r.id===el.getAttribute('data-id'); });
+      if(srRoom){ srRoom.status = el.getAttribute('data-status'); fbSaveShop(shop); }
+      render();
+      break;
+
+    case 'open-hotel-table':
+      state.showHotelTableModal = el.getAttribute('data-id') || 'new';
+      render();
+      break;
+
+    case 'close-hotel-table':
+      closeModalByName('hotel-table');
+      break;
+
+    case 'save-hotel-table':
+      var htNumber = document.getElementById('ht-number').value.trim();
+      var htSeats = parseInt(document.getElementById('ht-seats').value);
+      if(!htNumber){ toast(t('hotel_err_number'), 'error'); return; }
+      if(!shop.tables) shop.tables = [];
+      var htId = el.getAttribute('data-id');
+      if(htId){
+        var htTable = shop.tables.find(function(x){ return x.id===htId; });
+        if(htTable){ htTable.number = htNumber; htTable.seats = isNaN(htSeats)?0:htSeats; }
+      } else {
+        shop.tables.push({id:uid('tbl'), number:htNumber, seats:isNaN(htSeats)?0:htSeats, status:'free'});
+      }
+      state.showHotelTableModal = null;
+      fbSaveShop(shop);
+      toast(t('hotel_toast_saved'), 'success');
+      render();
+      break;
+
+    case 'delete-hotel-table':
+      var dTableId = el.getAttribute('data-id');
+      if(!window.confirm(t('hotel_confirm_delete'))) return;
+      shop.tables = (shop.tables||[]).filter(function(x){ return x.id!==dTableId; });
+      fbSaveShop(shop);
+      toast(t('hotel_toast_deleted'), 'success');
+      render();
+      break;
+
+    case 'set-hotel-table-status':
+      var stTable = (shop.tables||[]).find(function(x){ return x.id===el.getAttribute('data-id'); });
+      if(stTable){ stTable.status = el.getAttribute('data-status'); fbSaveShop(shop); }
+      render();
+      break;
+
+    case 'hotel-take-order':
+      state.hotelPosTarget = {kind: el.getAttribute('data-kind'), id: el.getAttribute('data-id')};
+      state.hotelPosCart = [];
+      state.shopView = 'hotelpos';
+      render();
+      break;
+
+    case 'hotel-pos-add':
+      var hpProdId = document.getElementById('hp-product').value;
+      var hpQty = parseInt(document.getElementById('hp-qty').value);
+      if(!hpProdId){ toast(t('bill_select_product_first'), 'error'); return; }
+      if(isNaN(hpQty) || hpQty<1){ toast(t('hotel_pos_err_qty'), 'error'); return; }
+      var hpProd = shop.products.find(function(p){ return p.id===hpProdId; });
+      if(!hpProd){ return; }
+      var hpExisting = state.hotelPosCart.find(function(c){ return c.productId===hpProdId; });
+      var hpTotalQty = (hpExisting ? hpExisting.qty : 0) + hpQty;
+      if(hpTotalQty > hpProd.stock){ toast(t('hotel_pos_err_stock'), 'error'); return; }
+      if(hpExisting){ hpExisting.qty = hpTotalQty; }
+      else { state.hotelPosCart.push({productId:hpProdId, qty:hpQty}); }
+      render();
+      break;
+
+    case 'hotel-pos-remove':
+      state.hotelPosCart.splice(parseInt(el.getAttribute('data-idx')), 1);
+      render();
+      break;
+
+    case 'hotel-pos-settle':
+      performHotelPosSettle(shop);
+      break;
+
+    case 'open-room-checkout':
+      state.showRoomCheckoutModal = el.getAttribute('data-id');
+      render();
+      break;
+
+    case 'close-room-checkout':
+      closeModalByName('room-checkout');
+      break;
+
+    case 'confirm-room-checkout':
+      var coRoom = (shop.rooms||[]).find(function(r){ return r.id===el.getAttribute('data-id'); });
+      if(!coRoom) return;
+      var coPayEl = document.getElementById('rc-payment');
+      var coPayment = coPayEl ? coPayEl.value : 'cash';
+      roomFolioSales(shop, coRoom.id).forEach(function(s){ s.payment = coPayment; });
+      coRoom.status = 'cleaning';
+      state.showRoomCheckoutModal = null;
+      fbSaveShop(shop);
+      toast(t('hotel_toast_checked_out'), 'success');
       render();
       break;
 
@@ -5123,6 +5615,12 @@ function bindEvents(){
     if(el.id==='qr-upload'){ handleQrFile(el); }
     if(el.id==='logo-upload'){ handleLogoFile(el); }
     if(el.id==='signature-upload'){ handleSignatureFile(el); }
+    if(el.id==='hp-target'){
+      var hpTv = el.value;
+      if(!hpTv){ state.hotelPosTarget = null; }
+      else { var hpParts = hpTv.split(':'); state.hotelPosTarget = {kind:hpParts[0], id:hpParts[1]}; }
+      render();
+    }
     if(el.id==='eb-customer' && state.editBillDraft){ state.editBillDraft.customerId = el.value; }
     if(el.id==='eb-payment' && state.editBillDraft){ state.editBillDraft.payment = el.value; }
     if(el.id==='pm-supplier-select'){
